@@ -41,8 +41,8 @@ async function getCommonSymbolss(): Promise<void> {
     const wallexTMNorUSDT = wallexMarkets
       .filter(
         (market: any) =>{
-          const cond = (market.symbol.endsWith("TMN") || market.symbol.endsWith("USDT"))// && market.is_spot === true
-          if (cond && market.is_spot === false) {
+          const cond = (market.symbol.endsWith("TMN") || market.symbol.endsWith("USDT")) && market.is_spot === true
+          if ((market.symbol.endsWith("TMN") || market.symbol.endsWith("USDT")) && market.is_spot === false) {
             console.warn(`نماد ${market.symbol} در والکس اسپات نیست و نادیده گرفته شد.`);
           }
           return cond;
