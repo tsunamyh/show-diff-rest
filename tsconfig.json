@@ -22,7 +22,7 @@
   },
   "exclude": [
     "dist",
-    "node_modules"/* ,
-    "app-commonsymbols.ts" */
+    "node_modules",
+    "app-commonsymbols.ts"
   ]
 }

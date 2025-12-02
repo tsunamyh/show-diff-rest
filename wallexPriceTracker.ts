@@ -19,15 +19,17 @@ interface WallexResponse {
 
 interface PriceData {
   wallex: {
-    [symbol: string]: {
-      usdtPrice: string;
-      tmnPrice: string;
+    tmn: {
+      [symbol: string]: string[];
+    };
+    usdt: {
+      [symbol: string]: string[];
     };
   };
 }
 
 const WALLEX_API_URL = 'https://api.wallex.ir/hector/web/v1/markets';
-const OUTPUT_FILE = path.join(__dirname, 'wallex_prices.json');
+const OUTPUT_FILE = path.join(__dirname, 'wallex_prices_tracker.json');
 const INTERVAL = 10000; // 10 seconds
 
 // Map of wallex symbols from common_symbols
@@ -47,7 +49,8 @@ async function fetchWallexPrices(): Promise<void> {
       return;
     }
 
-    const priceData: PriceData = { wallex: {} };
+    const priceData: PriceData = { wallex: { tmn: {}, usdt: {} } };
+    let usdtToTmnRate = 1; // نرخ تبدیل USDT به TMN
     
     // Process markets data - استفاده از symbol یا name
     response.data.result.markets.forEach((market: any) => {
@@ -59,13 +62,11 @@ async function fetchWallexPrices(): Promise<void> {
       const tmnMatch = symbol.match(/^(.+)TMN$/i);
       if (tmnMatch) {
         const baseSymbol = tmnMatch[1].toUpperCase();
-        if (!priceData.wallex[baseSymbol]) {
-          priceData.wallex[baseSymbol] = {
-            tmnPrice: market.price,
-            usdtPrice: ''
-          };
-        } else {
-          priceData.wallex[baseSymbol].tmnPrice = market.price;
+        priceData.wallex.tmn[baseSymbol] = [market.price];
+        
+        // ذخیره نرخ تبدیل USDT/TMN
+        if (baseSymbol === 'USDT') {
+          usdtToTmnRate = parseFloat(market.price);
         }
         return;
       }
@@ -74,21 +75,19 @@ async function fetchWallexPrices(): Promise<void> {
       const usdtMatch = symbol.match(/^(.+)USDT$/i);
       if (usdtMatch) {
         const baseSymbol = usdtMatch[1].toUpperCase();
-        if (!priceData.wallex[baseSymbol]) {
-          priceData.wallex[baseSymbol] = {
-            tmnPrice: '',
-            usdtPrice: market.price
-          };
-        } else {
-          priceData.wallex[baseSymbol].usdtPrice = market.price;
-        }
+        const usdtPrice = market.price;
+        
+        // تبدیل قیمت USDT به تومان
+        const tmnPrice = (parseFloat(usdtPrice) * usdtToTmnRate).toString();
+        
+        priceData.wallex.usdt[baseSymbol] = [usdtPrice, tmnPrice];
         return;
       }
     });
 
     // Save to file
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(priceData, null, 2), 'utf-8');
-    console.log(`[${new Date().toISOString()}] Prices updated successfully. Total symbols: ${Object.keys(priceData.wallex).length}`);
+    console.log(`[${new Date().toISOString()}] Prices updated successfully. Total symbols: ${Object.keys(priceData.wallex.tmn).length + Object.keys(priceData.wallex.usdt).length}`);
     
   } catch (error) {
     if (axios.isAxiosError(error)) {

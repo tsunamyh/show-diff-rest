@@ -8,6 +8,8 @@
     "tstart": "tsc && node ./dist/app-commonsymbols.js",
     "price-tracker": "tsc && node ./dist/priceTracker.js",
     "wallex-tracker": "tsc && node ./dist/wallexPriceTracker.js",
+    "binance-tracker": "tsc && node ./dist/binancePriceTracker.js",
+    "all-trackers": "tsc && (node ./dist/wallexPriceTracker.js & node ./dist/binancePriceTracker.js)",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
