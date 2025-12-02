@@ -29,7 +29,7 @@ interface PriceData {
 }
 
 const WALLEX_API_URL = 'https://api.wallex.ir/hector/web/v1/markets';
-const OUTPUT_FILE = path.join(__dirname, 'wallex_prices_tracker.json');
+const OUTPUT_FILE = path.join(process.cwd(), 'wallex_prices_tracker.json');
 const INTERVAL = 10000; // 10 seconds
 
 // Map of wallex symbols from common_symbols

@@ -7,9 +7,20 @@ interface BinancePrice {
   price: string;
 }
 
+interface BinanceBookTicker {
+  symbol: string;
+  bidPrice: string;
+  bidQty: string;
+  askPrice: string;
+  askQty: string;
+}
+
 interface PriceData {
   binance: {
-    [symbol: string]: string[];
+    [symbol: string]: {
+      ask: string[];
+      bid: string[];
+    };
   };
 }
 
@@ -24,9 +35,9 @@ interface WallexData {
   };
 }
 
-const BINANCE_API_URL = 'https://data-api.binance.vision/api/v3/ticker/price';
-const BINANCE_OUTPUT_FILE = path.join(__dirname, 'binance_prices.json');
-const WALLEX_OUTPUT_FILE = path.join(__dirname, 'wallex_prices_tracker.json');
+const BINANCE_API_URL = 'https://data-api.binance.vision/api/v3/ticker/bookTicker';
+const BINANCE_OUTPUT_FILE = path.join(process.cwd(), 'binance_prices.json');
+const WALLEX_OUTPUT_FILE = path.join(process.cwd(), 'wallex_prices_tracker.json');
 const INTERVAL = 10000; // 10 seconds
 
 function getUsdtToTmnRate(): number {
@@ -50,7 +61,7 @@ async function fetchBinancePrices(): Promise<void> {
   try {
     console.log(`[${new Date().toISOString()}] Fetching prices from Binance API...`);
     
-    const response = await axios.get<BinancePrice[]>(BINANCE_API_URL);
+    const response = await axios.get<BinanceBookTicker[]>(BINANCE_API_URL);
     
     if (!Array.isArray(response.data)) {
       console.error('Invalid response format from Binance API');
@@ -65,12 +76,22 @@ async function fetchBinancePrices(): Promise<void> {
       .filter((item) => item.symbol.endsWith('USDT'))
       .forEach((item) => {
         const baseSymbol = item.symbol.replace('USDT', '');
-        const usdtPrice = item.price;
+        const bidPrice = parseFloat(item.bidPrice);
+        const askPrice = parseFloat(item.askPrice);
+        
+        // رد کردن قیمت‌های صفر
+        if (bidPrice === 0 || askPrice === 0) {
+          return;
+        }
         
         // تبدیل قیمت USDT به تومان
-        const tmnPrice = (parseFloat(usdtPrice) * usdtToTmnRate).toString();
+        const bidTmnPrice = (bidPrice * usdtToTmnRate).toString();
+        const askTmnPrice = (askPrice * usdtToTmnRate).toString();
         
-        priceData.binance[baseSymbol] = [usdtPrice, tmnPrice];
+        priceData.binance[baseSymbol] = {
+          bid: [item.bidPrice, bidTmnPrice],
+          ask: [item.askPrice, askTmnPrice]
+        };
       });
 
     // Save Binance prices to file
