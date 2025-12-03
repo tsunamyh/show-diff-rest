@@ -2,12 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 interface WallexData {
-  wallex: {
-    tmn: {
-      [symbol: string]: string[];
-    };
-    usdt: {
-      [symbol: string]: string[];
+  [symbol: string]: {
+    [pair: string]: {
+      ask: string[];
+      bid: string[];
     };
   };
 }
@@ -62,55 +60,78 @@ function compareAndSort(): void {
     const wallexData: WallexData = JSON.parse(fs.readFileSync(WALLEX_FILE, 'utf-8'));
     const binanceData: BinanceData = JSON.parse(fs.readFileSync(BINANCE_FILE, 'utf-8'));
 
-    const wallexUsdt = wallexData.wallex?.usdt || {};
     const binanceSymbols = Object.keys(binanceData.binance || {});
-
     const comparison: ComparisonItem[] = [];
 
     // مقایسه قیمت‌های مشترک
     binanceSymbols.forEach((symbol) => {
-      const wallexPrice = wallexUsdt[symbol];
+      const wallexSymbol = wallexData[symbol];
       const binancePrice = binanceData.binance[symbol];
 
-      if (wallexPrice && binancePrice) {
-        // استخراج قیمت‌ها - استفاده از ask price
-        const wallexUsdtPrice = wallexPrice[0];
-        const wallexTmnPrice = wallexPrice[1];
-        const binanceUsdtPrice = binancePrice.ask[0];
-        const binanceTmnPrice = binancePrice.ask[1];
+      if (!wallexSymbol || !binancePrice) return;
 
-        // بررسی اینکه مقادیر معتبر هستند
-        if (!wallexTmnPrice || !binanceTmnPrice || wallexTmnPrice === 'null' || binanceTmnPrice === 'null') {
-          return;
+      // بدست آوردن قیمت Binance (ask TMN)
+      const binanceAskUsdtPrice = binancePrice.ask[0];
+      const binanceAskTmnPrice = binancePrice.ask[1];
+
+      // مقایسه با USDT جفت Wallex
+      const wallexUsdtPair = wallexSymbol[`${symbol.toLowerCase()}usdt`];
+      if (wallexUsdtPair && wallexUsdtPair.ask && wallexUsdtPair.ask[1]) {
+        const wallexUsdtPrice = wallexUsdtPair.ask[0];
+        const wallexUsdtTmnPrice = wallexUsdtPair.ask[1];
+
+        const wallexUsdtTmnNum = parseFloat(wallexUsdtTmnPrice);
+        const binanceAskTmnNum = parseFloat(binanceAskTmnPrice);
+
+        if (!isNaN(wallexUsdtTmnNum) && !isNaN(binanceAskTmnNum)) {
+          const differenceTmn = binanceAskTmnNum - wallexUsdtTmnNum;
+          const differencePercent = wallexUsdtTmnNum > 0 
+            ? (differenceTmn / wallexUsdtTmnNum) * 100 
+            : 0;
+
+          const expensiveMarket = differenceTmn > 0 ? 'Binance' : 'Wallex';
+
+          comparison.push({
+            symbol: `${symbol}USDT`,
+            pair: `${symbol}USDT (Binance Ask) vs ${symbol}USDT (Wallex Ask)`,
+            wallex_usdt: wallexUsdtPrice,
+            wallex_tmn: wallexUsdtTmnPrice,
+            binance_usdt: binanceAskUsdtPrice,
+            binance_tmn: binanceAskTmnPrice,
+            difference_tmn: parseFloat(Math.abs(differenceTmn).toFixed(2)),
+            difference_percent: parseFloat(differencePercent.toFixed(4)),
+            expensive_market: expensiveMarket
+          });
         }
+      }
 
+      // مقایسه با TMN جفت Wallex
+      const wallexTmnPair = wallexSymbol[`${symbol.toLowerCase()}tmn`];
+      if (wallexTmnPair && wallexTmnPair.ask && wallexTmnPair.ask[0]) {
+        const wallexTmnPrice = wallexTmnPair.ask[0];
+        const binanceAskTmnNum = parseFloat(binanceAskTmnPrice);
         const wallexTmnNum = parseFloat(wallexTmnPrice);
-        const binanceTmnNum = parseFloat(binanceTmnPrice);
 
-        // بررسی NaN
-        if (isNaN(wallexTmnNum) || isNaN(binanceTmnNum)) {
-          return;
+        if (!isNaN(wallexTmnNum) && !isNaN(binanceAskTmnNum)) {
+          const differenceTmn = binanceAskTmnNum - wallexTmnNum;
+          const differencePercent = wallexTmnNum > 0 
+            ? (differenceTmn / wallexTmnNum) * 100 
+            : 0;
+
+          const expensiveMarket = differenceTmn > 0 ? 'Binance' : 'Wallex';
+
+          comparison.push({
+            symbol: `${symbol}TMN`,
+            pair: `${symbol} (Binance Ask) vs ${symbol}TMN (Wallex Ask)`,
+            wallex_usdt: '-',
+            wallex_tmn: wallexTmnPrice,
+            binance_usdt: binanceAskUsdtPrice,
+            binance_tmn: binanceAskTmnPrice,
+            difference_tmn: parseFloat(Math.abs(differenceTmn).toFixed(2)),
+            difference_percent: parseFloat(differencePercent.toFixed(4)),
+            expensive_market: expensiveMarket
+          });
         }
-
-        // محاسبه اختلاف
-        const differenceTmn = binanceTmnNum - wallexTmnNum;
-        const differencePercent = wallexTmnNum > 0 
-          ? (differenceTmn / wallexTmnNum) * 100 
-          : 0;
-
-        const expensiveMarket = differenceTmn > 0 ? 'Binance' : 'Wallex';
-
-        comparison.push({
-          symbol,
-          pair: `${symbol}USDT (Binance) vs ${symbol}USDT (Wallex converted to TMN)`,
-          wallex_usdt: wallexUsdtPrice,
-          wallex_tmn: wallexTmnPrice,
-          binance_usdt: binanceUsdtPrice,
-          binance_tmn: binanceTmnPrice,
-          difference_tmn: parseFloat(Math.abs(differenceTmn).toFixed(2)),
-          difference_percent: parseFloat(differencePercent.toFixed(4)),
-          expensive_market: expensiveMarket
-        });
       }
     });
 
