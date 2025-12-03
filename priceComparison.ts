@@ -74,6 +74,10 @@ function compareAndSort(): void {
       const binanceAskUsdtPrice = binancePrice.ask[0];
       const binanceAskTmnPrice = binancePrice.ask[1];
 
+      // چک کردن این که Binance قیمت معتبری دارد
+      const binanceAskTmnNum = parseFloat(binanceAskTmnPrice);
+      if (isNaN(binanceAskTmnNum) || binanceAskTmnNum <= 10) return;
+
       // مقایسه با USDT جفت Wallex
       const wallexUsdtPair = wallexSymbol[`${symbol.toLowerCase()}usdt`];
       if (wallexUsdtPair && wallexUsdtPair.ask && wallexUsdtPair.ask[1]) {
@@ -81,9 +85,9 @@ function compareAndSort(): void {
         const wallexUsdtTmnPrice = wallexUsdtPair.ask[1];
 
         const wallexUsdtTmnNum = parseFloat(wallexUsdtTmnPrice);
-        const binanceAskTmnNum = parseFloat(binanceAskTmnPrice);
 
-        if (!isNaN(wallexUsdtTmnNum) && !isNaN(binanceAskTmnNum)) {
+        // چک کردن این که Wallex قیمت معتبری دارد
+        if (!isNaN(wallexUsdtTmnNum) && wallexUsdtTmnNum > 0) {
           const differenceTmn = binanceAskTmnNum - wallexUsdtTmnNum;
           const differencePercent = wallexUsdtTmnNum > 0 
             ? (differenceTmn / wallexUsdtTmnNum) * 100 
@@ -109,10 +113,11 @@ function compareAndSort(): void {
       const wallexTmnPair = wallexSymbol[`${symbol.toLowerCase()}tmn`];
       if (wallexTmnPair && wallexTmnPair.ask && wallexTmnPair.ask[0]) {
         const wallexTmnPrice = wallexTmnPair.ask[0];
-        const binanceAskTmnNum = parseFloat(binanceAskTmnPrice);
         const wallexTmnNum = parseFloat(wallexTmnPrice);
 
-        if (!isNaN(wallexTmnNum) && !isNaN(binanceAskTmnNum)) {
+        // چک کردن این که Wallex قیمت معتبری دارد
+        // فیلتر: فقط وقتی هر دو طرف قیمت قابل‌قبولی دارند
+        if (!isNaN(wallexTmnNum) && wallexTmnNum > 0 && binanceAskTmnNum > 1) {
           const differenceTmn = binanceAskTmnNum - wallexTmnNum;
           const differencePercent = wallexTmnNum > 0 
             ? (differenceTmn / wallexTmnNum) * 100 
@@ -155,13 +160,13 @@ function compareAndSort(): void {
       console.log(`\nTop 5 highest differences:`);
       comparison.slice(0, 5).forEach((item, index) => {
         const marketName = item.expensive_market === 'Binance' ? 'binance' : 'wallex';
-        console.log(`  ${index + 1}. ${marketName}(${item.symbol}usdt) is expensive vs wallex(${item.symbol}usdt): ${item.difference_tmn.toFixed(2)} TMN (${item.difference_percent.toFixed(2)}%)`);
+        console.log(`  ${index + 1}. ${marketName}(${item.symbol}) is expensive: ${item.difference_tmn.toFixed(2)} TMN (${item.difference_percent.toFixed(2)}%)`);
       });
       
       console.log(`\nTop 5 lowest differences:`);
       comparison.slice(-5).reverse().forEach((item, index) => {
         const marketName = item.expensive_market === 'Binance' ? 'binance' : 'wallex';
-        console.log(`  ${index + 1}. ${marketName}(${item.symbol}usdt) vs wallex(${item.symbol}usdt): ${item.difference_tmn.toFixed(2)} TMN (${item.difference_percent.toFixed(2)}%)`);
+        console.log(`  ${index + 1}. ${marketName}(${item.symbol}): ${item.difference_tmn.toFixed(2)} TMN (${item.difference_percent.toFixed(2)}%)`);
       });
     }
 
