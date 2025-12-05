@@ -21,17 +21,7 @@ interface WallexDepthResponse {
   };
 }
 
-interface PriceData {
-  [symbol: string]: {
-    [pair: string]: {
-      ask: string[];
-      bid: string[];
-    };
-  };
-}
-
 const WALLEX_API_URL = 'https://api.wallex.ir/v2/depth/all';
-const OUTPUT_FILE = path.join(process.cwd(), 'wallex_prices_tracker.json');
 const INTERVAL = 10000; // 10 seconds
 
 async function fetchWallexPrices(): Promise<void> {
@@ -45,11 +35,8 @@ async function fetchWallexPrices(): Promise<void> {
       return;
     }
 
-    const priceData: PriceData = {};
-    let usdtToTmnRate = 1; // نرخ تبدیل USDT به TMN
-    
-    // استخراج نرخ USDT/TMN
     const depthData = response.data.result;
+    let usdtToTmnRate = 1;
     
     // جستجو برای کلید USDTTMN (بدون حساسیت به بزرگ/کوچکی)
     const usdtTmnKey = Object.keys(depthData).find(key => key.toLowerCase() === 'usdttmn');
@@ -61,19 +48,21 @@ async function fetchWallexPrices(): Promise<void> {
       }
     }
 
+    const wallexOrderbooks = {
+      tmnPairs: {},
+      usdtPairs: {}
+    };
+
     // پردازش تمام جفت‌های ارزی
     Object.entries(depthData).forEach(([pair, depth]) => {
       const lowerPair = pair.toLowerCase();
       
       // استخراج symbol پایه (مثلا btc از btcusdt)
-      let baseSymbol = '';
       let pairType = '';
       
       if (lowerPair.endsWith('usdt')) {
-        baseSymbol = lowerPair.replace('usdt', '').toUpperCase();
         pairType = 'USDT';
       } else if (lowerPair.endsWith('tmn')) {
-        baseSymbol = lowerPair.replace('tmn', '').toUpperCase();
         pairType = 'TMN';
       } else {
         return; // رد کردن جفت‌های غیرمعتبر
@@ -84,33 +73,27 @@ async function fetchWallexPrices(): Promise<void> {
       const bestAsk = depth.ask && depth.ask.length > 0 ? depth.ask[0] : null;
 
       if (!bestBid || !bestAsk) return;
-
-      // ایجاد ورودی برای symbol اگر وجود ندارد
-      if (!priceData[baseSymbol]) {
-        priceData[baseSymbol] = {};
-      }
-
-      // فرمت‌بندی داده‌های USDT با تبدیل به TMN
       if (pairType === 'USDT') {
         const bidPriceTmn = (parseFloat(bestBid.price) * usdtToTmnRate).toString();
         const askPriceTmn = (parseFloat(bestAsk.price) * usdtToTmnRate).toString();
-
-        priceData[baseSymbol][lowerPair] = {
-          bid: [bestBid.price, bidPriceTmn],
-          ask: [bestAsk.price, askPriceTmn]
+        wallexOrderbooks.usdtPairs[lowerPair] = {
+          bid: [bestBid.price, bidPriceTmn, bestBid.quantity.toString()],
+          ask: [bestAsk.price, askPriceTmn, bestAsk.quantity.toString()]
         };
       } else if (pairType === 'TMN') {
-        // فرمت‌بندی داده‌های TMN
-        priceData[baseSymbol][lowerPair] = {
-          bid: [bestBid.price],
-          ask: [bestAsk.price]
+        wallexOrderbooks.tmnPairs[lowerPair] = {
+          bid: [bestBid.price, bestBid.quantity.toString()],
+          ask: [bestAsk.price, bestAsk.quantity.toString()]
         };
       }
     });
 
-    // Save to file
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(priceData, null, 2), 'utf-8');
-    console.log(`[${new Date().toISOString()}] Prices updated successfully. Total symbols: ${Object.keys(priceData).length}`);
+    // خروجی TypeScript بسازیم
+    const tsOutput = `interface WallexOrderbooks {\n  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n}\n\nconst wallexOrderbooks: WallexOrderbooks = ${JSON.stringify(wallexOrderbooks, null, 2)};\n\nexport default wallexOrderbooks;\n`;
+    fs.writeFileSync(path.join(process.cwd(), 'wallex_prices_tracker.ts'), tsOutput ,'utf-8');
+    console.log(`[${new Date().toISOString()}] wallex_prices_tracker.ts updated.`);
+
+    console.log(`[${new Date().toISOString()}] Prices processed successfully`);
     
   } catch (error) {
     if (axios.isAxiosError(error)) {

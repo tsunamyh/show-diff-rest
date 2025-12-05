@@ -69,7 +69,7 @@ async function fetchBinancePrices(): Promise<void> {
     }
 
     const usdtToTmnRate = getUsdtToTmnRate();
-    const priceData: PriceData = { binance: {} };
+    const binanceOrderbooks = { usdt: {} };
     
     // فیلتر: فقط نمادهایی که با USDT تمام می‌شوند
     response.data
@@ -78,25 +78,18 @@ async function fetchBinancePrices(): Promise<void> {
         const baseSymbol = item.symbol.replace('USDT', '');
         const bidPrice = parseFloat(item.bidPrice);
         const askPrice = parseFloat(item.askPrice);
-        
-        // رد کردن قیمت‌های صفر
-        if (bidPrice === 0 || askPrice === 0) {
-          return;
-        }
-        
-        // تبدیل قیمت USDT به تومان
+        if (bidPrice === 0 || askPrice === 0) return;
         const bidTmnPrice = (bidPrice * usdtToTmnRate).toString();
         const askTmnPrice = (askPrice * usdtToTmnRate).toString();
-        
-        priceData.binance[baseSymbol] = {
+        binanceOrderbooks.usdt[item.symbol] = {
           bid: [item.bidPrice, bidTmnPrice],
           ask: [item.askPrice, askTmnPrice]
         };
       });
-
-    // Save Binance prices to file
-    fs.writeFileSync(BINANCE_OUTPUT_FILE, JSON.stringify(priceData, null, 2), 'utf-8');
-    console.log(`[${new Date().toISOString()}] Binance prices updated successfully. Total symbols: ${Object.keys(priceData.binance).length}`);
+    // خروجی TypeScript بسازیم
+    const tsOutput = `interface BinanceOrderbooks {\n  usdt: { [symbol: string]: { bid: string[]; ask: string[] } };\n}\n\nconst binanceOrderbooks: BinanceOrderbooks = ${JSON.stringify(binanceOrderbooks, null, 2)};\n\nexport default binanceOrderbooks;\n`;
+    require('fs').writeFileSync(require('path').join(process.cwd(), 'binance_prices.ts'), tsOutput, 'utf-8');
+    console.log(`[${new Date().toISOString()}] binance_prices.ts updated.`);
     
   } catch (error) {
     if (axios.isAxiosError(error)) {
