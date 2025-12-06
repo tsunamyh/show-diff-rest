@@ -1,6 +1,6 @@
-import binance_wallex_common_symbols from "./common_symbols";
-import wallexOrderbooks , {WallexOrderbooks} from "./wallex_prices_tracker"; 
-import binanceOrderbooks , {BinanceOrderbooks} from "./binance_prices";
+import binance_wallex_common_symbols from "../commonSymbols/common_symbols";
+import wallexOrderbooks , {WallexOrderbooks} from "../wallex_prices_tracker"; 
+import binanceOrderbooks , {BinanceOrderbooks} from "../binance_prices";
 
 const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol;
 
@@ -85,7 +85,7 @@ function createRowTable(
         wallex: [wallexAskOrder[0], wallexAskOrder[1]],
         binance: binanceAskOrder[1],
         value: amount_tmn,
-        description: `Buy ${symbol} from Wallex at ${wallexAskOrder[0]} USDT and sell on Binance at ${binanceAskOrder[0]} USDT`
+        description: `Buy ${symbol} from Wallex at ${wallexAskOrder[0]} USDT and sell on Binance at ${binanceAskOrder[1]} USDT`
     }
     console.log("rowData ", rowData);
     

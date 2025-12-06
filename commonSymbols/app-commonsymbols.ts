@@ -139,7 +139,7 @@ async function getCommonSymbolss(): Promise<void> {
 
     // ذخیره در JSON
     fs.writeFileSync(
-      "common_symbols.ts",
+      "./commonSymbols/common_symbols.ts",
       result,
       "utf-8"
     );

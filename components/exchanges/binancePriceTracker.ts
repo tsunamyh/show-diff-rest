@@ -87,7 +87,7 @@ async function fetchBinancePrices(): Promise<void> {
         };
       });
     // خروجی TypeScript بسازیم
-    const tsOutput = `interface BinanceOrderbooks {\n  usdt: { [symbol: string]: { bid: string[]; ask: string[] } };\n}\n\nconst binanceOrderbooks: BinanceOrderbooks = ${JSON.stringify(binanceOrderbooks, null, 2)};\n\nexport default binanceOrderbooks;\n`;
+    const tsOutput = `export interface BinanceOrderbooks {\n  usdt: { [symbol: string]: { bid: string[]; ask: string[] } };\n}\n\nconst binanceOrderbooks: BinanceOrderbooks = ${JSON.stringify(binanceOrderbooks, null, 2)};\n\nexport default binanceOrderbooks;\n`;
     require('fs').writeFileSync(require('path').join(process.cwd(), 'binance_prices.ts'), tsOutput, 'utf-8');
     console.log(`[${new Date().toISOString()}] binance_prices.ts updated.`);
     
