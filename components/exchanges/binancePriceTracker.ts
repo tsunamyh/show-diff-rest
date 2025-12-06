@@ -15,13 +15,8 @@ interface BinanceBookTicker {
   askQty: string;
 }
 
-interface PriceData {
-  binance: {
-    [symbol: string]: {
-      ask: string[];
-      bid: string[];
-    };
-  };
+interface BinanceOrderbooks {
+  usdt: { [symbol: string]: { bid: string[]; ask: string[] } };
 }
 
 interface WallexData {
@@ -54,10 +49,10 @@ function getUsdtToTmnRate(): number {
     console.error('Error reading Wallex data:', error);
   }
   
-  return 119000; // Default rate if file doesn't exist
+  return 123000; // Default rate if file doesn't exist
 }
 
-async function fetchBinancePrices(): Promise<void> {
+async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
   try {
     console.log(`[${new Date().toISOString()}] Fetching prices from Binance API...`);
     
@@ -91,6 +86,8 @@ async function fetchBinancePrices(): Promise<void> {
     require('fs').writeFileSync(require('path').join(process.cwd(), 'binance_prices.ts'), tsOutput, 'utf-8');
     console.log(`[${new Date().toISOString()}] binance_prices.ts updated.`);
     
+    return binanceOrderbooks
+    
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(`[${new Date().toISOString()}] API Error:`, error.message);
@@ -104,9 +101,10 @@ async function fetchBinancePrices(): Promise<void> {
 }
 
 // Initial fetch
-fetchBinancePrices();
+export {
+fetchBinancePrices
+};
 
 // Set up interval for fetching every 10 seconds
-setInterval(fetchBinancePrices, INTERVAL);
+// setInterval(fetchBinancePrices, INTERVAL);
 
-console.log(`Binance price tracker started. Fetching prices every ${INTERVAL / 1000} seconds...`);

@@ -21,10 +21,15 @@ interface WallexDepthResponse {
   };
 }
 
+interface WallexOrderbooks {
+  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };
+  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
+}
+
 const WALLEX_API_URL = 'https://api.wallex.ir/v2/depth/all';
 const INTERVAL = 10000; // 10 seconds
 
-async function fetchWallexPrices(): Promise<void> {
+async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
   try {
     console.log(`[${new Date().toISOString()}] Fetching prices from Wallex API...`);
     
@@ -48,7 +53,7 @@ async function fetchWallexPrices(): Promise<void> {
       }
     }
 
-    const wallexOrderbooks = {
+    const wallexOrderbooks : WallexOrderbooks = {
       tmnPairs: {},
       usdtPairs: {}
     };
@@ -93,8 +98,8 @@ async function fetchWallexPrices(): Promise<void> {
     fs.writeFileSync(path.join(process.cwd(), 'wallex_prices.ts'), tsOutput ,'utf-8');
     console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
 
-    console.log(`[${new Date().toISOString()}] Prices processed successfully`);
-    
+    return wallexOrderbooks;
+        
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(`[${new Date().toISOString()}] API Error:`, error.message);
@@ -108,9 +113,10 @@ async function fetchWallexPrices(): Promise<void> {
 }
 
 // Initial fetch
-fetchWallexPrices();
+export {
+  fetchWallexPrices
+}; 
 
 // Set up interval for fetching every 10 seconds
-setInterval(fetchWallexPrices, INTERVAL);
+// setInterval(fetchWallexPrices, INTERVAL);
 
-console.log(`Wallex price tracker started. Fetching prices every ${INTERVAL / 1000} seconds...`);

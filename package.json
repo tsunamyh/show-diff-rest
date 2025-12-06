@@ -10,7 +10,7 @@
     "wallex-tracker": "tsc && node ./dist/components/exchanges/wallexPriceTracker.js",
     "binance-tracker": "tsc && node ./dist/components/exchanges/binancePriceTracker.js",
     "comparison": "tsc && node ./dist/priceComparison.js",
-    "price-comparison": "tsc && node ./dist/price_comparison.js",
+    "price-comparison": "tsc && node ./dist/components/price_comparison.js",
     "all-trackers": "tsc && (node ./dist/wallexPriceTracker.js & node ./dist/binancePriceTracker.js & node ./dist/priceComparison.js)",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

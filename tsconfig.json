@@ -9,6 +9,7 @@
     "target": "ES6",
     "sourceMap": false,
     "outDir": "./dist",
+    "rootDir": "./",
     "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -20,9 +21,11 @@
     "allowJs": true,
     "checkJs": true
   },
+  "include": [
+    "**/*.ts"
+  ],
   "exclude": [
     "dist",
-    "node_modules",
-    "commonSymbols/app-commonsymbols.ts"
+    "node_modules"
   ]
 }
