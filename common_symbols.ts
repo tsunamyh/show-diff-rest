@@ -8,8 +8,8 @@ interface Coin {
 } 
 
 const  binance_wallex_common_symbols: Coin = {
-  "count": 150,
-  "timestamp": "2025-12-01T17:18:56.418Z",
+  "count": 145,
+  "timestamp": "2025-12-06T08:12:25.328Z",
   "symbols": {
     "binance_symbol": [
       "BTCUSDT",
@@ -27,7 +27,6 @@ const  binance_wallex_common_symbols: Coin = {
       "ZILUSDT",
       "ZRXUSDT",
       "FETUSDT",
-      "XMRUSDT",
       "ZECUSDT",
       "CELRUSDT",
       "DASHUSDT",
@@ -46,11 +45,8 @@ const  binance_wallex_common_symbols: Coin = {
       "MDTUSDT",
       "LRCUSDT",
       "SNXUSDT",
-      "MKRUSDT",
-      "DAIUSDT",
       "MANAUSDT",
       "YFIUSDT",
-      "BALUSDT",
       "JSTUSDT",
       "CRVUSDT",
       "SANDUSDT",
@@ -78,7 +74,6 @@ const  binance_wallex_common_symbols: Coin = {
       "SLPUSDT",
       "SHIBUSDT",
       "ICPUSDT",
-      "POLSUSDT",
       "MASKUSDT",
       "LPTUSDT",
       "DEXEUSDT",
@@ -225,10 +220,6 @@ const  binance_wallex_common_symbols: Coin = {
         "FETUSDT"
       ],
       [
-        "XMRTMN",
-        "XMRUSDT"
-      ],
-      [
         "ZECTMN",
         "ZECUSDT"
       ],
@@ -301,24 +292,12 @@ const  binance_wallex_common_symbols: Coin = {
         "SNXUSDT"
       ],
       [
-        "MKRTMN",
-        "MKRUSDT"
-      ],
-      [
-        "DAITMN",
-        "DAIUSDT"
-      ],
-      [
         "MANATMN",
         "MANAUSDT"
       ],
       [
         "YFITMN",
         "YFIUSDT"
-      ],
-      [
-        "BALTMN",
-        "BALUSDT"
       ],
       [
         "JSTTMN",
@@ -427,10 +406,6 @@ const  binance_wallex_common_symbols: Coin = {
       [
         "ICPTMN",
         "ICPUSDT"
-      ],
-      [
-        "POLSTMN",
-        "POLSUSDT"
       ],
       [
         "MASKTMN",

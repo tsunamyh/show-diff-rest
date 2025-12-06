@@ -3,7 +3,10 @@ import fs from "fs";
 
 interface BinanceSymbol {
   symbol: string;
-  price: string;
+  bidPrice: string;
+  bidQty: string;
+  askPrice: string;
+  askQty: string;
 }
 
 interface WallexMarket {
@@ -19,13 +22,16 @@ interface WallexResponse {
 async function getCommonSymbolss(): Promise<void> {
   try {
     console.log("در حال دریافت داده‌ها از Binance...");
-    const binanceResponse = await axios.get(
-      "https://data-api.binance.vision/api/v3/ticker/price"
+    const binanceResponse : { data: BinanceSymbol[] } = await axios.get(
+      // "https://data-api.binance.vision/api/v3/ticker/price"
+      "https://data-api.binance.vision/api/v3/ticker/bookTicker"
     );
 
     // فیلتر: فقط USDT
     const binanceUSDT = binanceResponse.data
-      .filter((item: any) => item.symbol.endsWith("USDT"))
+      .filter((item) => item.symbol.endsWith("USDT") && 
+        +item.bidPrice !== 0 && +item.askPrice !== 0
+      )
       .map((item: any) => item.symbol);
 
     console.log(`✓ ${binanceUSDT.length} سمبل USDT از Binance دریافت شد`);

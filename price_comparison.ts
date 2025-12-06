@@ -2,7 +2,7 @@ import binance_wallex_common_symbols from "./common_symbols";
 import wallexOrderbooks , {WallexOrderbooks} from "./wallex_prices_tracker"; 
 import binanceOrderbooks , {BinanceOrderbooks} from "./binance_prices";
 
-const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
+const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol;
 
 interface RowData {
   symbol: string;
@@ -18,14 +18,17 @@ interface RowInfo {
   rowData: RowData;
 }
 const myPercent = process.env.MYPERCENT || 1
-async function priceComp(): Promise<void> {
+function priceComp() {
     const rowsInfo = [];
     for (const symbol of commonSymbols) {
-        const rowInfo = getRowTable(binanceOrderbooks.usdt[symbol], wallexOrderbooks.usdtPairs[symbol], symbol);
+        const wallexsymbol = symbol.replace("USDT", "TMN").toLowerCase();
+        
+        const rowInfo = getRowTable(binanceOrderbooks.usdt[symbol], wallexOrderbooks.tmnPairs[wallexsymbol], symbol);
     }
 }
 
-function getRowTable(binanceOrderbook: BinanceOrderbooks["usdt"][string], wallexOrderbook: WallexOrderbooks["usdtPairs"][string],symbol){
+function getRowTable(binanceOrderbook: BinanceOrderbooks["usdt"][string], wallexOrderbook: WallexOrderbooks["tmnPairs"][string],symbol){
+    console.log("getrowtablefunc",symbol);
    
     if(!exsistAskBid(binanceOrderbook,wallexOrderbook)) return;
 
@@ -61,8 +64,8 @@ function calcPercentAndAmounts(binanceAskOrder: BinanceOrderbooks["usdt"][string
   return [percent, amount, amountRls]
 }
 
-function calculatePercentageDifference(buyPrice: number, sellPrice: number): number {
-  const priceDifference = sellPrice - buyPrice;
+function calculatePercentageDifference(binancePrice: number, buyPrice: number): number {
+  const priceDifference = binancePrice - buyPrice ;
   const percentageDifference = (priceDifference / buyPrice) * 100;
 
   return Number(percentageDifference.toFixed(2));
@@ -80,16 +83,20 @@ function createRowTable(
         symbol: symbol,
         percent: difference_percent,
         wallex: [wallexAskOrder[0], wallexAskOrder[1]],
-        binance: binanceAskOrder[0],
+        binance: binanceAskOrder[1],
         value: amount_tmn,
         description: `Buy ${symbol} from Wallex at ${wallexAskOrder[0]} USDT and sell on Binance at ${binanceAskOrder[0]} USDT`
     }
+    console.log("rowData ", rowData);
+    
     const statusbuy =  "wallex Buy"
     return {
       statusbuy,
       rowData,
     };
 }
+
+priceComp()
 // const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
 
 // const results: { symbol: string, binanceBid: number, wallexAsk: number, diff: number }[] = [];
