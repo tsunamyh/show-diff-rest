@@ -28,6 +28,7 @@ interface WallexOrderbooks {
 
 const WALLEX_API_URL = 'https://api.wallex.ir/v2/depth/all';
 const INTERVAL = 10000; // 10 seconds
+let globalUsdtToTmnRate = 1;
 
 async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
   try {
@@ -49,6 +50,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
       const usdtTmn = depthData[usdtTmnKey];
       if (usdtTmn.bid && usdtTmn.bid.length > 0) {
         usdtToTmnRate = parseFloat(usdtTmn.bid[0].price);
+        globalUsdtToTmnRate = usdtToTmnRate;
         console.log(`[${new Date().toISOString()}] USDT/TMN Rate: ${usdtToTmnRate}`);
       }
     }
@@ -99,7 +101,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
     console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
 
     return wallexOrderbooks;
-        
+
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(`[${new Date().toISOString()}] API Error:`, error.message);
@@ -112,9 +114,14 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
   }
 }
 
+function getUsdtToTmnRate(): number {
+  return globalUsdtToTmnRate;
+}
+
 // Initial fetch
 export {
-  fetchWallexPrices
+  fetchWallexPrices,
+  getUsdtToTmnRate
 }; 
 
 // Set up interval for fetching every 10 seconds

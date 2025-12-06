@@ -1,4 +1,4 @@
-import { getAllOrderBooks } from "./exchanges-controller";
+import { fetchWallexOnce, getAllOrderBooks } from "./exchanges-controller";
 import type { WallexOrderbooks } from "../wallex_prices_tracker";
 import type { BinanceOrderbooks } from "../binance_prices";
 
@@ -110,8 +110,9 @@ function createRowTable(
 }
 
 // اجرای اولیه
-priceComp();
-
+fetchWallexOnce().finally(() => {
+  priceComp();
+});
 // اپدیت هر 10 ثانیه
 setInterval(priceComp, 10000);
 

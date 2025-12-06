@@ -1,6 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import { getUsdtToTmnRate } from './wallexPriceTracker';
 
 interface BinancePrice {
   symbol: string;
@@ -31,26 +32,6 @@ interface WallexData {
 }
 
 const BINANCE_API_URL = 'https://data-api.binance.vision/api/v3/ticker/bookTicker';
-const BINANCE_OUTPUT_FILE = path.join(process.cwd(), 'binance_prices.json');
-const WALLEX_OUTPUT_FILE = path.join(process.cwd(), 'wallex_prices_tracker.json');
-const INTERVAL = 10000; // 10 seconds
-
-function getUsdtToTmnRate(): number {
-  try {
-    if (fs.existsSync(WALLEX_OUTPUT_FILE)) {
-      const wallexData: WallexData = JSON.parse(fs.readFileSync(WALLEX_OUTPUT_FILE, 'utf-8'));
-      const usdtTmnPrice = wallexData.wallex?.tmn?.USDT?.[0];
-      
-      if (usdtTmnPrice) {
-        return parseFloat(usdtTmnPrice);
-      }
-    }
-  } catch (error) {
-    console.error('Error reading Wallex data:', error);
-  }
-  
-  return 123000; // Default rate if file doesn't exist
-}
 
 async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
   try {
