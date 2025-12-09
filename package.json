@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./dist/app.js",
+    "start": "tsc && node ./dist/server.js",
+    "start-tracker": "tsc && node ./dist/server.js & tsc && node ./dist/components/price_comparison.js",
     "tstart": "tsc && node ./dist/app-commonsymbols.js",
     "price-tracker": "tsc && node ./dist/priceTracker.js",
     "wallex-tracker": "tsc && node ./dist/components/exchanges/wallexPriceTracker.js",
@@ -24,6 +25,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1"
   }
 }

@@ -155,8 +155,8 @@ function createRowTable(
 }
 
 // اجرای اولیه
-fetchWallexOnce().finally(() => {
-  priceComp();
+fetchWallexOnce().finally(async () => {
+  await priceComp();
 });
 // اپدیت هر 10 ثانیه
 setInterval(priceComp, 10000);
