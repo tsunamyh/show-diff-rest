@@ -1,5 +1,5 @@
 import { fetchWallexOnce, getAllOrderBooks } from "./exchanges-controller";
-import type { WallexOrderbooks } from "../wallex_prices_tracker";
+import type { WallexOrderbooks } from "../wallex_prices";
 import type { BinanceOrderbooks } from "../binance_prices";
 import fs from "fs";
 
@@ -22,6 +22,13 @@ interface RowInfo {
 }
 
 const myPercent = process.env.MYPERCENT || 1;
+
+// Global variable to store the latest rows info
+let latestRowsInfo: RowInfo[] = [];
+
+export function getLatestRowsInfo() {
+  return latestRowsInfo;
+}
 
 async function priceComp() {
     const orderBooks = await getAllOrderBooks();
@@ -54,6 +61,7 @@ async function priceComp() {
 
     }
 
+    latestRowsInfo = rowsInfo;
     fs.writeFileSync("rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
 }
 
@@ -159,7 +167,13 @@ fetchWallexOnce().finally(async () => {
   await priceComp();
 });
 // اپدیت هر 10 ثانیه
-setInterval(priceComp, 10000);
+setInterval(async () => {
+  try {
+    await priceComp();
+  } catch (error) {
+    console.error('Error in priceComp:', error);
+  }
+}, 10000);
 
 console.log("Price comparison started. Updating every 10 seconds...");
 // const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());

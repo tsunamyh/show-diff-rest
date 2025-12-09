@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import { getAllOrderBooks } from './components/exchanges-controller';
 import { getUsdtToTmnRate } from './components/exchanges/wallexPriceTracker';
+import { getLatestRowsInfo } from './components/price_comparison'; // شروع price comparison
+import './components/price_comparison';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +28,19 @@ app.get('/api/prices', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch prices' });
+  }
+});
+
+// API endpoint برای دریافت اطلاعات مقایسه قیمت‌ها
+app.get('/api/comparison', (req, res) => {
+  try {
+    const rowsInfo = getLatestRowsInfo();
+    res.json({
+      data: rowsInfo,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch comparison data' });
   }
 });
 

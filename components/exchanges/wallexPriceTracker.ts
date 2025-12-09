@@ -96,9 +96,9 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
     });
 
     // خروجی TypeScript بسازیم
-    // const tsOutput = `export interface WallexOrderbooks {\n  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n}\n\nconst wallexOrderbooks: WallexOrderbooks = ${JSON.stringify(wallexOrderbooks, null, 2)};\n\nexport default wallexOrderbooks;\n`;
-    // fs.writeFileSync(path.join(process.cwd(), 'wallex_prices.ts'), tsOutput ,'utf-8');
-    // console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
+    const tsOutput = `export interface WallexOrderbooks {\n  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n}\n\nconst wallexOrderbooks: WallexOrderbooks = ${JSON.stringify(wallexOrderbooks, null, 2)};\n\nexport default wallexOrderbooks;\n`;
+    fs.writeFileSync(path.join(process.cwd(), 'wallex_prices.ts'), tsOutput ,'utf-8');
+    console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
 
     return wallexOrderbooks;
 
