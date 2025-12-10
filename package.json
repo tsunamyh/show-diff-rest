@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./dist/server.js",
+    "start": "tsc && node ./dist/bin/www.js",
     "start-tracker": "tsc && node ./dist/server.js & tsc && node ./dist/components/price_comparison.js",
     "tstart": "tsc && node ./dist/app-commonsymbols.js",
     "price-tracker": "tsc && node ./dist/priceTracker.js",
@@ -26,7 +26,9 @@
   },
   "dependencies": {
     "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "ws": "^8.18.3"
   }
 }

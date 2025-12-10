@@ -1,159 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Comparison - Wallex vs Binance</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            min-height: 100vh; 
-            padding: 20px; 
-        }
-        .container { 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            background: white; 
-            border-radius: 10px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
-        }
-        header { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            padding: 30px; 
-            text-align: center; 
-        }
-        header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .content { padding: 30px; }
-        .info-box { 
-            background: #f5f5f5; 
-            padding: 20px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .statsBox { text-align: right; }
-        .rate-display { font-size: 1.3em; font-weight: bold; color: #667eea; }
-        .refresh-time { font-size: 0.9em; color: #666; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        thead { background: #667eea; color: white; }
-        th { padding: 15px; text-align: left; font-weight: bold; }
-        td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
-        tbody tr:hover { background: #f9f9f9; }
-        .positive { color: #27ae60; font-weight: bold; }
-        .negative { color: #e74c3c; font-weight: bold; }
-        .symbol { font-weight: bold; color: #333; }
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-        .tmn { background: #e8f4f8; color: #0277bd; }
-        .usdt { background: #f3e5f5; color: #6a1b9a; }
-        .loading { text-align: center; padding: 40px; color: #667eea; font-size: 1.1em; }
-        .no-data { text-align: center; padding: 40px; color: #999; }
-        .error { background: #ffebee; color: #c62828; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>💰 Price Comparison Analysis</h1>
-            <p>Wallex vs Binance - Profitable Opportunities</p>
-        </header>
-        <div class="content">
-            <div class="info-box">
-                <div>
-                    <h3>Comparison Data</h3>
-                    <p class="refresh-time">Last Updated: <span id="lastUpdate">--:--:--</span></p>
-                </div>
-                <div id="statsBox" style="text-align: right;">
-                    <p>Total Opportunities: <span id="totalCount" style="font-weight: bold; color: #667eea; font-size: 1.2em;">0</span></p>
-                </div>
-            </div>
+  <head>
+    <meta charset="utf-8" />
+    <title>Diff Application</title>
+    <meta name="description" content="Tuts+ Chat Application" />
+    <link rel="stylesheet" href="/css/table.css" />
+    <link rel="stylesheet" href="/css/baltable.css" />
+    <link rel="stylesheet" href="/css/footer.css" />
+    <link rel="stylesheet" href="/css/diff.css" />
+    <script src="/wsclient.js"></script>
+    <link rel="stylesheet" href="/css/table_pretty.css" />
 
-            <div id="errorBox"></div>
-            <div id="tableContainer"><div class="loading">Loading comparison data...</div></div>
-        </div>
+  </head>
+
+  <body>
+    <div>
+      <h5></h5>
+      <h3 class="diffMax"></h3>
+      <h4></h4>
     </div>
 
-    <script>
-        async function fetchComparisonData() {
-            try {
-                const response = await fetch('/api/comparison');
-                if (!response.ok) throw new Error('Failed to fetch data');
-                
-                const result = await response.json();
-                const { data } = result;
-                
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('fa-IR');
-                document.getElementById('totalCount').textContent = data.length;
-                
-                renderTable(data);
-                document.getElementById('errorBox').innerHTML = '';
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('errorBox').innerHTML = `<div class="error">❌ خطا در بارگیری داده: ${error.message}</div>`;
-                document.getElementById('tableContainer').innerHTML = '<div class="no-data">داده ای برای نمایش وجود ندارد</div>';
-            }
-        }
-
-        function renderTable(data) {
-            if (!data || data.length === 0) {
-                document.getElementById('tableContainer').innerHTML = '<div class="no-data">فرصت سودآور پیدا نشد</div>';
-                return;
-            }
-
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>نماد</th>
-                        <th>وضعیت</th>
-                        <th>قیمت والکس</th>
-                        <th>قیمت بایننس</th>
-                        <th>درصد سود</th>
-                        <th>ارزش تومان</th>
-                        <th>توضیحات</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
-            data.forEach(item => {
-                const { statusbuy, rowData } = item;
-                const isTMN = statusbuy.includes('TMN');
-                const badgeClass = isTMN ? 'tmn' : 'usdt';
-                const shortStatus = isTMN ? 'تومان' : 'دلار';
-                
-                const wallexPrice = Array.isArray(rowData.wallex) ? rowData.wallex[0] : rowData.wallex;
-                const binancePrice = rowData.binance;
-                const percentClass = rowData.percent > 0 ? 'positive' : 'negative';
-                
-                html += `<tr>
-                    <td class="symbol">${rowData.symbol}</td>
-                    <td><span class="status-badge ${badgeClass}">${shortStatus}</span></td>
-                    <td>${parseFloat(wallexPrice).toFixed(2)}</td>
-                    <td>${parseFloat(binancePrice).toFixed(2)}</td>
-                    <td class="${percentClass}">${rowData.percent.toFixed(2)}%</td>
-                    <td>${parseInt(rowData.value).toLocaleString('fa-IR')}</td>
-                    <td style="font-size: 0.9em; color: #666;">${rowData.description}</td>
-                </tr>`;
-            });
-
-            html += '</tbody></table>';
-            document.getElementById('tableContainer').innerHTML = html;
-        }
-
-        // Fetch initially
-        fetchComparisonData();
-        
-        // Refresh every 10 seconds
-        setInterval(fetchComparisonData, 10000);
-    </script>
-</body>
+    <table id="exchange">
+      <tbody id="order">
+        <tr class="headers">
+          <th id="symbol">Symbol</th>
+          <th id="percent">درصد</th>
+          <th id="nob">boN</th>
+          <th id="coin">Coinex</th>
+          <th id="value">مقدار</th>
+          <th id="description">توضیحات</th>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    <table id="balance">
+      <tbody id="balbody">
+        <tr class="balheaders">
+          <th id="nobrls">boN Tmn</th>
+          <th id="nobInOrder">boN InOrder</th>
+          <th id="date">تاریخ</th>
+        </tr>
+        <tr class="balstart">
+          <td id="nobrls"><%= nobBalanceRls /10 %> Tmn</td>
+          <td id="nobInOrder"><%= nobInOrder %></td>
+          <td id="date"><%= date %></td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    
+    <footer class="info">
+      <p>
+        <a href="https://messenger.iran.liara.run/" target="_blank"
+          ><h3 class="chatlink" style="color: #d83f45">
+            بیاتو پیامرسان سینا عزیزی
+          </h3>
+        </a>
+        Sponsered & created by
+        <a href="https://github.com/tsunamyh/">Sina Azizi And Hojat Fathpour</a>
+      </p>
+      <p>
+        Service powered by
+        <a href="https://www.npmjs.com/package/websocket">WebSocket</a> &
+        <a href="https://www.npmjs.com/package/express">Express</a>
+      </p>
+      <p>
+        Messenger service :
+        <a href="https://messenger.iran.liara.run/">ChatBox</a>
+      </p>
+    </footer>
+  </body>
 </html>

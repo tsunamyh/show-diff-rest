@@ -1,6 +1,7 @@
 import { fetchWallexOnce, getAllOrderBooks } from "./exchanges-controller";
 import type { WallexOrderbooks } from "../wallex_prices";
 import type { BinanceOrderbooks } from "../binance_prices";
+import { EventEmitter } from "stream";
 import fs from "fs";
 
 const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
@@ -29,7 +30,6 @@ let latestRowsInfo: RowInfo[] = [];
 export function getLatestRowsInfo() {
   return latestRowsInfo;
 }
-
 async function priceComp() {
     const orderBooks = await getAllOrderBooks();
     // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
@@ -63,7 +63,22 @@ async function priceComp() {
 
     latestRowsInfo = rowsInfo;
     fs.writeFileSync("rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
+    eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
 }
+
+const eventEmmiter = new EventEmitter();
+eventEmmiter.setMaxListeners(6);
+
+async function intervalFunc(): Promise<NodeJS.Timeout> {
+  return setInterval(async function () {
+    try {
+      await priceComp();
+    } catch (error) {
+      console.error('Error in priceComp:', error);
+    } 
+  }, 10000);
+}
+
 
 function getRowTableTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
@@ -166,16 +181,18 @@ function createRowTable(
 fetchWallexOnce().finally(async () => {
   await priceComp();
 });
+
 // اپدیت هر 10 ثانیه
-setInterval(async () => {
-  try {
-    await priceComp();
-  } catch (error) {
-    console.error('Error in priceComp:', error);
-  }
-}, 10000);
+// setInterval(async () => {
+//   try {
+//     await priceComp();
+//   } catch (error) {
+//     console.error('Error in priceComp:', error);
+//   }
+// }, 10000);
 
 console.log("Price comparison started. Updating every 10 seconds...");
+export { eventEmmiter, intervalFunc };
 // const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
 
 // const results: { symbol: string, binanceBid: number, wallexAsk: number, diff: number }[] = [];

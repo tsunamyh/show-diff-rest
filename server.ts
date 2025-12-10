@@ -1,70 +1,56 @@
-import express from 'express';
-import path from 'path';
-import { getAllOrderBooks } from './components/exchanges-controller';
-import { getUsdtToTmnRate } from './components/exchanges/wallexPriceTracker';
-import { getLatestRowsInfo } from './components/price_comparison'; // شروع price comparison
-import './components/price_comparison';
+import { WebSocketServer, WebSocket } from "ws";
+import http, { IncomingMessage, Server, ServerResponse } from "http";
+import { app } from "./app";
+import { eventEmmiter } from "./components/price_comparison";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const server: Server = http.createServer(app);
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-
-app.set('views', path.join(__dirname, '..', 'views'));
-app.set('view engine', 'ejs');
-
-// API endpoint برای دریافت داده‌ها
-app.get('/api/prices', async (req, res) => {
-  try {
-    const orderBooks = await getAllOrderBooks();
-    const rate = getUsdtToTmnRate();
-    
-    res.json({
-      binanceOrderbooks: orderBooks?.binanceOrderbooks,
-      wallexOrderbooks: orderBooks?.wallexOrderbooks,
-      usdtToTmnRate: rate,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch prices' });
-  }
+const wss: WebSocketServer = new WebSocketServer({
+  noServer: true,
+  path: "/diff",
+  clientTracking: false,
 });
 
-// API endpoint برای دریافت اطلاعات مقایسه قیمت‌ها
-app.get('/api/comparison', (req, res) => {
-  try {
-    const rowsInfo = getLatestRowsInfo();
-    res.json({
-      data: rowsInfo,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch comparison data' });
-  }
-});
+const clients: Set<WebSocket> = new Set();
 
-// صفحه اصلی
-app.get('/', (req, res) => {
-  res.render('index', {
-    date: new Date().toLocaleString()
+function diffListener(rowsInfo: string): void {
+  clients.forEach(function (client: WebSocket) {
+    client.send(rowsInfo);
+  });
+}
+
+// let getOrderInterval;
+
+server.on("upgrade", function (req: IncomingMessage, socket: any, head: Buffer) {
+  // if (clients.size === 0) {
+  //   getOrderInterval = intervalFunc(); // This function will be executed once
+  // }
+  wss.handleUpgrade(req, socket, head, async function (ws: WebSocket) {
+    clients.add(ws);
+    const clientSize = { size: clients.size };
+    diffListener(JSON.stringify(clientSize));
+    console.log("clients:", clientSize);
+    wss.emit("connection", ws, req);
   });
 });
 
-// صفحه مقایسه قیمت‌ها
-app.get('/diff', (req, res) => {
-  res.render('diff', {
-    date: new Date().toLocaleString()
+wss.on("connection", async function connection(ws: WebSocket, req: IncomingMessage) {
+  eventEmmiter.on("diff", diffListener);
+
+  ws.on("close", () => {
+    clients.delete(ws);
+    eventEmmiter.removeListener("diff", diffListener);
+    console.log("clients.size:", clients.size);
+    // if (clients.size === 0) {
+    //   clearInterval(getOrderInterval);
+    // }
+
+    console.log("Client disconnected");
+  });
+
+  ws.on("error", function () {
+    console.log("Some Error occurred");
   });
 });
 
-// 404 - آخری باید باشد
-app.use((req, res) => {
-  res.status(404).send('<h1 align="center" style="color:red">404 Not Found</h1>');
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-export { app };
+export { server };
