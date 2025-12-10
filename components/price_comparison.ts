@@ -8,6 +8,25 @@ const binance_wallex_common_symbols = require("../commonSymbols/common_symbols")
 
 const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
 
+//  * مثال: [tmnPrice, volumeCurrency, usdtPrice]
+enum WallexUsdtPairIndex {
+  TMN_PRICE = 0,           // "11504590301.58"
+  VOLUME_CURRENCY = 1,     // "0.008676"
+  USDT_PRICE = 2           // "91762.17"
+}
+
+// * مثال: [tmnPrice, volumeCurrency]
+enum WallexTmnPairIndex {
+  TMN_PRICE = 0,           // "11511692152"
+  VOLUME_CURRENCY = 1      // "0.008717"
+}
+
+//* مثال: [usdtPrice, tmnPrice]
+enum BinanceIndex {
+  USDT_PRICE = 0,          // "91991.32000000"
+  TMN_PRICE = 1            // "11533319753.68"
+}
+
 interface RowData {
   symbol: string;
   percent: number;
@@ -23,42 +42,6 @@ interface RowInfo {
 }
 
 const myPercent = process.env.MYPERCENT || 1;
-
-/**
- * ساختار داده‌های مختلف:
- * 
- * Wallex TMN Pairs: [tmnPrice, volumeCurrency]
- * Wallex USDT Pairs: [tmnPrice, volumeCurrency, usdtPrice]
- * Binance: [usdtPrice, tmnPrice]
- */
-
-export const PriceAccessors = {
-  // Wallex TMN Pairs
-  wallex_tmn: {
-    getAskPrice: (data: any): number => parseFloat(data.ask[0]),
-    getBidPrice: (data: any): number => parseFloat(data.bid[0]),
-    getAskVolume: (data: any): number => parseFloat(data.ask[1]),
-    getBidVolume: (data: any): number => parseFloat(data.bid[1]),
-  },
-
-  // Wallex USDT Pairs
-  wallex_usdt: {
-    getAskTmnPrice: (data: any): number => parseFloat(data.ask[0]),
-    getBidTmnPrice: (data: any): number => parseFloat(data.bid[0]),
-    getAskVolume: (data: any): number => parseFloat(data.ask[1]),
-    getBidVolume: (data: any): number => parseFloat(data.bid[1]),
-    getAskUsdtPrice: (data: any): number => parseFloat(data.ask[2]),
-    getBidUsdtPrice: (data: any): number => parseFloat(data.bid[2]),
-  },
-
-  // Binance
-  binance: {
-    getAskUsdtPrice: (data: any): number => parseFloat(data.ask[0]),
-    getBidUsdtPrice: (data: any): number => parseFloat(data.bid[0]),
-    getAskTmnPrice: (data: any): number => parseFloat(data.ask[1]),
-    getBidTmnPrice: (data: any): number => parseFloat(data.bid[1]),
-  },
-};
 
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
@@ -121,9 +104,8 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
 function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
-    // استفاده از PriceAccessors
-    const wallex_tmn_ask = PriceAccessors.wallex_tmn.getAskPrice(wallexOrderbook);
-    const binance_tmn_ask = PriceAccessors.binance.getAskTmnPrice(binanceOrderbook);
+    const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
+    const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
     
     if (wallex_tmn_ask < binance_tmn_ask) {
         const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
@@ -138,11 +120,8 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
 
 function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
-    
-    // استفاده از PriceAccessors
-    const wallex_usdt_ask = PriceAccessors.wallex_usdt.getAskUsdtPrice(wallexOrderbook);
-    const binance_usdt_ask = PriceAccessors.binance.getAskUsdtPrice(binanceOrderbook);
-    
+    const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
+    const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
     if (wallex_usdt_ask < binance_usdt_ask) {
         const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
@@ -163,9 +142,14 @@ function exsistAskBid(binanceOrderbook , wallexOrderbook): boolean {
 }
 
 function calcPercentAndAmounts(binanceAskOrder: any, wallexAskOrder: any): [number, number, number] {
-  const percent = calculatePercentageDifference(+binanceAskOrder[1], +wallexAskOrder[0]);
-  const amount = +wallexAskOrder[1];
-  const amountRls = Math.floor(amount * +wallexAskOrder[0]);
+  // binanceAskOrder[BinanceIndex.TMN_PRICE] = TMN Price
+  // wallexAskOrder[WallexTmnIndex.TMN_PRICE] = TMN Price
+  const percent = calculatePercentageDifference(
+    +binanceAskOrder[BinanceIndex.TMN_PRICE], 
+    +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]
+  );
+  const amount = +wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY];
+  const amountRls = Math.floor(amount * +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]);
   return [percent, amount, amountRls];
 }
 
@@ -188,12 +172,14 @@ function createRowTable(
       const rowData: RowData = {
           symbol: symbol,
           percent: difference_percent,
-          wallex: [wallexAskOrder[0], wallexAskOrder[1]],
-          binance: binanceAskOrder[1],
+          wallex: [
+            wallexAskOrder[WallexTmnPairIndex.TMN_PRICE], 
+            wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY]
+          ],
+          binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
           value: amount_tmn,
-          description: `Buy ${symbol} from Wallex at ${wallexAskOrder[0]} USDT and sell on Binance at ${binanceAskOrder[1]} USDT`
+          description: `Buy ${symbol} from Wallex at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} TMN and sell on Binance at ${binanceAskOrder[BinanceIndex.TMN_PRICE]} TMN`
       };
-      // console.log("rowData ", rowData);
 
       const statusbuy =  "wallex Buy usdt to TMN";
       return {
@@ -205,12 +191,14 @@ function createRowTable(
       const rowData: RowData = {
           symbol: symbol,
           percent: difference_percent,
-          wallex: [wallexAskOrder[0], wallexAskOrder[1]],
-          binance: binanceAskOrder[1],
+          wallex: [
+            wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE], 
+            wallexAskOrder[WallexUsdtPairIndex.VOLUME_CURRENCY]
+          ],
+          binance: binanceAskOrder[BinanceIndex.USDT_PRICE],
           value: amount_tmn,
-          description: `Buy ${symbol} from Wallex at ${wallexAskOrder[1]} USDT and sell on Binance at ${binanceAskOrder[1]} USDT`
+          description: `Buy ${symbol} from Wallex at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} USDT and sell on Binance at ${binanceAskOrder[BinanceIndex.USDT_PRICE]} USDT`
       };
-      // console.log("rowData ", rowData);
       const statusbuy =  "wallex Buy usdt to USDT";
       return {
         statusbuy,
