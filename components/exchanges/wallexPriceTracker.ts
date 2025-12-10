@@ -32,7 +32,7 @@ let globalUsdtToTmnRate = 1;
 
 async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
   try {
-    console.log(`[${new Date().toISOString()}] Fetching prices from Wallex API...`);
+    // console.log(`[${new Date().toISOString()}] Fetching prices from Wallex API...`);
     
     const response = await axios.get<WallexDepthResponse>(WALLEX_API_URL);
 
@@ -51,7 +51,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
       if (usdtTmn.bid && usdtTmn.bid.length > 0) {
         usdtToTmnRate = parseFloat(usdtTmn.bid[0].price);
         globalUsdtToTmnRate = usdtToTmnRate;
-        console.log(`[${new Date().toISOString()}] USDT/TMN Rate: ${usdtToTmnRate}`);
+        // console.log(`[${new Date().toISOString()}] USDT/TMN Rate: ${usdtToTmnRate}`);
       }
     }
 
@@ -98,7 +98,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
     // خروجی TypeScript بسازیم
     const tsOutput = `export interface WallexOrderbooks {\n  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n}\n\nconst wallexOrderbooks: WallexOrderbooks = ${JSON.stringify(wallexOrderbooks, null, 2)};\n\nexport default wallexOrderbooks;\n`;
     fs.writeFileSync(path.join(process.cwd(), 'wallex_prices.ts'), tsOutput ,'utf-8');
-    console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
+    // console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
 
     return wallexOrderbooks;
 

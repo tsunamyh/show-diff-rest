@@ -35,7 +35,7 @@ const BINANCE_API_URL = 'https://data-api.binance.vision/api/v3/ticker/bookTicke
 
 async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
   try {
-    console.log(`[${new Date().toISOString()}] Fetching prices from Binance API...`);
+    // console.log(`[${new Date().toISOString()}] Fetching prices from Binance API...`);
     
     const response = await axios.get<BinanceBookTicker[]>(BINANCE_API_URL);
     
@@ -65,7 +65,7 @@ async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
     // خروجی TypeScript بسازیم
     const tsOutput = `export interface BinanceOrderbooks {\n  usdt: { [symbol: string]: { bid: string[]; ask: string[] } };\n}\n\nconst binanceOrderbooks: BinanceOrderbooks = ${JSON.stringify(binanceOrderbooks, null, 2)};\n\nexport default binanceOrderbooks;\n`;
     require('fs').writeFileSync(require('path').join(process.cwd(), 'binance_prices.ts'), tsOutput, 'utf-8');
-    console.log(`[${new Date().toISOString()}] binance_prices.ts updated.`);
+    // console.log(`[${new Date().toISOString()}] binance_prices.ts updated.`);
     
     return binanceOrderbooks
     

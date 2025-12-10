@@ -30,7 +30,7 @@ function printMaxDiff(maxDiff) {
     text = maxDiff[0].symbol + ":=> " + maxDiff[0].percent + " :" + " بهترین درصد ";
     let diffMax = document.querySelector("h3");
     diffMax.innerText = text;
-    console.log("maxdiff;", maxDiff);
+    // console.log("maxdiff;", maxDiff);
 }
 function printClientSize(size) {
     document.querySelector("h5").innerHTML = "تعداد افراد آنلاین : " + size;

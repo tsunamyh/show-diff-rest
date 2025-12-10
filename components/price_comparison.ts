@@ -193,7 +193,7 @@ function createRowTable(
           value: amount_tmn,
           description: `Buy ${symbol} from Wallex at ${wallexAskOrder[0]} USDT and sell on Binance at ${binanceAskOrder[1]} USDT`
       };
-      console.log("rowData ", rowData);
+      // console.log("rowData ", rowData);
 
       const statusbuy =  "wallex Buy usdt to TMN";
       return {
@@ -210,7 +210,7 @@ function createRowTable(
           value: amount_tmn,
           description: `Buy ${symbol} from Wallex at ${wallexAskOrder[1]} USDT and sell on Binance at ${binanceAskOrder[1]} USDT`
       };
-      console.log("rowData ", rowData);
+      // console.log("rowData ", rowData);
       const statusbuy =  "wallex Buy usdt to USDT";
       return {
         statusbuy,
@@ -233,28 +233,5 @@ fetchWallexOnce().finally(async () => {
 //   }
 // }, 10000);
 
-console.log("Price comparison started. Updating every 10 seconds...");
+// console.log("Price comparison started. Updating every 10 seconds...");
 export { eventEmmiter, intervalFunc };
-// const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
-
-// const results: { symbol: string, binanceBid: number, wallexAsk: number, diff: number }[] = [];
-
-// for (const symbol of commonSymbols) {
-//   const binance = binanceOrderbooks[symbol]?.btcusdt || binanceOrderbooks[symbol]?.[`${symbol.toLowerCase()}usdt`];
-//   const wallex = wallexOrderbooks[symbol]?.btcusdt || wallexOrderbooks[symbol]?.[`${symbol.toLowerCase()}usdt`];
-
-//   if (binance && wallex) {
-//     const binanceBid = parseFloat(binance.bid[1] || binance.bid[0]);
-//     const wallexAsk = parseFloat(wallex.ask[1] || wallex.ask[0]);
-//     const diff = binanceBid - wallexAsk;
-//     if (diff < 0) {
-//       results.push({ symbol, binanceBid, wallexAsk, diff });
-//     }
-//   }
-// }
-
-// نمایش ارزهایی که در والکس ارزان‌تر هستند
-// console.log("ارزهای ارزان‌تر در والکس:");
-// results.forEach(r => {
-//   console.log(`${r.symbol}: Binance Bid = ${r.binanceBid}, Wallex Ask = ${r.wallexAsk}, Diff = ${r.diff}`);
-// });

@@ -45,7 +45,7 @@ app.get('/api/prices', async (req, res) => {
 });
 
 app.get("/", function (req, res) {
-    console.log("Home");
+    // console.log("Home");
     res.redirect("./diff")
 })
 
