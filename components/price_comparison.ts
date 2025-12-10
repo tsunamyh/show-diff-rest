@@ -86,13 +86,13 @@ async function priceComp() {
         
         if (!binanceData || !wallexDataTmn) continue;
         
-        rowInfo = getRowTableTmn(binanceData, wallexDataTmn, symbol);
+        rowInfo = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol);
         
         if (rowInfo) rowsInfo.push(rowInfo);
         const wallexDataUsdt = wallexOrderbooks?.usdtPairs?.[symbol.toLowerCase()];
 
         if (!binanceData || !wallexDataUsdt) continue;
-        rowInfo = getRowTableUsdt(binanceData, wallexDataUsdt, symbol);
+        rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol);
         if (rowInfo && rowInfo?.rowData.value > 500000) rowsInfo.push(rowInfo);
 
     }
@@ -118,7 +118,7 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
 }
 
 
-function getRowTableTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
+function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
     // استفاده از PriceAccessors
@@ -136,7 +136,7 @@ function getRowTableTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: str
     return null;
 }
 
-function getRowTableUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
+function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
     
     // استفاده از PriceAccessors
