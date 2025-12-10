@@ -1,0 +1,47 @@
+.msghome {
+	margin: 130px 0 40px 0;
+	position: relative;
+}
+
+.msghome h1 {
+	position: absolute;
+	top: -140px;
+	width: 100%;
+	font-size: 80px;
+	font-weight: 200;
+	text-align: center;
+	color: #b83f45;
+	-webkit-text-rendering: optimizeLegibility;
+	-moz-text-rendering: optimizeLegibility;
+	text-rendering: optimizeLegibility;
+}
+
+.msghome section {
+	padding-top: 1px;
+	text-align: center;
+}
+
+.msghome h2 {
+	padding-bottom: 68px;
+	font-size: 26px;
+	font-weight: 300;
+}
+
+.msghome h3 {
+	/* padding-bottom: 0px; */
+	font-size: 32px;
+	font-weight: 300;
+}
+
+.msghome .button {
+	padding: 13px 45px;
+	font-size: 16px;
+	font-weight: 500;
+	color: white;
+	border-radius: 5px;
+	background: #5e5faf;
+}
+
+.msghome a.button {
+	text-decoration: none;
+}

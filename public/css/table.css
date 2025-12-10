@@ -1,0 +1,52 @@
+
+table#exchange {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  border: 1px solid black;
+  width: 85%;
+}
+
+th,
+td {
+  border: 1px solid black;
+}
+
+th {
+  height: 55px;
+  font-size: 21px;
+  color: rgb(94, 34, 91);
+  background-color: beige;
+  border-bottom: 2px solid black;
+}
+
+td {
+  height: 46px;
+  /* background-color: ghostwhite; */
+}
+
+th#description {
+  width: 350px;
+}
+
+th#symbol {
+  width: 120px;
+}
+
+th#nob
+,th#coin {
+  width: 200px;
+}
+
+th#value {
+  width: 150px;
+}
+
+th#percent {
+  width: 150px;
+}
+
+tr:nth-child(odd) {
+  background-color: #f2f2f2
+}

@@ -1,0 +1,86 @@
+
+table#exchange {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  border: 1px solid black;
+  width: 85%;
+}
+
+th,
+td {
+  border: 1px solid black;
+}
+
+th {
+  height: 55px;
+  font-size: 21px;
+  color: rgb(94, 34, 91);
+  background-color: beige;
+  border-bottom: 2px solid black;
+}
+
+td {
+  height: 46px;
+  /* background-color: ghostwhite; */
+}
+
+th#description {
+  width: 350px;
+}
+
+th#symbol {
+  width: 120px;
+}
+
+th#nob
+,th#coin {
+  width: 200px;
+}
+
+th#value {
+  width: 150px;
+}
+
+th#percent {
+  width: 150px;
+}
+
+tr:nth-child(odd) {
+  background-color: #f2f2f2
+}
+
+/* ---------- Custom Enhancements ---------- */
+
+/* جدول زیباتر با گوشه‌های گرد و سایه */
+table#exchange,
+table#balance {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* افکت هاور برای ردیف‌ها */
+#exchange tr:hover,
+#balance tr:hover {
+  background-color: #e8f4ff;
+  transition: background-color 0.3s ease;
+}
+
+/* بهبود رنگ تیترها و محتوای جدول */
+th {
+  background-color: #eceff1;
+  color: #37474f;
+  font-weight: 600;
+}
+
+td {
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* فونت پیش‌فرض فارسی */
+body {
+  font-family: 'Vazir', sans-serif;
+}

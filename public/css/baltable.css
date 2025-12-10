@@ -1,0 +1,38 @@
+
+table#balance {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  border: 1px solid black;
+  width: 85%;
+}
+
+th#baldescription {
+  width: 350px;
+}
+th#nobInOrder
+,th#ramInOrder {
+  width: 80px;
+}
+
+th#date {
+  width: 120px;
+}
+
+th#nobrls
+,th#ramrls {
+  width: 200px;
+}
+
+th#ramcurr {
+  width: 150px;
+}
+
+th#nobcurr {
+  width: 150px;
+}
+
+tr:nth-child(odd) {
+  background-color: #f2f2f2
+}

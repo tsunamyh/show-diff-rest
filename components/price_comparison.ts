@@ -24,6 +24,42 @@ interface RowInfo {
 
 const myPercent = process.env.MYPERCENT || 1;
 
+/**
+ * ساختار داده‌های مختلف:
+ * 
+ * Wallex TMN Pairs: [tmnPrice, volumeCurrency]
+ * Wallex USDT Pairs: [tmnPrice, volumeCurrency, usdtPrice]
+ * Binance: [usdtPrice, tmnPrice]
+ */
+
+export const PriceAccessors = {
+  // Wallex TMN Pairs
+  wallex_tmn: {
+    getAskPrice: (data: any): number => parseFloat(data.ask[0]),
+    getBidPrice: (data: any): number => parseFloat(data.bid[0]),
+    getAskVolume: (data: any): number => parseFloat(data.ask[1]),
+    getBidVolume: (data: any): number => parseFloat(data.bid[1]),
+  },
+
+  // Wallex USDT Pairs
+  wallex_usdt: {
+    getAskTmnPrice: (data: any): number => parseFloat(data.ask[0]),
+    getBidTmnPrice: (data: any): number => parseFloat(data.bid[0]),
+    getAskVolume: (data: any): number => parseFloat(data.ask[1]),
+    getBidVolume: (data: any): number => parseFloat(data.bid[1]),
+    getAskUsdtPrice: (data: any): number => parseFloat(data.ask[2]),
+    getBidUsdtPrice: (data: any): number => parseFloat(data.bid[2]),
+  },
+
+  // Binance
+  binance: {
+    getAskUsdtPrice: (data: any): number => parseFloat(data.ask[0]),
+    getBidUsdtPrice: (data: any): number => parseFloat(data.bid[0]),
+    getAskTmnPrice: (data: any): number => parseFloat(data.ask[1]),
+    getBidTmnPrice: (data: any): number => parseFloat(data.bid[1]),
+  },
+};
+
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
 
@@ -61,8 +97,10 @@ async function priceComp() {
 
     }
 
-    latestRowsInfo = rowsInfo;
     fs.writeFileSync("rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
+    rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
+    const topRowsInfo = rowsInfo.slice(0, 10);
+    latestRowsInfo = topRowsInfo;
     eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
 }
 
@@ -83,8 +121,9 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
 function getRowTableTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
-    const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[0]);
-    const binance_tmn_ask = parseFloat(binanceOrderbook.ask[1]);
+    // استفاده از PriceAccessors
+    const wallex_tmn_ask = PriceAccessors.wallex_tmn.getAskPrice(wallexOrderbook);
+    const binance_tmn_ask = PriceAccessors.binance.getAskTmnPrice(binanceOrderbook);
     
     if (wallex_tmn_ask < binance_tmn_ask) {
         const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
@@ -99,8 +138,11 @@ function getRowTableTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: str
 
 function getRowTableUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
-    const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[1]);
-    const binance_usdt_ask = parseFloat(binanceOrderbook.ask[1]);
+    
+    // استفاده از PriceAccessors
+    const wallex_usdt_ask = PriceAccessors.wallex_usdt.getAskUsdtPrice(wallexOrderbook);
+    const binance_usdt_ask = PriceAccessors.binance.getAskUsdtPrice(binanceOrderbook);
+    
     if (wallex_usdt_ask < binance_usdt_ask) {
         const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
         if (difference_percent >= +myPercent && amount_tmn > 500000) {

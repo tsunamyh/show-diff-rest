@@ -1,898 +1,996 @@
 [
   {
-    "statusbuy": "wallex Buy usdt to USDT",
+    "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "BTCUSDT",
       "percent": 0.04,
       "wallex": [
-        "11514977552.44",
-        "0.00016"
+        "11529029380",
+        "0.00063"
       ],
-      "binance": "11519745497.89",
-      "value": 1842396,
-      "description": "Buy BTCUSDT from Wallex at 0.00016 USDT and sell on Binance at 11519745497.89 USDT"
+      "binance": "11533321007.42",
+      "value": 7263288,
+      "description": "Buy BTCUSDT from Wallex at 11529029380 USDT and sell on Binance at 11533321007.42 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to USDT",
+    "rowData": {
+      "symbol": "BTCUSDT",
+      "percent": -0.04,
+      "wallex": [
+        "11538461341.42",
+        "0.001897"
+      ],
+      "binance": "11533321007.42",
+      "value": 21888461,
+      "description": "Buy BTCUSDT from Wallex at 0.001897 USDT and sell on Binance at 11533321007.42 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ETHUSDT",
-      "percent": -0.2,
+      "percent": -0.22,
       "wallex": [
-        "414323408.92",
-        "0.24007"
+        "417520494.79999995",
+        "0.10389"
       ],
-      "binance": "413491396.08",
-      "value": 99466620,
-      "description": "Buy ETHUSDT from Wallex at 0.24007 USDT and sell on Binance at 413491396.08 USDT"
+      "binance": "416606518.34",
+      "value": 43376204,
+      "description": "Buy ETHUSDT from Wallex at 0.10389 USDT and sell on Binance at 416606518.34 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "BNBUSDT",
-      "percent": -0.36,
+      "percent": -0.45,
       "wallex": [
-        "111256140.7644",
+        "112070539.7852",
         "0.05946"
       ],
-      "binance": "110856421.55",
-      "value": 6615290,
-      "description": "Buy BNBUSDT from Wallex at 0.05946 USDT and sell on Binance at 110856421.55 USDT"
+      "binance": "111566561.38",
+      "value": 6663714,
+      "description": "Buy BNBUSDT from Wallex at 0.05946 USDT and sell on Binance at 111566561.38 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "LTCUSDT",
-      "percent": -0.24,
+      "percent": -0.46,
       "wallex": [
-        "10510693",
-        "9.4713"
+        "10626700.24",
+        "9.39407"
       ],
-      "binance": "10484985.35",
-      "value": 99549926,
-      "description": "Buy LTCUSDT from Wallex at 9.4713 USDT and sell on Binance at 10484985.35 USDT"
+      "binance": "10577804.38",
+      "value": 99827965,
+      "description": "Buy LTCUSDT from Wallex at 9.39407 USDT and sell on Binance at 10577804.38 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to USDT",
+    "rowData": {
+      "symbol": "ADAUSDT",
+      "percent": -0.39,
+      "wallex": [
+        "58261.2978",
+        "302.6"
+      ],
+      "binance": "58035.624599999996",
+      "value": 17629868,
+      "description": "Buy ADAUSDT from Wallex at 302.6 USDT and sell on Binance at 58035.624599999996 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "XRPUSDT",
-      "percent": -0.25,
+      "percent": -0.22,
       "wallex": [
-        "259299.10820000002",
-        "7.1"
+        "259215.75996000002",
+        "10.2"
       ],
-      "binance": "258637.95510000002",
-      "value": 1841023,
-      "description": "Buy XRPUSDT from Wallex at 7.1 USDT and sell on Binance at 258637.95510000002 USDT"
+      "binance": "258634.0246",
+      "value": 2644000,
+      "description": "Buy XRPUSDT from Wallex at 10.2 USDT and sell on Binance at 258634.0246 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "XLMUSDT",
-      "percent": -0.28,
+      "percent": -0.48,
       "wallex": [
-        "31386.114480000004",
-        "1480.7"
+        "31747.20428",
+        "1566"
       ],
-      "binance": "31299.0223",
-      "value": 46473419,
-      "description": "Buy XLMUSDT from Wallex at 1480.7 USDT and sell on Binance at 31299.0223 USDT"
+      "binance": "31594.248",
+      "value": 49716121,
+      "description": "Buy XLMUSDT from Wallex at 1566 USDT and sell on Binance at 31594.248 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "TRXUSDT",
-      "percent": -0.25,
+      "percent": -0.18,
       "wallex": [
-        "34904.23368",
-        "2536.8"
+        "34929.1964",
+        "152.6"
       ],
-      "binance": "34816.8877",
-      "value": 88545059,
-      "description": "Buy TRXUSDT from Wallex at 2536.8 USDT and sell on Binance at 34816.8877 USDT"
+      "binance": "34866.5094",
+      "value": 5330195,
+      "description": "Buy TRXUSDT from Wallex at 152.6 USDT and sell on Binance at 34866.5094 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ETCUSDT",
-      "percent": -0.3,
+      "percent": -0.29,
       "wallex": [
-        "1702919.4000000001",
-        "54.7704"
+        "1711355.1",
+        "58.33272"
       ],
-      "binance": "1697806.67",
-      "value": 93269576,
-      "description": "Buy ETCUSDT from Wallex at 54.7704 USDT and sell on Binance at 1697806.67 USDT"
+      "binance": "1706340.14",
+      "value": 99827997,
+      "description": "Buy ETCUSDT from Wallex at 58.33272 USDT and sell on Binance at 1706340.14 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "USDCUSDT",
-      "percent": -0.3,
+      "percent": -0.28,
       "wallex": [
-        "125092.8412",
+        "125712.50979999999",
         "6"
       ],
-      "binance": "124722.0506",
-      "value": 750557,
-      "description": "Buy USDCUSDT from Wallex at 6 USDT and sell on Binance at 124722.0506 USDT"
+      "binance": "125361.4626",
+      "value": 754275,
+      "description": "Buy USDCUSDT from Wallex at 6 USDT and sell on Binance at 125361.4626 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "LINKUSDT",
-      "percent": -0.37,
+      "percent": -0.48,
       "wallex": [
-        "1774317.2588000002",
-        "56.24"
+        "1776298.832",
+        "2.09"
       ],
-      "binance": "1767664.99",
-      "value": 99787602,
-      "description": "Buy LINKUSDT from Wallex at 56.24 USDT and sell on Binance at 1767664.99 USDT"
+      "binance": "1767773.4",
+      "value": 3712464,
+      "description": "Buy LINKUSDT from Wallex at 2.09 USDT and sell on Binance at 1767773.4 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "HOTUSDT",
-      "percent": 0.11,
+      "percent": 0.03,
       "wallex": [
-        "65.42",
+        "66.05",
         "14660.8"
       ],
-      "binance": "65.49217499999999",
-      "value": 959109,
-      "description": "Buy HOTUSDT from Wallex at 65.42 USDT and sell on Binance at 65.49217499999999 USDT"
+      "binance": "66.072098",
+      "value": 968345,
+      "description": "Buy HOTUSDT from Wallex at 66.05 USDT and sell on Binance at 66.072098 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ZRXUSDT",
-      "percent": -1.05,
+      "percent": -1.25,
       "wallex": [
-        "17939.912800000002",
-        "211.77"
+        "18116.542999999998",
+        "210.74"
       ],
-      "binance": "17751.4981",
-      "value": 3799135,
-      "description": "Buy ZRXUSDT from Wallex at 211.77 USDT and sell on Binance at 17751.4981 USDT"
+      "binance": "17890.8698",
+      "value": 3817880,
+      "description": "Buy ZRXUSDT from Wallex at 210.74 USDT and sell on Binance at 17890.8698 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "FETUSDT",
-      "percent": -0.28,
+      "percent": -0.46,
       "wallex": [
-        "32511.4136",
-        "383.7298"
+        "32534.553",
+        "989.1459"
       ],
-      "binance": "32421.745300000002",
-      "value": 12475598,
-      "description": "Buy FETUSDT from Wallex at 383.7298 USDT and sell on Binance at 32421.745300000002 USDT"
+      "binance": "32384.104199999998",
+      "value": 32181419,
+      "description": "Buy FETUSDT from Wallex at 989.1459 USDT and sell on Binance at 32384.104199999998 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ZECUSDT",
-      "percent": 0.04,
+      "percent": 0.11,
       "wallex": [
-        "53512838.64",
-        "0.01"
+        "54209210.12",
+        "0.616"
       ],
-      "binance": "53536422.52",
-      "value": 535128,
-      "description": "Buy ZECUSDT from Wallex at 0.01 USDT and sell on Binance at 53536422.52 USDT"
+      "binance": "54266882.16",
+      "value": 33392873,
+      "description": "Buy ZECUSDT from Wallex at 0.616 USDT and sell on Binance at 54266882.16 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "DASHUSDT",
-      "percent": -0.48,
+      "percent": -0.35,
       "wallex": [
-        "6099320.84",
-        "2.0454"
+        "6100698.84",
+        "1.33287"
       ],
-      "binance": "6070189.02",
-      "value": 12475550,
-      "description": "Buy DASHUSDT from Wallex at 2.0454 USDT and sell on Binance at 6070189.02 USDT"
+      "binance": "6079385.260000001",
+      "value": 8131438,
+      "description": "Buy DASHUSDT from Wallex at 1.33287 USDT and sell on Binance at 6079385.260000001 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ENJUSDT",
-      "percent": -1.7,
+      "percent": -1.56,
       "wallex": [
-        "4275.3881200000005",
-        "888.591"
+        "4352.98528",
+        "877.074"
       ],
-      "binance": "4202.72643",
-      "value": 3799071,
-      "description": "Buy ENJUSDT from Wallex at 888.591 USDT and sell on Binance at 4202.72643 USDT"
+      "binance": "4285.2833200000005",
+      "value": 3817890,
+      "description": "Buy ENJUSDT from Wallex at 877.074 USDT and sell on Binance at 4285.2833200000005 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ATOMUSDT",
-      "percent": -0.67,
+      "percent": -0.4,
       "wallex": [
-        "283196.12",
-        "403.43"
+        "284598.98",
+        "183.16"
       ],
-      "binance": "281304.485",
-      "value": 114249810,
-      "description": "Buy ATOMUSDT from Wallex at 403.43 USDT and sell on Binance at 281304.485 USDT"
+      "binance": "283470.614",
+      "value": 52127149,
+      "description": "Buy ATOMUSDT from Wallex at 183.16 USDT and sell on Binance at 283470.614 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "ALGOUSDT",
-      "percent": 0.25,
+      "percent": 0.23,
       "wallex": [
-        "16973",
+        "17175",
         "22.09"
       ],
-      "binance": "17015.4908",
-      "value": 374933,
-      "description": "Buy ALGOUSDT from Wallex at 16973 USDT and sell on Binance at 17015.4908 USDT"
+      "binance": "17213.8502",
+      "value": 379395,
+      "description": "Buy ALGOUSDT from Wallex at 17175 USDT and sell on Binance at 17213.8502 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ALGOUSDT",
-      "percent": -0.81,
+      "percent": -1.08,
       "wallex": [
-        "17153.95",
-        "221.47"
+        "17401.911200000002",
+        "720.46"
       ],
-      "binance": "17015.4908",
-      "value": 3799085,
-      "description": "Buy ALGOUSDT from Wallex at 221.47 USDT and sell on Binance at 17015.4908 USDT"
+      "binance": "17213.8502",
+      "value": 12537380,
+      "description": "Buy ALGOUSDT from Wallex at 720.46 USDT and sell on Binance at 17213.8502 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to USDT",
+    "rowData": {
+      "symbol": "DOGEUSDT",
+      "percent": -0.36,
+      "wallex": [
+        "18319.64888",
+        "2629.7"
+      ],
+      "binance": "18253.20066",
+      "value": 48175180,
+      "description": "Buy DOGEUSDT from Wallex at 2629.7 USDT and sell on Binance at 18253.20066 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "CVCUSDT",
-      "percent": -1.65,
+      "percent": -5.38,
       "wallex": [
-        "6075.6172",
-        "2053.38"
+        "6293.7748",
+        "1992.03"
       ],
-      "binance": "5975.3813",
-      "value": 12475550,
-      "description": "Buy CVCUSDT from Wallex at 2053.38 USDT and sell on Binance at 5975.3813 USDT"
+      "binance": "5955.265",
+      "value": 12537388,
+      "description": "Buy CVCUSDT from Wallex at 1992.03 USDT and sell on Binance at 5955.265 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "CHZUSDT",
-      "percent": -0.49,
+      "percent": -0.28,
       "wallex": [
-        "4104.4724",
-        "3039.5"
+        "4074.655",
+        "1961.2"
       ],
-      "binance": "4084.2167799999997",
-      "value": 12475543,
-      "description": "Buy CHZUSDT from Wallex at 3039.5 USDT and sell on Binance at 4084.2167799999997 USDT"
+      "binance": "4063.37134",
+      "value": 7991213,
+      "description": "Buy CHZUSDT from Wallex at 1961.2 USDT and sell on Binance at 4063.37134 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "BANDUSDT",
-      "percent": -1.14,
+      "percent": -0.9,
       "wallex": [
-        "47195.194800000005",
-        "264.34"
+        "47441.5216",
+        "80.48"
       ],
-      "binance": "46655.378",
-      "value": 12475577,
-      "description": "Buy BANDUSDT from Wallex at 264.34 USDT and sell on Binance at 46655.378 USDT"
+      "binance": "47015.25",
+      "value": 3818093,
+      "description": "Buy BANDUSDT from Wallex at 80.48 USDT and sell on Binance at 47015.25 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "XTZUSDT",
-      "percent": -0.33,
+      "percent": -0.3,
       "wallex": [
-        "61754.22",
-        "1287.2"
+        "62185.504",
+        "1061.4"
       ],
-      "binance": "61550.1698",
-      "value": 79490031,
-      "description": "Buy XTZUSDT from Wallex at 1287.2 USDT and sell on Binance at 61550.1698 USDT"
+      "binance": "61997.443",
+      "value": 66003693,
+      "description": "Buy XTZUSDT from Wallex at 1061.4 USDT and sell on Binance at 61997.443 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to USDT",
+    "rowData": {
+      "symbol": "HBARUSDT",
+      "percent": -1.27,
+      "wallex": [
+        "17401.911200000002",
+        "219.39"
+      ],
+      "binance": "17181.252959999998",
+      "value": 3817805,
+      "description": "Buy HBARUSDT from Wallex at 219.39 USDT and sell on Binance at 17181.252959999998 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "BCHUSDT",
-      "percent": -0.55,
+      "percent": -0.33,
       "wallex": [
-        "71513881.88",
-        "0.01954"
+        "71608613.83999999",
+        "0.03361"
       ],
-      "binance": "71118264.7",
-      "value": 1397381,
-      "description": "Buy BCHUSDT from Wallex at 0.01954 USDT and sell on Binance at 71118264.7 USDT"
+      "binance": "71375418.19999999",
+      "value": 2406765,
+      "description": "Buy BCHUSDT from Wallex at 0.03361 USDT and sell on Binance at 71375418.19999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SOLUSDT",
-      "percent": -0.03,
+      "percent": -0.11,
       "wallex": [
-        "17135236.599999998",
-        "8.7368"
+        "17241432.48",
+        "0.19944"
       ],
-      "binance": "17130258.04",
-      "value": 149707135,
-      "description": "Buy SOLUSDT from Wallex at 8.7368 USDT and sell on Binance at 17130258.04 USDT"
+      "binance": "17222626.38",
+      "value": 3438631,
+      "description": "Buy SOLUSDT from Wallex at 0.19944 USDT and sell on Binance at 17222626.38 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "MDTUSDT",
+      "percent": 0.26,
+      "wallex": [
+        "1884.49",
+        "250"
+      ],
+      "binance": "1889.38618",
+      "value": 471122,
+      "description": "Buy MDTUSDT from Wallex at 1884.49 USDT and sell on Binance at 1889.38618 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "LRCUSDT",
-      "percent": -1.08,
+      "percent": -0.75,
       "wallex": [
-        "6280.21704",
-        "1986.49"
+        "6316.34212",
+        "1984.91"
       ],
-      "binance": "6212.4006",
-      "value": 12475588,
-      "description": "Buy LRCUSDT from Wallex at 1986.49 USDT and sell on Binance at 6212.4006 USDT"
+      "binance": "6268.700000000001",
+      "value": 12537370,
+      "description": "Buy LRCUSDT from Wallex at 1984.91 USDT and sell on Binance at 6268.700000000001 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SNXUSDT",
-      "percent": -1.25,
+      "percent": -1.18,
       "wallex": [
-        "62402.951199999996",
-        "199.92"
+        "62674.4626",
+        "200.04"
       ],
-      "binance": "61625.018",
-      "value": 12475598,
-      "description": "Buy SNXUSDT from Wallex at 199.92 USDT and sell on Binance at 61625.018 USDT"
+      "binance": "61934.756",
+      "value": 12537399,
+      "description": "Buy SNXUSDT from Wallex at 200.04 USDT and sell on Binance at 61934.756 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "MANAUSDT",
-      "percent": -0.53,
+      "percent": -0.59,
       "wallex": [
-        "19000.338799999998",
-        "4947.6"
+        "19169.6846",
+        "4685.7"
       ],
-      "binance": "18899.1705",
-      "value": 94006076,
-      "description": "Buy MANAUSDT from Wallex at 4947.6 USDT and sell on Binance at 18899.1705 USDT"
+      "binance": "19056.847999999998",
+      "value": 89823391,
+      "description": "Buy MANAUSDT from Wallex at 4685.7 USDT and sell on Binance at 19056.847999999998 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "YFIUSDT",
-      "percent": -1.52,
+      "percent": -0.51,
       "wallex": [
-        "476556691.96",
-        "0.01598"
+        "473952585.94",
+        "0.01781"
       ],
-      "binance": "469298214",
-      "value": 7615375,
-      "description": "Buy YFIUSDT from Wallex at 0.01598 USDT and sell on Binance at 469298214 USDT"
+      "binance": "471531614",
+      "value": 8441095,
+      "description": "Buy YFIUSDT from Wallex at 0.01781 USDT and sell on Binance at 471531614 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "CRVUSDT",
-      "percent": -0.35,
+      "percent": -1.05,
       "wallex": [
-        "50613.5092",
-        "246.48"
+        "51390.802599999995",
+        "74.29"
       ],
-      "binance": "50435.2121",
-      "value": 12475217,
-      "description": "Buy CRVUSDT from Wallex at 246.48 USDT and sell on Binance at 50435.2121 USDT"
+      "binance": "50851.6944",
+      "value": 3817822,
+      "description": "Buy CRVUSDT from Wallex at 74.29 USDT and sell on Binance at 50851.6944 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SANDUSDT",
-      "percent": -0.64,
+      "percent": -0.56,
       "wallex": [
-        "17852.5836",
-        "2908.3"
+        "17966.0942",
+        "2409.2"
       ],
-      "binance": "17739.0234",
-      "value": 51920668,
-      "description": "Buy SANDUSDT from Wallex at 2908.3 USDT and sell on Binance at 17739.0234 USDT"
+      "binance": "17865.795",
+      "value": 43283914,
+      "description": "Buy SANDUSDT from Wallex at 2409.2 USDT and sell on Binance at 17865.795 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "NMRUSDT",
-      "percent": -1.89,
+      "percent": -1.53,
       "wallex": [
-        "1439309.972",
-        "8.667"
+        "1464242.946",
+        "8.562"
       ],
-      "binance": "1412136.04",
-      "value": 12474499,
-      "description": "Buy NMRUSDT from Wallex at 8.667 USDT and sell on Binance at 1412136.04 USDT"
+      "binance": "1441801",
+      "value": 12536848,
+      "description": "Buy NMRUSDT from Wallex at 8.562 USDT and sell on Binance at 1441801 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "DOTUSDT",
-      "percent": -0.6,
+      "percent": -0.27,
       "wallex": [
-        "275710.76",
-        "142.89"
+        "277076.54",
+        "20.61"
       ],
-      "binance": "274069.159",
-      "value": 39396310,
-      "description": "Buy DOTUSDT from Wallex at 142.89 USDT and sell on Binance at 274069.159 USDT"
+      "binance": "276324.29600000003",
+      "value": 5710547,
+      "description": "Buy DOTUSDT from Wallex at 20.61 USDT and sell on Binance at 276324.29600000003 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "PAXGUSDT",
+      "percent": 0.16,
+      "wallex": [
+        "526999994",
+        "0.03483"
+      ],
+      "binance": "527855883.5",
+      "value": 18355409,
+      "description": "Buy PAXGUSDT from Wallex at 526999994 USDT and sell on Binance at 527855883.5 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "PAXGUSDT",
-      "percent": 0.48,
+      "percent": 0.72,
       "wallex": [
-        "521480080",
-        "0.596005"
+        "524063320",
+        "0.577008"
       ],
-      "binance": "523959854.46000004",
-      "value": 310804735,
-      "description": "Buy PAXGUSDT from Wallex at 0.596005 USDT and sell on Binance at 523959854.46000004 USDT"
+      "binance": "527855883.5",
+      "value": 302388728,
+      "description": "Buy PAXGUSDT from Wallex at 0.577008 USDT and sell on Binance at 527855883.5 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "TRBUSDT",
-      "percent": -0.78,
+      "percent": -1.48,
       "wallex": [
-        "2757294.734",
-        "1.378"
+        "2799588.8825999997",
+        "1.364"
       ],
-      "binance": "2735701.71",
-      "value": 3799552,
-      "description": "Buy TRBUSDT from Wallex at 1.378 USDT and sell on Binance at 2735701.71 USDT"
+      "binance": "2758228",
+      "value": 3818639,
+      "description": "Buy TRBUSDT from Wallex at 1.364 USDT and sell on Binance at 2758228 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SUSHIUSDT",
-      "percent": -0.68,
+      "percent": -0.79,
       "wallex": [
-        "42417.04",
-        "1222.91"
+        "42752.534",
+        "1219.324"
       ],
-      "binance": "42127.0619",
-      "value": 51872222,
-      "description": "Buy SUSHIUSDT from Wallex at 1222.91 USDT and sell on Binance at 42127.0619 USDT"
+      "binance": "42414.0242",
+      "value": 52129190,
+      "description": "Buy SUSHIUSDT from Wallex at 1219.324 USDT and sell on Binance at 42414.0242 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "EGLDUSDT",
-      "percent": -0.51,
+      "percent": -0.63,
       "wallex": [
-        "986819.96",
-        "3.85"
+        "996723.3",
+        "3.83"
       ],
-      "binance": "981758.89",
-      "value": 3799256,
-      "description": "Buy EGLDUSDT from Wallex at 3.85 USDT and sell on Binance at 981758.89 USDT"
+      "binance": "990454.6000000001",
+      "value": 3817450,
+      "description": "Buy EGLDUSDT from Wallex at 3.83 USDT and sell on Binance at 990454.6000000001 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "RUNEUSDT",
-      "percent": -0.86,
+      "percent": -1,
       "wallex": [
-        "87578.712",
-        "449.84"
+        "87887.174",
+        "450.48"
       ],
-      "binance": "86823.912",
-      "value": 39396407,
-      "description": "Buy RUNEUSDT from Wallex at 449.84 USDT and sell on Binance at 86823.912 USDT"
+      "binance": "87009.556",
+      "value": 39591414,
+      "description": "Buy RUNEUSDT from Wallex at 450.48 USDT and sell on Binance at 87009.556 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "UMAUSDT",
-      "percent": -2.01,
+      "percent": -2.11,
       "wallex": [
-        "104258.5892",
-        "36.44"
+        "105539.8332",
+        "36.17"
       ],
-      "binance": "102167.79299999999",
-      "value": 3799182,
-      "description": "Buy UMAUSDT from Wallex at 36.44 USDT and sell on Binance at 102167.79299999999 USDT"
+      "binance": "103308.17599999999",
+      "value": 3817375,
+      "description": "Buy UMAUSDT from Wallex at 36.17 USDT and sell on Binance at 103308.17599999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "UNIUSDT",
-      "percent": -0.44,
+      "percent": -0.4,
       "wallex": [
-        "696001.2484",
-        "92.03"
+        "698395.867",
+        "69.98"
       ],
-      "binance": "692969.585",
-      "value": 64052994,
-      "description": "Buy UNIUSDT from Wallex at 92.03 USDT and sell on Binance at 692969.585 USDT"
+      "binance": "695574.952",
+      "value": 48873742,
+      "description": "Buy UNIUSDT from Wallex at 69.98 USDT and sell on Binance at 695574.952 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AVAXUSDT",
-      "percent": -0.22,
+      "percent": -0.14,
       "wallex": [
-        "1793991.28",
-        "37.09575"
+        "1794101.9400000002",
+        "45.15987"
       ],
-      "binance": "1790119.45",
-      "value": 66549452,
-      "description": "Buy AVAXUSDT from Wallex at 37.09575 USDT and sell on Binance at 1790119.45 USDT"
+      "binance": "1791594.46",
+      "value": 81021410,
+      "description": "Buy AVAXUSDT from Wallex at 45.15987 USDT and sell on Binance at 1791594.46 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AAVEUSDT",
-      "percent": -0.38,
+      "percent": -0.69,
       "wallex": [
-        "24712916.04",
-        "2.57542"
+        "25055993.9",
+        "3.22766"
       ],
-      "binance": "24620067.92",
-      "value": 63646138,
-      "description": "Buy AAVEUSDT from Wallex at 2.57542 USDT and sell on Binance at 24620067.92 USDT"
+      "binance": "24882977.78",
+      "value": 80872229,
+      "description": "Buy AAVEUSDT from Wallex at 3.22766 USDT and sell on Binance at 24882977.78 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "NEARUSDT",
-      "percent": -0.54,
+      "percent": -0.31,
       "wallex": [
-        "219495.7064",
-        "413.83"
+        "219968.683",
+        "418.91"
       ],
-      "binance": "218307.25",
-      "value": 90833908,
-      "description": "Buy NEARUSDT from Wallex at 413.83 USDT and sell on Binance at 218307.25 USDT"
+      "binance": "219279.12600000002",
+      "value": 92147080,
+      "description": "Buy NEARUSDT from Wallex at 418.91 USDT and sell on Binance at 219279.12600000002 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "FILUSDT",
-      "percent": -0.24,
+      "percent": -0.21,
       "wallex": [
-        "185936.3424",
-        "535.03"
+        "186832.33479999998",
+        "534.02"
       ],
-      "binance": "185498.78900000002",
-      "value": 99481521,
-      "description": "Buy FILUSDT from Wallex at 535.03 USDT and sell on Binance at 185498.78900000002 USDT"
+      "binance": "186431.138",
+      "value": 99772203,
+      "description": "Buy FILUSDT from Wallex at 534.02 USDT and sell on Binance at 186431.138 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AXSUSDT",
-      "percent": -1.02,
+      "percent": -1.1,
       "wallex": [
-        "135984.04",
+        "136657.66",
         "550.46"
       ],
-      "binance": "134602.013",
-      "value": 74853774,
-      "description": "Buy AXSUSDT from Wallex at 550.46 USDT and sell on Binance at 134602.013 USDT"
+      "binance": "135153.17200000002",
+      "value": 75224575,
+      "description": "Buy AXSUSDT from Wallex at 550.46 USDT and sell on Binance at 135153.17200000002 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "GRTUSDT",
-      "percent": -0.81,
+      "percent": -1.43,
       "wallex": [
-        "5740.0235600000005",
-        "2173.44"
+        "5777.233920000001",
+        "2170.13"
       ],
-      "binance": "5693.45308",
-      "value": 12475596,
-      "description": "Buy GRTUSDT from Wallex at 2173.44 USDT and sell on Binance at 5693.45308 USDT"
+      "binance": "5694.48708",
+      "value": 12537348,
+      "description": "Buy GRTUSDT from Wallex at 2170.13 USDT and sell on Binance at 5694.48708 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "1INCHUSDT",
-      "percent": -0.75,
+      "percent": -0.51,
       "wallex": [
-        "21957.056",
+        "22065.824",
         "1794.3"
       ],
-      "binance": "21793.3009",
-      "value": 39397545,
-      "description": "Buy 1INCHUSDT from Wallex at 1794.3 USDT and sell on Binance at 21793.3009 USDT"
+      "binance": "21952.9874",
+      "value": 39592708,
+      "description": "Buy 1INCHUSDT from Wallex at 1794.3 USDT and sell on Binance at 21952.9874 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "CAKEUSDT",
-      "percent": -0.24,
+      "percent": -0.53,
       "wallex": [
-        "291866.662",
-        "42.47"
+        "295707.1164",
+        "54.36"
       ],
-      "binance": "291159.498",
-      "value": 12395577,
-      "description": "Buy CAKEUSDT from Wallex at 42.47 USDT and sell on Binance at 291159.498 USDT"
+      "binance": "294127.40400000004",
+      "value": 16074638,
+      "description": "Buy CAKEUSDT from Wallex at 54.36 USDT and sell on Binance at 294127.40400000004 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "OMUSDT",
-      "percent": -1.01,
+      "percent": -0.41,
       "wallex": [
-        "9414.08776",
-        "4172.252"
+        "9404.30374",
+        "3522.329"
       ],
-      "binance": "9318.6009",
-      "value": 39277946,
-      "description": "Buy OMUSDT from Wallex at 4172.252 USDT and sell on Binance at 9318.6009 USDT"
+      "binance": "9365.4378",
+      "value": 33125051,
+      "description": "Buy OMUSDT from Wallex at 3522.329 USDT and sell on Binance at 9365.4378 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ALICEUSDT",
-      "percent": -0.84,
+      "percent": -1,
       "wallex": [
-        "28481.7948",
-        "3492.98"
+        "28873.6322",
+        "3456.86"
       ],
-      "binance": "28242.7208",
-      "value": 99486339,
-      "description": "Buy ALICEUSDT from Wallex at 3492.98 USDT and sell on Binance at 28242.7208 USDT"
+      "binance": "28585.272",
+      "value": 99812104,
+      "description": "Buy ALICEUSDT from Wallex at 3456.86 USDT and sell on Binance at 28585.272 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "SUPERUSDT",
+      "percent": 0.17,
+      "wallex": [
+        "36184",
+        "3.4"
+      ],
+      "binance": "36245.623400000004",
+      "value": 123025,
+      "description": "Buy SUPERUSDT from Wallex at 36184 USDT and sell on Binance at 36245.623400000004 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SUPERUSDT",
-      "percent": 0.42,
+      "percent": 0.24,
       "wallex": [
-        "34682.168000000005",
-        "4856.79"
+        "36157.8616",
+        "4280.78"
       ],
-      "binance": "34829.3624",
-      "value": 168444006,
-      "description": "Buy SUPERUSDT from Wallex at 4856.79 USDT and sell on Binance at 34829.3624 USDT"
+      "binance": "36245.623400000004",
+      "value": 154783850,
+      "description": "Buy SUPERUSDT from Wallex at 4280.78 USDT and sell on Binance at 36245.623400000004 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ICPUSDT",
-      "percent": -1.08,
+      "percent": -1.29,
       "wallex": [
-        "440263.924",
-        "8.63"
+        "447083.684",
+        "8.54"
       ],
-      "binance": "435491.777",
-      "value": 3799477,
-      "description": "Buy ICPUSDT from Wallex at 8.63 USDT and sell on Binance at 435491.777 USDT"
+      "binance": "441316.48",
+      "value": 3818094,
+      "description": "Buy ICPUSDT from Wallex at 8.54 USDT and sell on Binance at 441316.48 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "MASKUSDT",
-      "percent": -1.06,
+      "percent": -1.05,
       "wallex": [
-        "82962.74",
+        "83373.71",
         "70.11"
       ],
-      "binance": "82083.526",
-      "value": 5816517,
-      "description": "Buy MASKUSDT from Wallex at 70.11 USDT and sell on Binance at 82083.526 USDT"
+      "binance": "82496.092",
+      "value": 5845330,
+      "description": "Buy MASKUSDT from Wallex at 70.11 USDT and sell on Binance at 82496.092 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "LPTUSDT",
+      "percent": 0.08,
+      "wallex": [
+        "477175",
+        "1.69"
+      ],
+      "binance": "477549.566",
+      "value": 806425,
+      "description": "Buy LPTUSDT from Wallex at 477175 USDT and sell on Binance at 477549.566 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "LPTUSDT",
-      "percent": -0.66,
+      "percent": -0.52,
       "wallex": [
-        "474946.092",
-        "82.95"
+        "480057.04600000003",
+        "82.47"
       ],
-      "binance": "471793.154",
-      "value": 39396778,
-      "description": "Buy LPTUSDT from Wallex at 82.95 USDT and sell on Binance at 471793.154 USDT"
+      "binance": "477549.566",
+      "value": 39590304,
+      "description": "Buy LPTUSDT from Wallex at 82.47 USDT and sell on Binance at 477549.566 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "DEXEUSDT",
-      "percent": 0.2,
+      "percent": 0.02,
       "wallex": [
-        "490400",
+        "492245",
         "1.06"
       ],
-      "binance": "491378.433",
-      "value": 519824,
-      "description": "Buy DEXEUSDT from Wallex at 490400 USDT and sell on Binance at 491378.433 USDT"
+      "binance": "492343.69800000003",
+      "value": 521779,
+      "description": "Buy DEXEUSDT from Wallex at 492245 USDT and sell on Binance at 492343.69800000003 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "DEXEUSDT",
-      "percent": -1.46,
+      "percent": -1.21,
       "wallex": [
-        "498649.73199999996",
-        "7.62"
+        "498361.65",
+        "7.66"
       ],
-      "binance": "491378.433",
-      "value": 3799710,
-      "description": "Buy DEXEUSDT from Wallex at 7.62 USDT and sell on Binance at 491378.433 USDT"
+      "binance": "492343.69800000003",
+      "value": 3817450,
+      "description": "Buy DEXEUSDT from Wallex at 7.66 USDT and sell on Binance at 492343.69800000003 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "QNTUSDT",
-      "percent": -1.26,
+      "percent": -1.56,
       "wallex": [
-        "10768937.92",
-        "0.353"
+        "10881209.46",
+        "0.351"
       ],
-      "binance": "10633434.28",
-      "value": 3801435,
-      "description": "Buy QNTUSDT from Wallex at 0.353 USDT and sell on Binance at 10633434.28 USDT"
+      "binance": "10711954.56",
+      "value": 3819304,
+      "description": "Buy QNTUSDT from Wallex at 0.351 USDT and sell on Binance at 10711954.56 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "FLOWUSDT",
-      "percent": -1.26,
+      "percent": -1.35,
       "wallex": [
-        "27920.3928",
-        "136.07"
+        "27833.028000000002",
+        "137.17"
       ],
-      "binance": "27569.087",
-      "value": 3799127,
-      "description": "Buy FLOWUSDT from Wallex at 136.07 USDT and sell on Binance at 27569.087 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "RAYUSDT",
-      "percent": 0.02,
-      "wallex": [
-        "145298",
-        "27.95"
-      ],
-      "binance": "145330.255",
-      "value": 4061079,
-      "description": "Buy RAYUSDT from Wallex at 145298 USDT and sell on Binance at 145330.255 USDT"
+      "binance": "27456.906",
+      "value": 3817856,
+      "description": "Buy FLOWUSDT from Wallex at 137.17 USDT and sell on Binance at 27456.906 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "RAYUSDT",
-      "percent": -0.35,
+      "percent": -0.51,
       "wallex": [
-        "145839.764",
-        "682.48"
+        "148192.068",
+        "673.63"
       ],
-      "binance": "145330.255",
-      "value": 99532722,
-      "description": "Buy RAYUSDT from Wallex at 682.48 USDT and sell on Binance at 145330.255 USDT"
+      "binance": "147439.824",
+      "value": 99826622,
+      "description": "Buy RAYUSDT from Wallex at 673.63 USDT and sell on Binance at 147439.824 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "DYDXUSDT",
-      "percent": -0.71,
+      "percent": -0.69,
       "wallex": [
-        "24951.2",
-        "500"
+        "25576.296",
+        "490.19"
       ],
-      "binance": "24774.7542",
-      "value": 12475600,
-      "description": "Buy DYDXUSDT from Wallex at 500 USDT and sell on Binance at 24774.7542 USDT"
+      "binance": "25400.7724",
+      "value": 12537244,
+      "description": "Buy DYDXUSDT from Wallex at 490.19 USDT and sell on Binance at 25400.7724 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "GALAUSDT",
+      "percent": 0.14,
+      "wallex": [
+        "944",
+        "530.5"
+      ],
+      "binance": "945.3199599999999",
+      "value": 500792,
+      "description": "Buy GALAUSDT from Wallex at 944 USDT and sell on Binance at 945.3199599999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AGLDUSDT",
-      "percent": -0.74,
+      "percent": -0.57,
       "wallex": [
-        "37202.2392",
-        "1058.99"
+        "37449.213800000005",
+        "1057.21"
       ],
-      "binance": "36925.112",
-      "value": 39396799,
-      "description": "Buy AGLDUSDT from Wallex at 1058.99 USDT and sell on Binance at 36925.112 USDT"
+      "binance": "37236.078",
+      "value": 39591683,
+      "description": "Buy AGLDUSDT from Wallex at 1057.21 USDT and sell on Binance at 37236.078 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "BICOUSDT",
-      "percent": -2.12,
+      "percent": -2.3,
       "wallex": [
-        "6627.0387200000005",
-        "573.27"
+        "6698.73282",
+        "569.94"
       ],
-      "binance": "6486.844",
-      "value": 3799082,
-      "description": "Buy BICOUSDT from Wallex at 573.27 USDT and sell on Binance at 6486.844 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "CVXUSDT",
-      "percent": 0.11,
-      "wallex": [
-        "235398",
-        "4.23"
-      ],
-      "binance": "235647.083",
-      "value": 995733,
-      "description": "Buy CVXUSDT from Wallex at 235398 USDT and sell on Binance at 235647.083 USDT"
+      "binance": "6544.522800000001",
+      "value": 3817875,
+      "description": "Buy BICOUSDT from Wallex at 569.94 USDT and sell on Binance at 6544.522800000001 USDT"
     }
   },
   {
@@ -901,292 +999,250 @@
       "symbol": "CVXUSDT",
       "percent": 0.15,
       "wallex": [
-        "235302.29160000003",
+        "237470.8934",
         "10.52"
       ],
-      "binance": "235647.083",
-      "value": 2475380,
-      "description": "Buy CVXUSDT from Wallex at 10.52 USDT and sell on Binance at 235647.083 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "PEOPLEUSDT",
-      "percent": 0.17,
-      "wallex": [
-        "1284",
-        "2132.5556"
-      ],
-      "binance": "1286.14157",
-      "value": 2738201,
-      "description": "Buy PEOPLEUSDT from Wallex at 1284 USDT and sell on Binance at 1286.14157 USDT"
+      "binance": "237834.478",
+      "value": 2498193,
+      "description": "Buy CVXUSDT from Wallex at 10.52 USDT and sell on Binance at 237834.478 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "IMXUSDT",
-      "percent": -0.76,
+      "percent": -1.43,
       "wallex": [
-        "36578.459200000005",
+        "36759.656800000004",
         "341.06"
       ],
-      "binance": "36301.377",
-      "value": 12475449,
-      "description": "Buy IMXUSDT from Wallex at 341.06 USDT and sell on Binance at 36301.377 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "BTTCUSDT",
-      "percent": 1.16,
-      "wallex": [
-        "0.053027",
-        "397017210"
-      ],
-      "binance": "0.05364121",
-      "value": 21052631,
-      "description": "Buy BTTCUSDT from Wallex at 0.053027 USDT and sell on Binance at 0.05364121 USDT"
+      "binance": "36233.085999999996",
+      "value": 12537248,
+      "description": "Buy IMXUSDT from Wallex at 341.06 USDT and sell on Binance at 36233.085999999996 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "APEUSDT",
-      "percent": -0.39,
+      "percent": -0.17,
       "wallex": [
-        "29691.928",
-        "1326.85"
+        "29964.386",
+        "52.37"
       ],
-      "binance": "29577.5137",
-      "value": 39396734,
-      "description": "Buy APEUSDT from Wallex at 1326.85 USDT and sell on Binance at 29577.5137 USDT"
+      "binance": "29914.2364",
+      "value": 1569234,
+      "description": "Buy APEUSDT from Wallex at 52.37 USDT and sell on Binance at 29914.2364 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "NEXOUSDT",
-      "percent": -1.18,
+      "percent": -1.05,
       "wallex": [
-        "124593.8172",
-        "30.49"
+        "126326.84240000001",
+        "30.22"
       ],
-      "binance": "123125.289",
-      "value": 3798865,
-      "description": "Buy NEXOUSDT from Wallex at 30.49 USDT and sell on Binance at 123125.289 USDT"
+      "binance": "124997.878",
+      "value": 3817597,
+      "description": "Buy NEXOUSDT from Wallex at 30.22 USDT and sell on Binance at 124997.878 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "APTUSDT",
-      "percent": -0.95,
+      "percent": -0.94,
       "wallex": [
-        "225434.092",
-        "96.7"
+        "226676.192",
+        "16.84"
       ],
-      "binance": "223297.13",
-      "value": 21799476,
-      "description": "Buy APTUSDT from Wallex at 96.7 USDT and sell on Binance at 223297.13 USDT"
+      "binance": "224544.834",
+      "value": 3817227,
+      "description": "Buy APTUSDT from Wallex at 16.84 USDT and sell on Binance at 224544.834 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "OSMOUSDT",
-      "percent": 0.44,
+      "percent": 0,
       "wallex": [
-        "9116",
-        "97.27"
+        "9102",
+        "148"
       ],
-      "binance": "9156.429800000002",
-      "value": 886713,
-      "description": "Buy OSMOUSDT from Wallex at 9116 USDT and sell on Binance at 9156.429800000002 USDT"
+      "binance": "9102.152399999999",
+      "value": 1347096,
+      "description": "Buy OSMOUSDT from Wallex at 9102 USDT and sell on Binance at 9102.152399999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "MAGICUSDT",
-      "percent": -2.44,
+      "percent": -0.74,
       "wallex": [
-        "15906.39",
-        "4080.79"
+        "15157.7166",
+        "251.88"
       ],
-      "binance": "15518.5268",
-      "value": 64910637,
-      "description": "Buy MAGICUSDT from Wallex at 4080.79 USDT and sell on Binance at 15518.5268 USDT"
+      "binance": "15044.88",
+      "value": 3817925,
+      "description": "Buy MAGICUSDT from Wallex at 251.88 USDT and sell on Binance at 15044.88 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ARBUSDT",
-      "percent": -0.42,
+      "percent": -0.96,
       "wallex": [
-        "27184.332400000003",
-        "724.6202"
+        "27557.2052",
+        "2534.3079"
       ],
-      "binance": "27070.099",
-      "value": 19698316,
-      "description": "Buy ARBUSDT from Wallex at 724.6202 USDT and sell on Binance at 27070.099 USDT"
+      "binance": "27293.9198",
+      "value": 69838442,
+      "description": "Buy ARBUSDT from Wallex at 2534.3079 USDT and sell on Binance at 27293.9198 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "WBTCUSDT",
-      "percent": -1.44,
+      "percent": -1.31,
       "wallex": [
-        "11675794274.24",
-        "0.000325"
+        "11672587700.36",
+        "0.000327"
       ],
-      "binance": "11507882058.19",
-      "value": 3794633,
-      "description": "Buy WBTCUSDT from Wallex at 0.000325 USDT and sell on Binance at 11507882058.19 USDT"
+      "binance": "11519662763.86",
+      "value": 3816936,
+      "description": "Buy WBTCUSDT from Wallex at 0.000327 USDT and sell on Binance at 11519662763.86 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "EDUUSDT",
+      "percent": 0.22,
+      "wallex": [
+        "16914",
+        "48.12"
+      ],
+      "binance": "16950.5648",
+      "value": 813901,
+      "description": "Buy EDUUSDT from Wallex at 16914 USDT and sell on Binance at 16950.5648 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "EDUUSDT",
-      "percent": -1.35,
+      "percent": -1.17,
       "wallex": [
-        "16667.4016",
-        "227.93"
+        "17151.1632",
+        "222.6"
       ],
-      "binance": "16441.6546",
-      "value": 3799000,
-      "description": "Buy EDUUSDT from Wallex at 227.93 USDT and sell on Binance at 16441.6546 USDT"
+      "binance": "16950.5648",
+      "value": 3817848,
+      "description": "Buy EDUUSDT from Wallex at 222.6 USDT and sell on Binance at 16950.5648 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SUIUSDT",
-      "percent": -1.01,
+      "percent": -0.95,
       "wallex": [
-        "203439.6092",
-        "330.92"
+        "203670.063",
+        "396.14"
       ],
-      "binance": "201379.0821",
-      "value": 67322235,
-      "description": "Buy SUIUSDT from Wallex at 330.92 USDT and sell on Binance at 201379.0821 USDT"
+      "binance": "201726.766",
+      "value": 80681858,
+      "description": "Buy SUIUSDT from Wallex at 396.14 USDT and sell on Binance at 201726.766 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "WLDUSDT",
-      "percent": -0.17,
+      "percent": -0.32,
       "wallex": [
-        "77847.744",
-        "641.75"
+        "79361.742",
+        "712.79"
       ],
-      "binance": "77717.381",
-      "value": 49958789,
-      "description": "Buy WLDUSDT from Wallex at 641.75 USDT and sell on Binance at 77717.381 USDT"
+      "binance": "79110.994",
+      "value": 56568256,
+      "description": "Buy WLDUSDT from Wallex at 712.79 USDT and sell on Binance at 79110.994 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SEIUSDT",
-      "percent": -0.66,
+      "percent": -0.29,
       "wallex": [
-        "17153.95",
-        "5799.16"
+        "17226.3876",
+        "5794.14"
       ],
-      "binance": "17040.4402",
-      "value": 99478500,
-      "description": "Buy SEIUSDT from Wallex at 5799.16 USDT and sell on Binance at 17040.4402 USDT"
+      "binance": "17176.238",
+      "value": 99812101,
+      "description": "Buy SEIUSDT from Wallex at 5794.14 USDT and sell on Binance at 17176.238 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "TIAUSDT",
-      "percent": -1.11,
+      "percent": -0.99,
       "wallex": [
-        "76699.9888",
-        "49.53"
+        "77493.6694",
+        "57.69"
       ],
-      "binance": "75846.17599999999",
-      "value": 3798950,
-      "description": "Buy TIAUSDT from Wallex at 49.53 USDT and sell on Binance at 75846.17599999999 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "JUPUSDT",
-      "percent": 0.24,
-      "wallex": [
-        "28672",
-        "62.4"
-      ],
-      "binance": "28741.7088",
-      "value": 1789132,
-      "description": "Buy JUPUSDT from Wallex at 28672 USDT and sell on Binance at 28741.7088 USDT"
+      "binance": "76728.88799999999",
+      "value": 4470609,
+      "description": "Buy TIAUSDT from Wallex at 57.69 USDT and sell on Binance at 76728.88799999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "JUPUSDT",
-      "percent": -1.12,
+      "percent": -1.03,
       "wallex": [
-        "29068.148",
+        "29212.142",
         "130.7"
       ],
-      "binance": "28741.7088",
-      "value": 3799206,
-      "description": "Buy JUPUSDT from Wallex at 130.7 USDT and sell on Binance at 28741.7088 USDT"
+      "binance": "28911.2444",
+      "value": 3818026,
+      "description": "Buy JUPUSDT from Wallex at 130.7 USDT and sell on Binance at 28911.2444 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "PYTHUSDT",
-      "percent": -1.3,
+      "percent": -1.01,
       "wallex": [
-        "8670.542000000001",
-        "438.16"
+        "8663.3434",
+        "440.69"
       ],
-      "binance": "8557.644199999999",
-      "value": 3799084,
-      "description": "Buy PYTHUSDT from Wallex at 438.16 USDT and sell on Binance at 8557.644199999999 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "STRKUSDT",
-      "percent": 0.29,
-      "wallex": [
-        "13546",
-        "721.02"
-      ],
-      "binance": "13584.9483",
-      "value": 9766936,
-      "description": "Buy STRKUSDT from Wallex at 13546 USDT and sell on Binance at 13584.9483 USDT"
+      "binance": "8575.5816",
+      "value": 3817848,
+      "description": "Buy PYTHUSDT from Wallex at 440.69 USDT and sell on Binance at 8575.5816 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "STRKUSDT",
-      "percent": -1.21,
+      "percent": -1.48,
       "wallex": [
-        "13751.853879999999",
-        "276.26"
+        "13960.394900000001",
+        "327.96"
       ],
-      "binance": "13584.9483",
-      "value": 3799087,
-      "description": "Buy STRKUSDT from Wallex at 276.26 USDT and sell on Binance at 13584.9483 USDT"
+      "binance": "13753.5278",
+      "value": 4578451,
+      "description": "Buy STRKUSDT from Wallex at 327.96 USDT and sell on Binance at 13753.5278 USDT"
     }
   },
   {
@@ -1195,544 +1251,586 @@
       "symbol": "WIFUSDT",
       "percent": -0.49,
       "wallex": [
-        "51399.471999999994",
-        "766.48"
+        "51027.21799999999",
+        "775.9"
       ],
-      "binance": "51146.27",
-      "value": 39396667,
-      "description": "Buy WIFUSDT from Wallex at 766.48 USDT and sell on Binance at 51146.27 USDT"
+      "binance": "50776.47",
+      "value": 39592018,
+      "description": "Buy WIFUSDT from Wallex at 775.9 USDT and sell on Binance at 50776.47 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AEVOUSDT",
-      "percent": -1.54,
+      "percent": -1.15,
       "wallex": [
-        "5371.99336",
-        "707.2"
+        "5783.502619999999",
+        "660.13"
       ],
-      "binance": "5289.2728",
-      "value": 3799073,
-      "description": "Buy AEVOUSDT from Wallex at 707.2 USDT and sell on Binance at 5289.2728 USDT"
+      "binance": "5717.0544",
+      "value": 3817863,
+      "description": "Buy AEVOUSDT from Wallex at 660.13 USDT and sell on Binance at 5717.0544 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ETHFIUSDT",
-      "percent": -1.26,
+      "percent": -1.37,
       "wallex": [
-        "110671.0476",
-        "34.33"
+        "111858.6828",
+        "34.13"
       ],
-      "binance": "109278.372",
-      "value": 3799337,
-      "description": "Buy ETHFIUSDT from Wallex at 34.33 USDT and sell on Binance at 109278.372 USDT"
+      "binance": "110329.12",
+      "value": 3817736,
+      "description": "Buy ETHFIUSDT from Wallex at 34.13 USDT and sell on Binance at 110329.12 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ENAUSDT",
-      "percent": -0.74,
+      "percent": -1.19,
       "wallex": [
-        "33833.8272",
-        "368.73"
+        "33838.442599999995",
+        "370.5"
       ],
-      "binance": "33581.8924",
-      "value": 12475547,
-      "description": "Buy ENAUSDT from Wallex at 368.73 USDT and sell on Binance at 33581.8924 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to USDT",
-    "rowData": {
-      "symbol": "TNSRUSDT",
-      "percent": -2.17,
-      "wallex": [
-        "13249.0872",
-        "430.11"
-      ],
-      "binance": "12961.213300000001",
-      "value": 5698564,
-      "description": "Buy TNSRUSDT from Wallex at 430.11 USDT and sell on Binance at 12961.213300000001 USDT"
+      "binance": "33437.2458",
+      "value": 12537142,
+      "description": "Buy ENAUSDT from Wallex at 370.5 USDT and sell on Binance at 33437.2458 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "TAOUSDT",
-      "percent": -0.89,
+      "percent": -0.91,
       "wallex": [
-        "37522862.12",
+        "37930649.96",
         "0.101"
       ],
-      "binance": "37187080.7",
-      "value": 3789809,
-      "description": "Buy TAOUSDT from Wallex at 0.101 USDT and sell on Binance at 37187080.7 USDT"
+      "binance": "37587125.2",
+      "value": 3830995,
+      "description": "Buy TAOUSDT from Wallex at 0.101 USDT and sell on Binance at 37587125.2 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "IOUSDT",
-      "percent": -1,
+      "percent": -0.7,
       "wallex": [
-        "21420.605199999998",
-        "177.36"
+        "21464.0288",
+        "177.87"
       ],
-      "binance": "21206.99",
-      "value": 3799158,
-      "description": "Buy IOUSDT from Wallex at 177.36 USDT and sell on Binance at 21206.99 USDT"
+      "binance": "21313.58",
+      "value": 3817806,
+      "description": "Buy IOUSDT from Wallex at 177.87 USDT and sell on Binance at 21313.58 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "RENDERUSDT",
-      "percent": -1.02,
+      "percent": -0.72,
       "wallex": [
-        "208592.03199999998",
-        "287.1"
+        "209249.206",
+        "58.71503296"
       ],
-      "binance": "206456.285",
-      "value": 59886772,
-      "description": "Buy RENDERUSDT from Wallex at 287.1 USDT and sell on Binance at 206456.285 USDT"
+      "binance": "207744.718",
+      "value": 12286074,
+      "description": "Buy RENDERUSDT from Wallex at 58.71503296 USDT and sell on Binance at 207744.718 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "TONUSDT",
-      "percent": -0.25,
+      "percent": -0.18,
       "wallex": [
-        "205098.864",
-        "38.25"
+        "206240.23",
+        "72.32"
       ],
-      "binance": "204585.08",
-      "value": 7845031,
-      "description": "Buy TONUSDT from Wallex at 38.25 USDT and sell on Binance at 204585.08 USDT"
+      "binance": "205864.10799999998",
+      "value": 14915293,
+      "description": "Buy TONUSDT from Wallex at 72.32 USDT and sell on Binance at 205864.10799999998 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "POLUSDT",
-      "percent": -0.89,
+      "percent": -0.4,
       "wallex": [
-        "15594.5",
-        "7155.4"
+        "15546.376",
+        "806.4"
       ],
-      "binance": "15456.1533",
-      "value": 111584885,
-      "description": "Buy POLUSDT from Wallex at 7155.4 USDT and sell on Binance at 15456.1533 USDT"
+      "binance": "15483.689",
+      "value": 12536597,
+      "description": "Buy POLUSDT from Wallex at 806.4 USDT and sell on Binance at 15483.689 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "CATIUSDT",
+      "percent": 0.17,
+      "wallex": [
+        "7585",
+        "2283.7"
+      ],
+      "binance": "7597.664400000001",
+      "value": 17321864,
+      "description": "Buy CATIUSDT from Wallex at 7585 USDT and sell on Binance at 7597.664400000001 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "CATIUSDT",
-      "percent": -0.16,
+      "percent": -1.19,
       "wallex": [
-        "7534.01484",
-        "4720.1"
+        "7689.18742",
+        "4824.6"
       ],
-      "binance": "7522.2441",
-      "value": 35561303,
-      "description": "Buy CATIUSDT from Wallex at 4720.1 USDT and sell on Binance at 7522.2441 USDT"
+      "binance": "7597.664400000001",
+      "value": 37097253,
+      "description": "Buy CATIUSDT from Wallex at 4824.6 USDT and sell on Binance at 7597.664400000001 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "EIGENUSDT",
-      "percent": -0.4,
+      "percent": -0.27,
       "wallex": [
-        "60743.6964",
-        "142.7939"
+        "61094.7502",
+        "186.4145"
       ],
-      "binance": "60502.295",
-      "value": 8673829,
-      "description": "Buy EIGENUSDT from Wallex at 142.7939 USDT and sell on Binance at 60502.295 USDT"
+      "binance": "60931.763999999996",
+      "value": 11388947,
+      "description": "Buy EIGENUSDT from Wallex at 186.4145 USDT and sell on Binance at 60931.763999999996 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "KAIAUSDT",
-      "percent": -1.32,
+      "percent": -1.26,
       "wallex": [
-        "9720.98752",
-        "198.31"
+        "9713.977519999999",
+        "261.91"
       ],
-      "binance": "9593.0443",
-      "value": 1927769,
-      "description": "Buy KAIAUSDT from Wallex at 198.31 USDT and sell on Binance at 9593.0443 USDT"
+      "binance": "9591.110999999999",
+      "value": 2544187,
+      "description": "Buy KAIAUSDT from Wallex at 261.91 USDT and sell on Binance at 9591.110999999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ORCAUSDT",
-      "percent": -1.31,
+      "percent": -1.01,
       "wallex": [
-        "160024.5212",
-        "23.74"
+        "160591.55659999998",
+        "23.77"
       ],
-      "binance": "157929.702",
-      "value": 3798982,
-      "description": "Buy ORCAUSDT from Wallex at 23.74 USDT and sell on Binance at 157929.702 USDT"
+      "binance": "158974.232",
+      "value": 3817261,
+      "description": "Buy ORCAUSDT from Wallex at 23.77 USDT and sell on Binance at 158974.232 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "MOVEUSDT",
-      "percent": -1.23,
+      "percent": -1.22,
       "wallex": [
-        "5114.996",
+        "5140.334",
         "2774.25"
       ],
-      "binance": "5052.2535",
-      "value": 14190277,
-      "description": "Buy MOVEUSDT from Wallex at 2774.25 USDT and sell on Binance at 5052.2535 USDT"
+      "binance": "5077.647",
+      "value": 14260571,
+      "description": "Buy MOVEUSDT from Wallex at 2774.25 USDT and sell on Binance at 5077.647 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "BIOUSDT",
-      "percent": -0.9,
+      "percent": -1.03,
       "wallex": [
-        "6180.41224",
-        "614.7"
+        "6182.19194",
+        "617.56"
       ],
-      "binance": "6125.0777",
-      "value": 3799099,
-      "description": "Buy BIOUSDT from Wallex at 614.7 USDT and sell on Binance at 6125.0777 USDT"
+      "binance": "6118.251200000001",
+      "value": 3817874,
+      "description": "Buy BIOUSDT from Wallex at 617.56 USDT and sell on Binance at 6118.251200000001 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AIXBTUSDT",
-      "percent": -1.26,
+      "percent": -0.98,
       "wallex": [
-        "5091.2923599999995",
-        "746.19"
+        "5115.2592",
+        "746.37"
       ],
-      "binance": "5027.3041",
-      "value": 3799071,
-      "description": "Buy AIXBTUSDT from Wallex at 746.19 USDT and sell on Binance at 5027.3041 USDT"
+      "binance": "5065.1096",
+      "value": 3817876,
+      "description": "Buy AIXBTUSDT from Wallex at 746.37 USDT and sell on Binance at 5065.1096 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "COOKIEUSDT",
-      "percent": 0.27,
+      "percent": 0.06,
       "wallex": [
-        "6818",
-        "398.95"
+        "6816",
+        "302.65"
       ],
-      "binance": "6836.1356000000005",
-      "value": 2720041,
-      "description": "Buy COOKIEUSDT from Wallex at 6818 USDT and sell on Binance at 6836.1356000000005 USDT"
+      "binance": "6820.3456",
+      "value": 2062862,
+      "description": "Buy COOKIEUSDT from Wallex at 6816 USDT and sell on Binance at 6820.3456 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "COOKIEUSDT",
-      "percent": -1,
+      "percent": -0.64,
       "wallex": [
-        "6905.2446",
-        "5705.32"
+        "6864.2265",
+        "5767.84"
       ],
-      "binance": "6836.1356000000005",
-      "value": 39396630,
-      "description": "Buy COOKIEUSDT from Wallex at 5705.32 USDT and sell on Binance at 6836.1356000000005 USDT"
+      "binance": "6820.3456",
+      "value": 39591760,
+      "description": "Buy COOKIEUSDT from Wallex at 5767.84 USDT and sell on Binance at 6820.3456 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SUSDT",
-      "percent": -0.53,
+      "percent": -0.42,
       "wallex": [
-        "12001.527199999999",
-        "8288.16"
+        "12010.8292",
+        "8309.63"
       ],
-      "binance": "11938.2879",
-      "value": 99470577,
-      "description": "Buy SUSDT from Wallex at 8288.16 USDT and sell on Binance at 11938.2879 USDT"
+      "binance": "11960.6796",
+      "value": 99805546,
+      "description": "Buy SUSDT from Wallex at 8309.63 USDT and sell on Binance at 11960.6796 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "LAYERUSDT",
+      "percent": 0.03,
+      "wallex": [
+        "25180",
+        "1255.93"
+      ],
+      "binance": "25187.636599999998",
+      "value": 31624317,
+      "description": "Buy LAYERUSDT from Wallex at 25180 USDT and sell on Binance at 25187.636599999998 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "LAYERUSDT",
-      "percent": -1.15,
+      "percent": -1.28,
       "wallex": [
-        "25100.907199999998",
-        "151.35"
+        "25513.608999999997",
+        "149.64"
       ],
-      "binance": "24812.1783",
-      "value": 3799022,
-      "description": "Buy LAYERUSDT from Wallex at 151.35 USDT and sell on Binance at 24812.1783 USDT"
+      "binance": "25187.636599999998",
+      "value": 3817856,
+      "description": "Buy LAYERUSDT from Wallex at 149.64 USDT and sell on Binance at 25187.636599999998 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "KAITOUSDT",
+      "percent": 0.06,
+      "wallex": [
+        "80477",
+        "9.96"
+      ],
+      "binance": "80527.7202",
+      "value": 801550,
+      "description": "Buy KAITOUSDT from Wallex at 80477 USDT and sell on Binance at 80527.7202 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "KAITOUSDT",
-      "percent": -1.2,
+      "percent": -1.03,
       "wallex": [
-        "81390.8144",
-        "46.68"
+        "81367.72600000001",
+        "46.92"
       ],
-      "binance": "80411.91619999999",
-      "value": 3799323,
-      "description": "Buy KAITOUSDT from Wallex at 46.68 USDT and sell on Binance at 80411.91619999999 USDT"
+      "binance": "80527.7202",
+      "value": 3817773,
+      "description": "Buy KAITOUSDT from Wallex at 46.92 USDT and sell on Binance at 80527.7202 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "FORMUSDT",
-      "percent": -0.16,
+      "percent": -0.24,
       "wallex": [
-        "41057.1996",
-        "150.79"
+        "41122.672",
+        "244.07"
       ],
-      "binance": "40991.8642",
-      "value": 6191015,
-      "description": "Buy FORMUSDT from Wallex at 150.79 USDT and sell on Binance at 40991.8642 USDT"
+      "binance": "41022.3728",
+      "value": 10036810,
+      "description": "Buy FORMUSDT from Wallex at 244.07 USDT and sell on Binance at 41022.3728 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ONDOUSDT",
-      "percent": -1.03,
+      "percent": -0.92,
       "wallex": [
-        "62053.6344",
-        "61.22"
+        "62411.177200000006",
+        "61.17"
       ],
-      "binance": "61412.9481",
-      "value": 3798923,
-      "description": "Buy ONDOUSDT from Wallex at 61.22 USDT and sell on Binance at 61412.9481 USDT"
+      "binance": "61834.4568",
+      "value": 3817691,
+      "description": "Buy ONDOUSDT from Wallex at 61.17 USDT and sell on Binance at 61834.4568 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "VIRTUALUSDT",
-      "percent": -1.23,
+      "percent": -1.1,
       "wallex": [
-        "107801.6596",
-        "35.24"
+        "108987.6182",
+        "35.03"
       ],
-      "binance": "106471.56450000001",
-      "value": 3798930,
-      "description": "Buy VIRTUALUSDT from Wallex at 35.24 USDT and sell on Binance at 106471.56450000001 USDT"
-    }
-  },
-  {
-    "statusbuy": "wallex Buy usdt to TMN",
-    "rowData": {
-      "symbol": "SYRUPUSDT",
-      "percent": 0.17,
-      "wallex": [
-        "34259",
-        "17.74"
-      ],
-      "binance": "34317.8997",
-      "value": 607754,
-      "description": "Buy SYRUPUSDT from Wallex at 34259 USDT and sell on Binance at 34317.8997 USDT"
+      "binance": "107784.0278",
+      "value": 3817836,
+      "description": "Buy VIRTUALUSDT from Wallex at 35.03 USDT and sell on Binance at 107784.0278 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SYRUPUSDT",
-      "percent": -1.26,
+      "percent": -0.95,
       "wallex": [
-        "34757.0216",
-        "109.3"
+        "34505.43228",
+        "110.65"
       ],
-      "binance": "34317.8997",
-      "value": 3798942,
-      "description": "Buy SYRUPUSDT from Wallex at 109.3 USDT and sell on Binance at 34317.8997 USDT"
+      "binance": "34176.9524",
+      "value": 3818026,
+      "description": "Buy SYRUPUSDT from Wallex at 110.65 USDT and sell on Binance at 34176.9524 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "KMNOUSDT",
-      "percent": -0.97,
+      "percent": -1.41,
       "wallex": [
-        "7885.82676",
-        "481.76"
+        "7928.651760000001",
+        "481.53"
       ],
-      "binance": "7809.162200000001",
-      "value": 3799075,
-      "description": "Buy KMNOUSDT from Wallex at 481.76 USDT and sell on Binance at 7809.162200000001 USDT"
+      "binance": "7817.0689",
+      "value": 3817883,
+      "description": "Buy KMNOUSDT from Wallex at 481.53 USDT and sell on Binance at 7817.0689 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "AUSDT",
+      "percent": 0.08,
+      "wallex": [
+        "23100",
+        "4.94"
+      ],
+      "binance": "23118.9656",
+      "value": 114114,
+      "description": "Buy AUSDT from Wallex at 23100 USDT and sell on Binance at 23118.9656 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "AUSDT",
-      "percent": -0.55,
+      "percent": -0.59,
       "wallex": [
-        "23067.384400000003",
-        "540.83"
+        "23256.877",
+        "539.08"
       ],
-      "binance": "22940.9733",
-      "value": 12475533,
-      "description": "Buy AUSDT from Wallex at 540.83 USDT and sell on Binance at 22940.9733 USDT"
+      "binance": "23118.9656",
+      "value": 12537317,
+      "description": "Buy AUSDT from Wallex at 539.08 USDT and sell on Binance at 23118.9656 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SAHARAUSDT",
-      "percent": -0.85,
+      "percent": -1.21,
       "wallex": [
-        "4296.59664",
-        "884.21"
+        "4335.43292",
+        "880.63"
       ],
-      "binance": "4260.11005",
-      "value": 3799093,
-      "description": "Buy SAHARAUSDT from Wallex at 884.21 USDT and sell on Binance at 4260.11005 USDT"
+      "binance": "4282.77584",
+      "value": 3817912,
+      "description": "Buy SAHARAUSDT from Wallex at 880.63 USDT and sell on Binance at 4282.77584 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "PROVEUSDT",
-      "percent": -1.11,
+      "percent": -1.18,
       "wallex": [
-        "54543.3232",
-        "69.65"
+        "55139.4852",
+        "69.24"
       ],
-      "binance": "53940.6028",
-      "value": 3798942,
-      "description": "Buy PROVEUSDT from Wallex at 69.65 USDT and sell on Binance at 53940.6028 USDT"
+      "binance": "54487.5404",
+      "value": 3817857,
+      "description": "Buy PROVEUSDT from Wallex at 69.24 USDT and sell on Binance at 54487.5404 USDT"
+    }
+  },
+  {
+    "statusbuy": "wallex Buy usdt to TMN",
+    "rowData": {
+      "symbol": "SKYUSDT",
+      "percent": 0.11,
+      "wallex": [
+        "7032",
+        "141.2"
+      ],
+      "binance": "7039.7501",
+      "value": 992918,
+      "description": "Buy SKYUSDT from Wallex at 7032 USDT and sell on Binance at 7039.7501 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "SKYUSDT",
-      "percent": -0.79,
+      "percent": -0.78,
       "wallex": [
-        "7043.723760000001",
-        "1771.1"
+        "7094.91466",
+        "538.1"
       ],
-      "binance": "6988.32694",
-      "value": 12475139,
-      "description": "Buy SKYUSDT from Wallex at 1771.1 USDT and sell on Binance at 6988.32694 USDT"
+      "binance": "7039.7501",
+      "value": 3817773,
+      "description": "Buy SKYUSDT from Wallex at 538.1 USDT and sell on Binance at 7039.7501 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "XPLUSDT",
-      "percent": -1.33,
+      "percent": -0.97,
       "wallex": [
-        "21769.922",
-        "174.51"
+        "21978.0622",
+        "173.71"
       ],
-      "binance": "21481.433399999998",
-      "value": 3799069,
-      "description": "Buy XPLUSDT from Wallex at 174.51 USDT and sell on Binance at 21481.433399999998 USDT"
+      "binance": "21764.9264",
+      "value": 3817809,
+      "description": "Buy XPLUSDT from Wallex at 173.71 USDT and sell on Binance at 21764.9264 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "2ZUSDT",
-      "percent": -1.14,
+      "percent": -1.18,
       "wallex": [
-        "16355.5116",
+        "16436.5314",
         "232.3"
       ],
-      "binance": "16169.706140000002",
-      "value": 3799385,
-      "description": "Buy 2ZUSDT from Wallex at 232.3 USDT and sell on Binance at 16169.706140000002 USDT"
+      "binance": "16242.2017",
+      "value": 3818206,
+      "description": "Buy 2ZUSDT from Wallex at 232.3 USDT and sell on Binance at 16242.2017 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "MORPHOUSDT",
-      "percent": -1.42,
+      "percent": -1.3,
       "wallex": [
-        "160585.9232",
-        "23.66"
+        "162208.8812",
+        "23.54"
       ],
-      "binance": "158303.943",
-      "value": 3799462,
-      "description": "Buy MORPHOUSDT from Wallex at 23.66 USDT and sell on Binance at 158303.943 USDT"
+      "binance": "160102.598",
+      "value": 3818397,
+      "description": "Buy MORPHOUSDT from Wallex at 23.54 USDT and sell on Binance at 160102.598 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "ASTERUSDT",
-      "percent": -1.07,
+      "percent": -0.84,
       "wallex": [
-        "120551.7228",
-        "827.9"
+        "120998.44739999999",
+        "31.55"
       ],
-      "binance": "119258.132",
-      "value": 99804771,
-      "description": "Buy ASTERUSDT from Wallex at 827.9 USDT and sell on Binance at 119258.132 USDT"
+      "binance": "119982.91799999999",
+      "value": 3817501,
+      "description": "Buy ASTERUSDT from Wallex at 31.55 USDT and sell on Binance at 119982.91799999999 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "GIGGLEUSDT",
-      "percent": -0.91,
+      "percent": -1.08,
       "wallex": [
-        "10478256.44",
-        "0.363"
+        "10596610.479999999",
+        "0.36"
       ],
-      "binance": "10382692.81",
-      "value": 3803607,
-      "description": "Buy GIGGLEUSDT from Wallex at 0.363 USDT and sell on Binance at 10382692.81 USDT"
+      "binance": "10482520.14",
+      "value": 3814779,
+      "description": "Buy GIGGLEUSDT from Wallex at 0.36 USDT and sell on Binance at 10482520.14 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to TMN",
     "rowData": {
       "symbol": "BANKUSDT",
-      "percent": 0.35,
+      "percent": 0.31,
       "wallex": [
-        "5109",
+        "5137",
         "769.16"
       ],
-      "binance": "5127.101699999999",
-      "value": 3929638,
-      "description": "Buy BANKUSDT from Wallex at 5109 USDT and sell on Binance at 5127.101699999999 USDT"
+      "binance": "5152.8714",
+      "value": 3951174,
+      "description": "Buy BANKUSDT from Wallex at 5137 USDT and sell on Binance at 5152.8714 USDT"
     }
   },
   {
     "statusbuy": "wallex Buy usdt to USDT",
     "rowData": {
       "symbol": "BANKUSDT",
-      "percent": -1.09,
+      "percent": -1.08,
       "wallex": [
-        "5183.6118",
+        "5209.289699999999",
         "732.9"
       ],
-      "binance": "5127.101699999999",
-      "value": 3799069,
-      "description": "Buy BANKUSDT from Wallex at 732.9 USDT and sell on Binance at 5127.101699999999 USDT"
+      "binance": "5152.8714",
+      "value": 3817888,
+      "description": "Buy BANKUSDT from Wallex at 732.9 USDT and sell on Binance at 5152.8714 USDT"
     }
   }
 ]
