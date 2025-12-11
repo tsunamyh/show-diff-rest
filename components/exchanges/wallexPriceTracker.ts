@@ -22,6 +22,7 @@ interface WallexDepthResponse {
 }
 
 interface WallexOrderbooks {
+  exchangeName: string;
   tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };
   usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
 }
@@ -56,6 +57,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
     }
 
     const wallexOrderbooks : WallexOrderbooks = {
+      exchangeName: "wallex",
       tmnPairs: {},
       usdtPairs: {}
     };

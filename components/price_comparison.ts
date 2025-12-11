@@ -112,7 +112,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
             console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
         }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "TMN");
+        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn");
     }
     
     return null;
@@ -127,7 +127,7 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
             console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Ask USDT: ${binance_usdt_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
         }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "USDT");
+        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt");
     }
     return null;
 }
@@ -168,7 +168,7 @@ function createRowTable(
     symbol: string,
     statusCompare: string
 ) {
-    if(statusCompare==="TMN"){
+    if(statusCompare==="UsdtVsTmn"){
       const rowData: RowData = {
           symbol: symbol,
           percent: difference_percent,
@@ -181,13 +181,13 @@ function createRowTable(
           description: `Buy ${symbol} from Wallex at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} TMN and sell on Binance at ${binanceAskOrder[BinanceIndex.TMN_PRICE]} TMN`
       };
 
-      const statusbuy =  "wallex Buy usdt to TMN";
+      const statusbuy = statusCompare;
       return {
         statusbuy,
         rowData,
       };
     }
-    if(statusCompare==="USDT"){
+    if(statusCompare==="UsdtVsUsdt"){
       const rowData: RowData = {
           symbol: symbol,
           percent: difference_percent,
@@ -199,7 +199,7 @@ function createRowTable(
           value: amount_tmn,
           description: `Buy ${symbol} from Wallex at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} USDT and sell on Binance at ${binanceAskOrder[BinanceIndex.USDT_PRICE]} USDT`
       };
-      const statusbuy =  "wallex Buy usdt to USDT";
+      const statusbuy = statusCompare;
       return {
         statusbuy,
         rowData,
