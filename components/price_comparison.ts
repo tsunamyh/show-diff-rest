@@ -69,13 +69,13 @@ async function priceComp() {
         
         if (!binanceData || !wallexDataTmn) continue;
         
-        rowInfo = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol);
+        rowInfo = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol, wallexOrderbooks.exchangeName);
         
         if (rowInfo) rowsInfo.push(rowInfo);
         const wallexDataUsdt = wallexOrderbooks?.usdtPairs?.[symbol.toLowerCase()];
 
         if (!binanceData || !wallexDataUsdt) continue;
-        rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol);
+        rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol, wallexOrderbooks.exchangeName);
         if (rowInfo && rowInfo?.rowData.value > 500000) rowsInfo.push(rowInfo);
 
     }
@@ -101,7 +101,7 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
 }
 
 
-function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
+function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string,exchangeName: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
     const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
@@ -112,13 +112,13 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
             console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
         }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn");
+        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn",exchangeName);
     }
     
     return null;
 }
 
-function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string) {
+function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string,exchangeName: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
     const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
     const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
@@ -127,7 +127,7 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
             console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Ask USDT: ${binance_usdt_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
         }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt");
+        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt",exchangeName);
     }
     return null;
 }
@@ -166,7 +166,8 @@ function createRowTable(
     amount_currency: number,
     amount_tmn: number,
     symbol: string,
-    statusCompare: string
+    statusCompare: string,
+    exchangeName: string
 ) {
     if(statusCompare==="UsdtVsTmn"){
       const rowData: RowData = {
@@ -183,6 +184,7 @@ function createRowTable(
 
       const statusbuy = statusCompare;
       return {
+        exchangeName,
         statusbuy,
         rowData,
       };
@@ -201,6 +203,7 @@ function createRowTable(
       };
       const statusbuy = statusCompare;
       return {
+        exchangeName,
         statusbuy,
         rowData,
       };
