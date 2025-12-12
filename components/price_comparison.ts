@@ -179,7 +179,7 @@ function createRowTable(
           ],
           binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
           value: amount_tmn,
-          description: `Buy ${symbol} from Wallex at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} TMN and sell on Binance at ${binanceAskOrder[BinanceIndex.TMN_PRICE]} TMN`
+          description: `${exchangeName} at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare ${statusCompare}`
       };
 
       const statusbuy = statusCompare;
@@ -199,7 +199,7 @@ function createRowTable(
           ],
           binance: binanceAskOrder[BinanceIndex.USDT_PRICE],
           value: amount_tmn,
-          description: `Buy ${symbol} from Wallex at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} USDT and sell on Binance at ${binanceAskOrder[BinanceIndex.USDT_PRICE]} USDT`
+          description: `${exchangeName} at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} Binance ${binanceAskOrder[BinanceIndex.USDT_PRICE]} compare ${statusCompare}`
       };
       const statusbuy = statusCompare;
       return {
