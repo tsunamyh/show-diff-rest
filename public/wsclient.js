@@ -1,62 +1,186 @@
 const HOST = location.href.replace(/^http/, "ws");
 const ws = new WebSocket(HOST);
+
+// DOM Elements
+const loadingSpinner = document.getElementById('loading-spinner');
+const contentDiv = document.getElementById('content');
+const usdtRateDisplay = document.getElementById('usdt-rate');
+const lastUpdateDisplay = document.getElementById('last-update');
+
 ws.onopen = function () {
-    setTiltle("connected");
+    console.log('WebSocket connected');
+    showLoading(true);
 };
+
 ws.onmessage = function ({ data }) {
     console.log("rowsInfo:>", data);
-    const rowsInfo = JSON.parse(data);
-    if (rowsInfo.status == "maxDiff") {
-        printMaxDiff(rowsInfo.maxDiff);
-    }
-    else if (rowsInfo.size) {
-        printClientSize(rowsInfo.size);
-    }
-    else if (rowsInfo.status == "balance") {
-        printDataBal(rowsInfo.rowDataBal);
-    }
-    else {
-        printData(rowsInfo);
+    try {
+        const rowsInfo = JSON.parse(data);
+        
+        // اگر آرایه باشد (rowsInfo)
+        if (Array.isArray(rowsInfo) && rowsInfo.length > 0) {
+            printData(rowsInfo);
+            showLoading(false);
+        }
+        // اگر object باشد (maxDiff, size, balance)
+        else if (rowsInfo.status == "maxDiff") {
+            printMaxDiff(rowsInfo.maxDiff);
+        }
+        else if (rowsInfo.size) {
+            printClientSize(rowsInfo.size);
+        }
+        else if (rowsInfo.status == "balance") {
+            printDataBal(rowsInfo.rowDataBal);
+        }
+    } catch (error) {
+        console.error('Error parsing WebSocket data:', error);
     }
 };
+
 ws.onclose = function () {
-    setTiltle("disconnected");
+    console.log('WebSocket disconnected');
+    showLoading(false);
 };
-function setTiltle(title) {
-    document.querySelector("h4").innerHTML = title;
+
+ws.onerror = function (error) {
+    console.error('WebSocket error:', error);
+    showLoading(false);
+};
+
+function showLoading(isLoading) {
+    if (loadingSpinner) {
+        loadingSpinner.style.display = isLoading ? 'flex' : 'none';
+    }
+    if (contentDiv) {
+        contentDiv.style.display = isLoading ? 'none' : 'block';
+    }
 }
+
+function setTiltle(title) {
+    const titleElement = document.querySelector("h4");
+    if (titleElement) {
+        titleElement.innerHTML = title;
+    }
+}
+
+function updateUsdtRate(rate) {
+    if (usdtRateDisplay) {
+        usdtRateDisplay.textContent = rate.toLocaleString('fa-IR');
+    }
+}
+
+function updateLastUpdate() {
+    if (lastUpdateDisplay) {
+        lastUpdateDisplay.textContent = new Date().toLocaleTimeString('fa-IR');
+    }
+}
+
 function printMaxDiff(maxDiff) {
     let text = "";
     text = maxDiff[0].symbol + ":=> " + maxDiff[0].percent + " :" + " بهترین درصد ";
     let diffMax = document.querySelector("h3");
-    diffMax.innerText = text;
-    // console.log("maxdiff;", maxDiff);
+    if (diffMax) {
+        diffMax.innerText = text;
+    }
 }
+
 function printClientSize(size) {
-    document.querySelector("h5").innerHTML = "تعداد افراد آنلاین : " + size;
+    const clientElement = document.getElementById('connection-status');
+    if (clientElement) {
+        clientElement.textContent = `تعداد افراد آنلاین: ${size}`;
+    }
 }
+
 function printData(rowsInfo) {
     clearTable();
+    
+    if (!rowsInfo || rowsInfo.length === 0) {
+        showEmptyState();
+        return;
+    }
+
+    const tbody = document.getElementById('order');
+    
     rowsInfo.forEach(function (rowInfo) {
         const statusbuy = rowInfo.statusbuy;
         const rowData = rowInfo.rowData;
-        const tBody = document.querySelector("tbody#order");
-        const tRow = document.createElement("tr");
-        tRow.setAttribute("class", "row");
-        tBody.appendChild(tRow);
-        Object.keys(rowData).forEach(function (key) {
-            const tCell = document.createElement("td");
-            tRow.appendChild(tCell);
-            tCell.innerText = rowData[key];
-            if (statusbuy == key) {
-                tCell.style.backgroundColor = "#8fff4e";
-            }
-        });
+        
+        // Create table row
+        const tr = document.createElement('tr');
+        tr.className = 'data-row';
+        
+        // Symbol
+        const tdSymbol = document.createElement('td');
+        tdSymbol.textContent = rowData.symbol;
+        tdSymbol.className = 'symbol-cell';
+        tr.appendChild(tdSymbol);
+        
+        // Status Badge
+        const tdStatus = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = `status-badge status-${statusbuy.toLowerCase()}`;
+        badge.textContent = statusbuy === 'TMN' ? 'تومان' : 'دلار';
+        tdStatus.appendChild(badge);
+        tr.appendChild(tdStatus);
+        
+        // Wallex Price
+        const tdWallexPrice = document.createElement('td');
+        tdWallexPrice.textContent = formatPrice(rowData.wallex[0]);
+        tr.appendChild(tdWallexPrice);
+        
+        // Binance Price
+        const tdBinancePrice = document.createElement('td');
+        tdBinancePrice.textContent = formatPrice(rowData.binance);
+        tr.appendChild(tdBinancePrice);
+        
+        // Percent
+        const tdPercent = document.createElement('td');
+        tdPercent.textContent = rowData.percent.toFixed(2) + '%';
+        tdPercent.className = rowData.percent > 0 ? 'percent-positive' : 'percent-negative';
+        tr.appendChild(tdPercent);
+        
+        // Value
+        const tdValue = document.createElement('td');
+        tdValue.textContent = parseInt(rowData.value).toLocaleString('fa-IR');
+        tr.appendChild(tdValue);
+        
+        // Description
+        const tdDescription = document.createElement('td');
+        tdDescription.textContent = rowData.description;
+        tr.appendChild(tdDescription);
+        
+        tbody.appendChild(tr);
     });
-    sortTable();
+    
+    updateLastUpdate();
 }
+
+function formatPrice(price) {
+    const num = parseFloat(price);
+    return num.toLocaleString('fa-IR', { 
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2
+    });
+}
+
+function showEmptyState() {
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) {
+        emptyState.style.display = 'block';
+    }
+}
+
+function hideEmptyState() {
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) {
+        emptyState.style.display = 'none';
+    }
+}
+
 function printDataBal(rowDataBal) {
     const tBody = document.querySelector("tbody#balance");
+    if (!tBody) return;
+    
     const tRow = document.createElement("tr");
     tRow.setAttribute("class", "balRow");
     tBody.appendChild(tRow);
@@ -66,24 +190,27 @@ function printDataBal(rowDataBal) {
         tCell.innerText = rowDataBal[key];
     });
 }
+
 function clearTable() {
-    const trows = document.querySelectorAll(".row");
-    trows.forEach(function (tRow) {
-        tRow.remove();
-    });
+    const tbody = document.getElementById('order');
+    if (tbody) {
+        tbody.innerHTML = '';
+    }
+    hideEmptyState();
 }
+
 function sortTable() {
     let table, rows, switching, i, x, y, shouldSwitch;
     table = document.getElementById("exchange");
     switching = true;
     while (switching) {
         switching = false;
-        rows = table.rows;
-        for (i = 1; i < rows.length - 1; i++) {
+        rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        for (i = 0; i < rows.length - 1; i++) {
             shouldSwitch = false;
-            x = rows[i].getElementsByTagName("td")[1];
-            y = rows[i + 1].getElementsByTagName("td")[1];
-            if (+x.innerHTML < +y.innerHTML) {
+            x = rows[i].getElementsByTagName("td")[4]; // percent column
+            y = rows[i + 1].getElementsByTagName("td")[4];
+            if (x && y && +x.innerHTML < +y.innerHTML) {
                 shouldSwitch = true;
                 break;
             }

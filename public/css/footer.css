@@ -1,34 +1,42 @@
-.footer {
-	padding: 10px 15px;
-	height: 20px;
-	text-align: center;
-	font-size: 15px;
-	border-top: 1px solid #e6e6e6;
-}
-
-.footer:before {
-	content: '';
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	height: 50px;
-	overflow: hidden;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2),
-	            0 8px 0 -3px #f6f6f6,
-	            0 9px 1px -3px rgba(0, 0, 0, 0.2),
-	            0 16px 0 -6px #f6f6f6,
-	            0 17px 2px -6px rgba(0, 0, 0, 0.2);
-}
-
-
-
+/* Footer */
 .info {
-	margin: 65px auto 0;
-	color: #4d4d4d;
-	font-size: 11px;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-	text-align: center;
+    margin: 50px auto 0;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    border-top: 2px solid #ddd;
+    box-shadow: 0 -4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.info p {
+    margin: 10px 0;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+.info a {
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.info a:hover {
+    border-bottom: 1px solid white;
+    opacity: 0.8;
+}
+
+/* Footer responsiveness */
+@media (max-width: 768px) {
+    .info {
+        padding: 20px 10px;
+        text-align: center;
+    }
+    
+    .info p {
+        font-size: 0.9em;
+    }
 }
 
 .info p {

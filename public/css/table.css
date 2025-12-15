@@ -1,42 +1,123 @@
-
+/* Table Styles */
 table#exchange {
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-  border: 1px solid black;
-  width: 85%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    text-align: center;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-th,
-td {
-  border: 1px solid black;
+/* Table Header */
+thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: sticky;
+    top: 0;
 }
 
 th {
-  height: 55px;
-  font-size: 21px;
-  color: rgb(94, 34, 91);
-  background-color: beige;
-  border-bottom: 2px solid black;
+    padding: 15px 10px;
+    font-size: 0.95em;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    direction: rtl;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+th:last-child {
+    border-right: none;
+}
+
+/* Table Body */
+tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
 }
 
 td {
-  height: 46px;
-  /* background-color: ghostwhite; */
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 0.9em;
+    direction: rtl;
+    border-right: 1px solid #eee;
 }
 
-th#description {
-  width: 350px;
+td:last-child {
+    border-right: none;
 }
 
-th#symbol {
-  width: 120px;
+/* Column Widths */
+th#symbol, td:nth-child(1) {
+    width: 100px;
 }
 
-th#nob
-,th#coin {
-  width: 200px;
+th#status, td:nth-child(2) {
+    width: 80px;
+}
+
+th#wallex-price, td:nth-child(3) {
+    width: 120px;
+}
+
+th#binance-price, td:nth-child(4) {
+    width: 120px;
+}
+
+th#percent, td:nth-child(5) {
+    width: 100px;
+}
+
+th#value, td:nth-child(6) {
+    width: 120px;
+}
+
+th#description, td:nth-child(7) {
+    min-width: 250px;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* Responsive Table */
+@media (max-width: 1024px) {
+    table#exchange {
+        width: 100%;
+    }
+    
+    th, td {
+        padding: 10px 5px;
+        font-size: 0.85em;
+    }
+    
+    th#description, td:nth-child(7) {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    table#exchange {
+        width: 100%;
+        font-size: 0.8em;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+        font-size: 0.75em;
+    }
+    
+    th#description, td:nth-child(7) {
+        display: none;
+    }
 }
 
 th#value {

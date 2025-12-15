@@ -1,55 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
   <head>
     <meta charset="utf-8" />
-    <title>Diff Application</title>
-    <meta name="description" content="Tuts+ Chat Application" />
-    <link rel="stylesheet" href="/css/table.css" />
-    <link rel="stylesheet" href="/css/baltable.css" />
-    <link rel="stylesheet" href="/css/footer.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مقایسه قیمت‌ - والکس و بایننس</title>
+    <meta name="description" content="مقایسه قیمت‌های ارز دیجیتالی بین والکس و بایننس" />
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/base.css" />
     <link rel="stylesheet" href="/css/diff.css" />
-    <script src="/wsclient.js"></script>
-    <link rel="stylesheet" href="/css/table_pretty.css" />
-
+    <link rel="stylesheet" href="/css/table.css" />
+    <link rel="stylesheet" href="/css/footer.css" />
   </head>
 
   <body>
-    <div>
-      <h5></h5>
-      <h3 class="diffMax"></h3>
-      <h4></h4>
+    <div class="container">
+      <!-- Header Section -->
+      <header class="header">
+        <h1>💰 مقایسه قیمت‌های ارز</h1>
+        <p>والکس ↔ بایننس</p>
+      </header>
+
+      <!-- Rate Display Box -->
+      <div class="rate-box">
+        <div>
+          <h3>نرخ تبدیل USDT به TMN</h3>
+          <div class="rate-value" id="usdt-rate">بعدا درست بشود</div>
+          <div class="rate-time">آخرین به‌روزرسانی: <span id="last-update">---</span></div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div id="loading-spinner">
+        <div style="text-align: center;">
+          <div class="spinner"></div>
+          <div class="loading-text">در حال بارگیری داده‌ها...</div>
+        </div>
+      </div>
+
+      <!-- Content Section -->
+      <div id="content" style="display: none;">
+        <!-- Status Info -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h5 id="connection-status"></h5>
+          <h3 class="diffMax"></h3>
+        </div>
+
+        <!-- Table -->
+        <table id="exchange">
+          <thead>
+            <tr class="headers">
+              <th id="symbol">نماد</th>
+              <th id="status">وضعیت</th>
+              <th id="wallex-price">قیمت والکس</th>
+              <th id="binance-price">قیمت بایننس</th>
+              <th id="percent">درصد سود</th>
+              <th id="value">مقدار (تومان)</th>
+              <th id="description">توضیحات</th>
+            </tr>
+          </thead>
+          <tbody id="order">
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div class="empty-state" style="display: none;" id="empty-state">
+          فرصت سودآور پیدا نشد
+        </div>
+      </div>
     </div>
 
-    <table id="exchange">
-      <tbody id="order">
-        <tr class="headers">
-          <th id="symbol">Symbol</th>
-          <th id="percent">درصد</th>
-          <th id="nob">Exchange</th>
-          <th id="coin">Binance</th>
-          <th id="value">مقدار</th>
-          <th id="description">توضیحات</th>
-        </tr>
-      </tbody>
-    </table>
-    <br />
-
-    <br />
-    
+    <!-- Footer -->
     <footer class="info">
       <p>
-        Sponsered & created by
-        <a href="https://github.com/tsunamyh/">Sina Azizi And Hojat Fathpour</a>
+        توسعه شده توسط
+        <a href="https://github.com/tsunamyh/">سینا عزیزی و حجت فاتح‌پور</a>
       </p>
       <p>
-        Service powered by
+        قدرت گرفته از
         <a href="https://www.npmjs.com/package/websocket">WebSocket</a> &
         <a href="https://www.npmjs.com/package/express">Express</a>
       </p>
-      <p>
-        Messenger service :
-        <a href="https://messenger.iran.liara.run/">ChatBox</a>
-      </p>
     </footer>
+
+    <!-- Scripts -->
+    <script src="/wsclient.js"></script>
   </body>
 </html>
