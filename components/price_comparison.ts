@@ -1,6 +1,6 @@
 import { fetchWallexOnce, getAllOrderBooks } from "./exchanges-controller";
-import type { WallexOrderbooks } from "../wallex_prices";
-import type { BinanceOrderbooks } from "../binance_prices";
+// import type { WallexOrderbooks } from "../wallex_prices";
+// import type { BinanceOrderbooks } from "../binance_prices";
 import { EventEmitter } from "stream";
 import fs from "fs";
 
