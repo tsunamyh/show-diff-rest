@@ -50,41 +50,42 @@ function getLatestRowsInfo() {
 }
 
 async function priceComp() {
-    const orderBooks = await getAllOrderBooks();
-    // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
-    
-    if (!orderBooks?.binanceOrderbooks || !orderBooks?.wallexOrderbooks) {
-        console.log('Waiting for data...');
-        return;
-    }
-    
-    const { binanceOrderbooks, wallexOrderbooks } = orderBooks;
+  const orderBooks = await getAllOrderBooks();
+  // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
 
-    const rowsInfo = [];
-    
-    for (const symbol of commonSymbols) {
-        let rowInfo : RowInfo | null = null;
-        const binanceData = binanceOrderbooks?.usdt?.[symbol];
-        const wallexDataTmn = wallexOrderbooks?.tmnPairs?.[symbol.replace("USDT", "TMN").toLowerCase()];
-        
-        if (!binanceData || !wallexDataTmn) continue;
-        
-        rowInfo = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol, wallexOrderbooks.exchangeName);
-        
-        if (rowInfo) rowsInfo.push(rowInfo);
-        const wallexDataUsdt = wallexOrderbooks?.usdtPairs?.[symbol.toLowerCase()];
+  if (!orderBooks?.binanceOrderbooks || !orderBooks?.wallexOrderbooks) {
+    console.log('Waiting for data...');
+    return;
+  }
 
-        if (!binanceData || !wallexDataUsdt) continue;
-        rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol, wallexOrderbooks.exchangeName);
-        if (rowInfo && rowInfo?.rowData.value > 500000) rowsInfo.push(rowInfo);
+  const { binanceOrderbooks, wallexOrderbooks } = orderBooks;
 
-    }
+  const rowsInfo = [];
 
-    // require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
-    rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
-    const topRowsInfo = rowsInfo.slice(0, 10);
-    latestRowsInfo = topRowsInfo;
-    eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
+  for (const symbol of commonSymbols) {
+    let rowInfo: RowInfo | null = null;
+    const binanceData = binanceOrderbooks?.usdt?.[symbol];
+    const wallexDataTmn = wallexOrderbooks?.tmnPairs?.[symbol.replace("USDT", "TMN").toLowerCase()];
+
+    if (!binanceData || !wallexDataTmn) continue;
+
+    rowInfo = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol, wallexOrderbooks.exchangeName);
+
+    if (rowInfo) rowsInfo.push(rowInfo);
+    const wallexDataUsdt = wallexOrderbooks?.usdtPairs?.[symbol.toLowerCase()];
+
+    if (!binanceData || !wallexDataUsdt) continue;
+    rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol, wallexOrderbooks.exchangeName);
+    if (rowInfo && rowInfo?.rowData.value > 500000) rowsInfo.push(rowInfo);
+
+  }
+
+  // require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
+  rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
+  const topRowsInfo = rowsInfo.slice(0, 10);
+  latestRowsInfo = topRowsInfo;
+  eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
+
 }
 
 const eventEmmiter = new EventEmitter();
@@ -96,42 +97,42 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
       await priceComp();
     } catch (error) {
       console.error('Error in priceComp:', error);
-    } 
+    }
   }, 10000);
 }
 
-function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string,exchangeName: string) {
-    if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
+function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
+  if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
-    const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
-    const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
-    
-    if (wallex_tmn_ask < binance_tmn_ask) {
-        const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
-        if (difference_percent >= +myPercent && amount_tmn > 500000) {
-            console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
-        }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn",exchangeName);
+  const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
+  const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
+
+  if (wallex_tmn_ask < binance_tmn_ask) {
+    const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
+    if (difference_percent >= +myPercent && amount_tmn > 500000) {
+      console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
     }
-    
-    return null;
+    return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
+  }
+
+  return null;
 }
 
-function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string,exchangeName: string) {
-    if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
-    const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
-    const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
-    if (wallex_usdt_ask < binance_usdt_ask) {
-        const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
-        if (difference_percent >= +myPercent && amount_tmn > 500000) {
-            console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Ask USDT: ${binance_usdt_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
-        }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt",exchangeName);
+function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
+  if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
+  const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
+  const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
+  if (wallex_usdt_ask < binance_usdt_ask) {
+    const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
+    if (difference_percent >= +myPercent && amount_tmn > 500000) {
+      console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Ask USDT: ${binance_usdt_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
     }
-    return null;
+    return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
+  }
+  return null;
 }
 
-function exsistAskBid(binanceOrderbook , wallexOrderbook): boolean {
+function exsistAskBid(binanceOrderbook, wallexOrderbook): boolean {
   return (
     binanceOrderbook?.bid?.length >= 2 &&
     binanceOrderbook?.ask?.length >= 2 &&
@@ -144,7 +145,7 @@ function calcPercentAndAmounts(binanceAskOrder: any, wallexAskOrder: any): [numb
   // binanceAskOrder[BinanceIndex.TMN_PRICE] = TMN Price
   // wallexAskOrder[WallexTmnIndex.TMN_PRICE] = TMN Price
   const percent = calculatePercentageDifference(
-    +binanceAskOrder[BinanceIndex.TMN_PRICE], 
+    +binanceAskOrder[BinanceIndex.TMN_PRICE],
     +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]
   );
   const amount = +wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY];
@@ -159,54 +160,54 @@ function calculatePercentageDifference(binancePrice: number, buyPrice: number): 
 }
 
 function createRowTable(
-    wallexAskOrder: any,
-    binanceAskOrder: any,
-    difference_percent: number,
-    amount_currency: number,
-    amount_tmn: number,
-    symbol: string,
-    statusCompare: string,
-    exchangeName: string
+  wallexAskOrder: any,
+  binanceAskOrder: any,
+  difference_percent: number,
+  amount_currency: number,
+  amount_tmn: number,
+  symbol: string,
+  statusCompare: string,
+  exchangeName: string
 ) {
-    if(statusCompare==="UsdtVsTmn"){
-      const rowData: RowData = {
-          symbol: symbol,
-          percent: difference_percent,
-          wallex: [
-            wallexAskOrder[WallexTmnPairIndex.TMN_PRICE], 
-            wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY]
-          ],
-          binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
-          value: amount_tmn,
-          description: `${exchangeName} at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare ${statusCompare}`
-      };
+  if (statusCompare === "UsdtVsTmn") {
+    const rowData: RowData = {
+      symbol: symbol,
+      percent: difference_percent,
+      wallex: [
+        wallexAskOrder[WallexTmnPairIndex.TMN_PRICE],
+        wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY]
+      ],
+      binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
+      value: amount_tmn,
+      description: `${exchangeName} at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare ${statusCompare}`
+    };
 
-      const statusbuy = statusCompare;
-      return {
-        exchangeName,
-        statusbuy,
-        rowData,
-      };
-    }
-    if(statusCompare==="UsdtVsUsdt"){
-      const rowData: RowData = {
-          symbol: symbol,
-          percent: difference_percent,
-          wallex: [
-            wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE], 
-            wallexAskOrder[WallexUsdtPairIndex.VOLUME_CURRENCY]
-          ],
-          binance: binanceAskOrder[BinanceIndex.USDT_PRICE],
-          value: amount_tmn,
-          description: `${exchangeName} at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} Binance ${binanceAskOrder[BinanceIndex.USDT_PRICE]} compare ${statusCompare}`
-      };
-      const statusbuy = statusCompare;
-      return {
-        exchangeName,
-        statusbuy,
-        rowData,
-      };
-    }
+    const statusbuy = statusCompare;
+    return {
+      exchangeName,
+      statusbuy,
+      rowData,
+    };
+  }
+  if (statusCompare === "UsdtVsUsdt") {
+    const rowData: RowData = {
+      symbol: symbol,
+      percent: difference_percent,
+      wallex: [
+        wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE],
+        wallexAskOrder[WallexUsdtPairIndex.VOLUME_CURRENCY]
+      ],
+      binance: binanceAskOrder[BinanceIndex.USDT_PRICE],
+      value: amount_tmn,
+      description: `${exchangeName} at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} Binance ${binanceAskOrder[BinanceIndex.USDT_PRICE]} compare ${statusCompare}`
+    };
+    const statusbuy = statusCompare;
+    return {
+      exchangeName,
+      statusbuy,
+      rowData,
+    };
+  }
 }
 
 // اجرای اولیه
