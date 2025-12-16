@@ -2,7 +2,6 @@ import { fetchWallexOnce, getAllOrderBooks } from "./exchanges-controller";
 // import type { WallexOrderbooks } from "../wallex_prices";
 // import type { BinanceOrderbooks } from "../binance_prices";
 import { EventEmitter } from "stream";
-import fs from "fs";
 
 const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
@@ -46,9 +45,10 @@ const myPercent = process.env.MYPERCENT || 1;
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
 
-export function getLatestRowsInfo() {
+function getLatestRowsInfo() {
   return latestRowsInfo;
 }
+
 async function priceComp() {
     const orderBooks = await getAllOrderBooks();
     // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
@@ -80,7 +80,7 @@ async function priceComp() {
 
     }
 
-    fs.writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
+    require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
     rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
     const topRowsInfo = rowsInfo.slice(0, 10);
     latestRowsInfo = topRowsInfo;
@@ -99,7 +99,6 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
     } 
   }, 10000);
 }
-
 
 function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string,exchangeName: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
@@ -215,14 +214,4 @@ fetchWallexOnce().finally(async () => {
   await priceComp();
 });
 
-// اپدیت هر 10 ثانیه
-// setInterval(async () => {
-//   try {
-//     await priceComp();
-//   } catch (error) {
-//     console.error('Error in priceComp:', error);
-//   }
-// }, 10000);
-
-// console.log("Price comparison started. Updating every 10 seconds...");
-export { eventEmmiter, intervalFunc };
+export { eventEmmiter, intervalFunc, getLatestRowsInfo };

@@ -1,6 +1,4 @@
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
 
 interface OrderBook {
   price: string;
@@ -28,7 +26,6 @@ interface WallexOrderbooks {
 }
 
 const WALLEX_API_URL = 'https://api.wallex.ir/v2/depth/all';
-const INTERVAL = 10000; // 10 seconds
 let globalUsdtToTmnRate = 1;
 
 async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
@@ -98,8 +95,8 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
     });
 
     // خروجی TypeScript بسازیم
-    const tsOutput = `export interface WallexOrderbooks {\n  exchangeName : string;\n  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n}\n\nconst wallexOrderbooks: WallexOrderbooks = ${JSON.stringify(wallexOrderbooks, null, 2)};\n\nexport default wallexOrderbooks;\n`;
-    fs.writeFileSync(path.join(process.cwd(), './fswritefiles/wallex_prices.ts'), tsOutput ,'utf-8');
+    // const tsOutput = `export interface WallexOrderbooks {\n  exchangeName : string;\n  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n  usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };\n}\n\nconst wallexOrderbooks: WallexOrderbooks = ${JSON.stringify(wallexOrderbooks, null, 2)};\n\nexport default wallexOrderbooks;\n`;
+    // require('fs').writeFileSync(require('path').join(process.cwd(), './fswritefiles/wallex_prices.ts'), tsOutput ,'utf-8');
     // console.log(`[${new Date().toISOString()}] wallex_prices.ts updated.`);
 
     return wallexOrderbooks;
