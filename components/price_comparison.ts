@@ -80,7 +80,7 @@ async function priceComp() {
 
     }
 
-    require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
+    // require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
     rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
     const topRowsInfo = rowsInfo.slice(0, 10);
     latestRowsInfo = topRowsInfo;
