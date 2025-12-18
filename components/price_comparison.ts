@@ -45,8 +45,85 @@ const myPercent = process.env.MYPERCENT || 1;
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
 
+// Global variable to track top 5 currencies with biggest differences and their top 5 percentages
+interface PercentageRecord {
+  time: string;
+  value: number;
+}
+
+interface CurrencyDiffTracker {
+  symbol: string;
+  maxDifference: number;
+  percentages: PercentageRecord[];
+}
+
+let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
+let sortedCurrencies: CurrencyDiffTracker[] = [];
+
 function getLatestRowsInfo() {
   return latestRowsInfo;
+}
+
+function getTehranTime(): string {
+  const now = new Date();
+  const tehranTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tehran' }));
+  return tehranTime.toISOString();
+}
+
+function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue: number, minIntervalSeconds: number = 60): boolean {
+  if (!lastRecord) return true;
+  
+  // اگر value متفاوت است، اضافه کن
+  if (lastRecord.value !== newValue) return true;
+  
+  // اگر value یکسان است، فاصله زمانی رو بررسی کن
+  const lastTime = new Date(lastRecord.time).getTime();
+  const currentTime = new Date(getTehranTime()).getTime();
+  const timeDifferenceSeconds = (currentTime - lastTime) / 1000;
+  
+  // اگر فاصله زمانی بیشتر از حد تعیین شده است، اضافه کن
+  return timeDifferenceSeconds >= minIntervalSeconds;
+}
+
+function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
+  console.log("currencyDiffTracker:", currencyDiffTracker);
+
+  topRowsInfo.forEach(row => {
+    const { symbol, percent } = row.rowData;
+    const currentTime = getTehranTime();
+    const percentRecord: PercentageRecord = {
+      time: currentTime,
+      value: percent
+    };
+
+    if (!currencyDiffTracker.has(symbol)) {
+      currencyDiffTracker.set(symbol, {
+        symbol,
+        maxDifference: percent,
+        percentages: [percentRecord]
+      });
+    } else {
+      const tracker = currencyDiffTracker.get(symbol)!;
+      const lastRecord = tracker.percentages[0]; // آخرین record (ترتیب نزولی هست)
+      
+      tracker.maxDifference = Math.max(tracker.maxDifference, percent);
+      
+      // فقط اگر condition رو pass کنه، اضافه کن
+      if (shouldAddPercentage(lastRecord, percent)) {
+        tracker.percentages.push(percentRecord);
+        tracker.percentages = tracker.percentages.sort((a, b) => b.value - a.value).slice(0, 5);
+      }
+    }
+  })
+
+  sortedCurrencies = Array.from(currencyDiffTracker.values())
+    .sort((a, b) => b.maxDifference - a.maxDifference)
+    .slice(0, 5);
+  return sortedCurrencies;
+}
+
+function getTopFiveCurrenciesWithDifferences() {
+  return sortedCurrencies;
 }
 
 async function priceComp() {
@@ -84,6 +161,23 @@ async function priceComp() {
   rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
   const topRowsInfo = rowsInfo.slice(0, 10);
   latestRowsInfo = topRowsInfo;
+
+  // Update currency tracker with top 10 rows
+  updateCurrencyDiffTracker(topRowsInfo)
+  // topRowsInfo.forEach(row => {
+  //   updateCurrencyDiffTracker(row.rowData.symbol, row.rowData.percent);
+  // });
+
+  // Save top 5 currencies with biggest differences and their top 5 percentages
+  const topFiveCurrencies = getTopFiveCurrenciesWithDifferences();
+  const fs = require('fs');
+  const path = require('path');
+  const filePath = path.join(process.cwd(), './fswritefiles/top_5_currencies_with_percentages.json');
+  fs.writeFileSync(filePath, JSON.stringify({
+    timestamp: new Date().toISOString(),
+    topFiveCurrencies: topFiveCurrencies
+  }, null, 2), 'utf-8');
+
   eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
 
 }
@@ -215,4 +309,4 @@ fetchWallexOnce().finally(async () => {
   await priceComp();
 });
 
-export { eventEmmiter, intervalFunc, getLatestRowsInfo };
+export { eventEmmiter, intervalFunc, getLatestRowsInfo, getTopFiveCurrenciesWithDifferences };
