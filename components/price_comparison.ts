@@ -70,7 +70,7 @@ function getTehranTime(): string {
   return tehranTime.toISOString();
 }
 
-function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue: number, minIntervalSeconds: number = 60): boolean {
+function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue: number, minIntervalSeconds: number = 120): boolean {
   if (!lastRecord) return true;
   
   // اگر value متفاوت است، اضافه کن
