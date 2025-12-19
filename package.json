@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsc && node ./dist/bin/www.js",
     "start-tracker": "tsc && node ./dist/server.js & tsc && node ./dist/components/price_comparison.js",
-    "tstart": "tsc && node ./dist/app-commonsymbols.js",
+    "wallexstart": "tsc && node ./dist/app-commonsymbols.js",
+    "okexstart": "tsc && node ./dist/commonsymbols/app-okexBinanceCommonSymbols.js",
     "price-tracker": "tsc && node ./dist/priceTracker.js",
     "wallex-tracker": "tsc && node ./dist/components/exchanges/wallexPriceTracker.js",
     "binance-tracker": "tsc && node ./dist/components/exchanges/binancePriceTracker.js",
