@@ -2,10 +2,10 @@ import { fetchWallexOnce, getAllOrderBooks } from "./exchanges-controller";
 // import type { WallexOrderbooks } from "../wallex_prices";
 // import type { BinanceOrderbooks } from "../binance_prices";
 import { EventEmitter } from "stream";
+import wallex_binance_common_symbols from "../commonSymbols/wallex_binance_common_symbols";
+// const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
-const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
-
-const commonSymbols: string[] = binance_wallex_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
+const commonSymbols: string[] = wallex_binance_common_symbols.symbols.binance_symbol.map(s => s.toUpperCase());
 
 //  * مثال: [tmnPrice, volumeCurrency, usdtPrice]
 enum WallexUsdtPairIndex {
