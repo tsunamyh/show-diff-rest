@@ -50,10 +50,7 @@ async function fetchOkexPrices(): Promise<OkExOrderbooks | void> {
     }
     // Get Okex symbols from common symbols
 
-    // okExOrderbooks.usdtPairs[symbolKey] = {
-    //     bid: [bidPrice.toString(), bidQty.toString(), bidPriceTmn],
-    //     ask: [askPrice.toString(), askQty.toString(), askPriceTmn]
-    // };
+
 }
 
 export {

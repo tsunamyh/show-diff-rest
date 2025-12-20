@@ -1,3 +1,4 @@
+import { fetchOkexPrices } from "./exchanges/okexPriceTracker";
 import { fetchWallexPrices } from "./exchanges/wallexPriceTracker";
 
 let wallexFetched = false;
@@ -12,7 +13,7 @@ async function fetchWallexOnce() {
 async function getExchangesOrderBooks() {
   console.log("Starting price trackers...");
   const wallexOrderbooks = await fetchWallexPrices();
-  const okexOrderbooks = "await fetchOkexPrices()";
+  const okexOrderbooks = await fetchOkexPrices();
   return {
     wallexOrderbooks,
     okexOrderbooks
