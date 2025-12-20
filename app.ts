@@ -30,8 +30,7 @@ app.get('/api/comparison', (req, res) => {
 // app.get('/api/prices', async (req, res) => {
 //   try {
 //     const orderBooks = await getAllOrderBooks();
-//     const rate = getUsdtToTmnRate();
-    
+
 //     res.json({
 //       binanceOrderbooks: orderBooks?.binanceOrderbooks,
 //       wallexOrderbooks: orderBooks?.wallexOrderbooks,
@@ -44,19 +43,22 @@ app.get('/api/comparison', (req, res) => {
 // });
 
 app.get("/", function (req, res) {
-    // console.log("Home");
-    res.redirect("./diff")
+  // console.log("Home");
+  res.redirect("./diff")
 })
 
 app.get('/diff', function (req, res) {
-    res.render("diff", {
-        date: new Date().toLocaleString()
-    })
+  const rate = getUsdtToTmnRate();
+
+  res.render("diff", {
+    usdtToTmnRate: rate === 1 ? " به روز نشده" : rate,
+    date: new Date().toLocaleString()
+  })
 })
 
 // 404 - باید آخر باشد و از app.use استفاده کنید
 app.use((req, res) => {
-    res.status(404).send('<h1 align="center" style="color:red">404 Not Found</h1>');
+  res.status(404).send('<h1 align="center" style="color:red">404 Not Found</h1>');
 })
 
 console.log("app is running");
