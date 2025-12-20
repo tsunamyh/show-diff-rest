@@ -1,110 +1,61 @@
-// import axios from 'axios';
-// import { getUsdtToTmnRate } from './wallexPriceTracker';
-// import binance_okex_common_symbols from '../../commonSymbols/okex_binance_common_symbols';
+import axios from 'axios';
+import binance_okex_common_symbols from '../../commonSymbols/okex_binance_common_symbols';
 
-// interface OkExOrderbooks {
-//   exchangeName: string;
-//   usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
-// }
+interface OkExOrderbooks {
+    exchangeName: string;
+    usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
+}
 
-// // ok-ex.io API endpoints
-// const OKEX_API_URL = 'https://sapi.ok-ex.io/api/v1/spot/public/books';
+// ok-ex.io API endpoints
+const OKEX_API_URL = 'https://sapi.ok-ex.io/api/v1/spot/public/books';
 
-// const axiosInstance = axios.create({
-//   baseURL: OKEX_API_URL,
-//   params: {
-//     limit: 1  // فقط بهترین bid و ask
-//   },
-//   timeout: 5000
-// });
+const axiosInstance = axios.create({
+    baseURL: OKEX_API_URL,
+    params: {
+        limit: 5 // فقط بهترین bid و ask حداقل 5 میتونه باشه
+    },
+    timeout: 5000
+});
 
-// async function fetchOkexPrices(): Promise<OkExOrderbooks | void> {
-//   try {
-//     // console.log(`[${new Date().toISOString()}] Fetching prices from ok-ex.io API...`);
-    
-//     const okExOrderbooks: OkExOrderbooks = {
-//       exchangeName: "okex",
-//       usdtPairs: {}
-//     };
+const okExOrderbooks: OkExOrderbooks = {
+    exchangeName: "okex",
+    usdtPairs: {}
+};
 
-//     // Get Okex symbols from common symbols
-//     const okexSymbols = binance_okex_common_symbols.symbols.okex_symbol;
-//     const promisesArray = [];
-//     // فرستادن درخواست برای هر سمبل به صورت جداگانه
-//     for (const symbol of okexSymbols) {
-//       try {
-//         const promise = axiosInstance.get<any>(OKEX_API_URL, {
-//           params: {
-//             symbol: symbol,  // مثلا: USDT-IRT یا BTC-USDT
-//           },
-//           timeout: 5000
-//         });
-//         promisesArray.push({symbol, promise});
-//         // if (!response.data || !response.data.data) {
-//         //   console.warn(`ok-ex.io API warning for ${symbol}: No data returned`);
-//         //   continue;
-//         // }
+function createPromisesArray(): { symbol: string; promise: Promise<any>; }[] {
+    const okexSymbols = binance_okex_common_symbols.symbols.okex_symbol;
+    const promisesArray = [];
+    // فرستادن درخواست برای هر سمبل به صورت جداگانه
+    for (const symbol of okexSymbols) {
+        const promise = axiosInstance.get<any>(OKEX_API_URL, {
+            params: {
+                symbol: symbol,  // مثلا: USDT-IRT یا BTC-USDT
+            },
+            timeout: 5000
+        });
+        promisesArray.push(promise);
+    }
 
-//         const depthData = promise.data.data;
-        
-//         // استخراج بهترین bid و ask از depth data
-//         const bestBid = depthData.bids && depthData.bids.length > 0 ? depthData.bids[0] : null;
-//         const bestAsk = depthData.asks && depthData.asks.length > 0 ? depthData.asks[0] : null;
+    return promisesArray;
+}
 
-//         if (!bestBid || !bestAsk) {
-//           console.warn(`ok-ex.io warning: No valid bid or ask data for ${symbol}`);
-//           continue;
-//         }
+async function fetchOkexPrices(): Promise<OkExOrderbooks | void> {
 
-//         const bidPrice = parseFloat(bestBid[0]);
-//         const bidQty = parseFloat(bestBid[1]);
-//         const askPrice = parseFloat(bestAsk[0]);
-//         const askQty = parseFloat(bestAsk[1]);
+    try {
+        const promisesArray = createPromisesArray();
+        const results = await Promise.allSettled(promisesArray.map(item => item.promise));
+    } catch (error) {
+        console.error("Error fetching Okex order books:", error);
+        throw error;
+    }
+    // Get Okex symbols from common symbols
 
-//         if (bidPrice === 0 || askPrice === 0) {
-//           console.warn(`ok-ex.io warning: Zero price for ${symbol}`);
-//           continue;
-//         }
+    // okExOrderbooks.usdtPairs[symbolKey] = {
+    //     bid: [bidPrice.toString(), bidQty.toString(), bidPriceTmn],
+    //     ask: [askPrice.toString(), askQty.toString(), askPriceTmn]
+    // };
+}
 
-//         // تبدیل قیمت USDT به TMN
-//         const bidPriceTmn = (bidPrice * usdtToTmnRate).toString();
-//         const askPriceTmn = (askPrice * usdtToTmnRate).toString();
-
-//         // ذخیره با کلید lowercase برای سازگاری
-//         const symbolKey = symbol.toLowerCase();
-
-//         okExOrderbooks.usdtPairs[symbolKey] = {
-//           bid: [bidPrice.toString(), bidQty.toString(), bidPriceTmn],
-//           ask: [askPrice.toString(), askQty.toString(), askPriceTmn]
-//         };
-
-//       } catch (error) {
-//         if (axios.isAxiosError(error)) {
-//           console.warn(`[${new Date().toISOString()}] ok-ex.io API Error for ${symbol}:`, error.message);
-//         } else {
-//           console.warn(`[${new Date().toISOString()}] ok-ex.io Error for ${symbol}:`, error);
-//         }
-//         // ادامه برای سمبل بعدی
-//         continue;
-//       }
-//     }
-
-//     // console.log(`[${new Date().toISOString()}] ok-ex.io prices fetched: ${Object.keys(okExOrderbooks.usdtPairs).length} pairs`);
-    
-//     return okExOrderbooks;
-
-//   } catch (error) {
-//     if (axios.isAxiosError(error)) {
-//       console.error(`[${new Date().toISOString()}] ok-ex.io API Error:`, error.message);
-//       if (error.response) {
-//         console.error('Response status:', error.response.status);
-//       }
-//     } else {
-//       console.error(`[${new Date().toISOString()}] ok-ex.io Error:`, error);
-//     }
-//   }
-// }
-
-// export {
-//   fetchOkexPrices
-// };
+export {
+    fetchOkexPrices
+};
