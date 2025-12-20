@@ -48,9 +48,8 @@ async function fetchOkexPrices(): Promise<OkExOrderbooks | void> {
         console.error("Error fetching Okex order books:", error);
         throw error;
     }
-    // Get Okex symbols from common symbols
 
-
+    return okExOrderbooks;
 }
 
 export {
