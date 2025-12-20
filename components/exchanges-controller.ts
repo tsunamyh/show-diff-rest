@@ -12,11 +12,13 @@ async function fetchWallexOnce() {
 
 async function getExchangesOrderBooks() {
   console.log("Starting price trackers...");
-  const wallexOrderbooks = await fetchWallexPrices();
+  const wallexOrderbooks = fetchWallexPrices();
   const okexOrderbooks = await fetchOkexPrices();
+  console.log("okexorderbooks:",okexOrderbooks);
+  
   return {
     wallexOrderbooks,
-    okexOrderbooks
+    // okexOrderbooks
   }
 }
 

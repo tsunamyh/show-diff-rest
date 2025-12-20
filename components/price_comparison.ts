@@ -88,7 +88,7 @@ function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue:
 }
 
 function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
-    console.log("currencyDiffTracker:", currencyDiffTracker);
+    // console.log("currencyDiffTracker:", currencyDiffTracker);
 
     topRowsInfo.forEach(row => {
         const { symbol, percent } = row.rowData;
