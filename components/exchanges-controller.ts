@@ -1,4 +1,3 @@
-import { fetchBinancePrices } from "./exchanges/binancePriceTracker";
 import { fetchWallexPrices } from "./exchanges/wallexPriceTracker";
 
 let wallexFetched = false;
@@ -10,18 +9,15 @@ async function fetchWallexOnce() {
   }
 }
 
-async function getAllOrderBooks() {
+async function getExchangesOrderBooks() {
   console.log("Starting price trackers...");
-  const binanceOrderbooks = await fetchBinancePrices();
-  const wallexOrderbooks = await fetchWallexPrices();
-
+  const wallexOrderbooks = await fetchWallexPrices(); 
   return {
-    binanceOrderbooks,
     wallexOrderbooks
   }
 }
 
 export {
-  getAllOrderBooks,
-  fetchWallexOnce
+  getExchangesOrderBooks,
+  fetchWallexOnce,
 };

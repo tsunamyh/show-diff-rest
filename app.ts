@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import { getLatestRowsInfo } from "./components/price_comparison";
-import { getAllOrderBooks } from "./components/exchanges-controller";
 import { getUsdtToTmnRate } from "./components/exchanges/wallexPriceTracker";
 import './components/price_comparison'; // Start price comparison
 
@@ -28,21 +27,21 @@ app.get('/api/comparison', (req, res) => {
 });
 
 // API endpoint برای دریافت تمام قیمت‌ها
-app.get('/api/prices', async (req, res) => {
-  try {
-    const orderBooks = await getAllOrderBooks();
-    const rate = getUsdtToTmnRate();
+// app.get('/api/prices', async (req, res) => {
+//   try {
+//     const orderBooks = await getAllOrderBooks();
+//     const rate = getUsdtToTmnRate();
     
-    res.json({
-      binanceOrderbooks: orderBooks?.binanceOrderbooks,
-      wallexOrderbooks: orderBooks?.wallexOrderbooks,
-      usdtToTmnRate: rate,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch prices' });
-  }
-});
+//     res.json({
+//       binanceOrderbooks: orderBooks?.binanceOrderbooks,
+//       wallexOrderbooks: orderBooks?.wallexOrderbooks,
+//       usdtToTmnRate: rate,
+//       timestamp: new Date().toISOString()
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to fetch prices' });
+//   }
+// });
 
 app.get("/", function (req, res) {
     // console.log("Home");

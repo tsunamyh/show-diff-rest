@@ -28,7 +28,7 @@ interface WallexOrderbooks {
 const WALLEX_API_URL = 'https://api.wallex.ir/v2/depth/all';
 let globalUsdtToTmnRate = 1;
 
-async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
+async function fetchWallexPrices(): Promise<WallexOrderbooks | undefined> {
   try {
     // console.log(`[${new Date().toISOString()}] Fetching prices from Wallex API...`);
     
@@ -36,7 +36,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
 
     if (!response.data.success || !response.data.result) {
       console.error('API request was not successful');
-      return;
+      return undefined;
     }
 
     const depthData = response.data.result;
@@ -110,6 +110,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | void> {
     } else {
       console.error(`[${new Date().toISOString()}] Error:`, error);
     }
+    return undefined;
   }
 }
 
