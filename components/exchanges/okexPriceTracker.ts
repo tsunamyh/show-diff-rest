@@ -16,7 +16,8 @@ const axiosInstance = axios.create({
     params: {
         limit: 5
     },
-    timeout: 5000
+    timeout: 5000,
+    maxRedirects: 0
 });
 
 // تابع جداگانه برای دریافت نرخ USDT-IRT
@@ -32,7 +33,11 @@ async function getUsdtToIrtRate(): Promise<number> {
       return parseFloat(response.data.bids[0][0]);
     }
   } catch (error) {
-    console.warn('Could not fetch USDT-IRT rate from ok-ex.io');
+    if (axios.isAxiosError(error)) {
+      console.error('USDT-IRT fetch error:', error.message, error.response?.status, error.response?.data);
+    } else {
+      console.error('USDT-IRT fetch error:', error);
+    }
   }
   
   return 1;
@@ -57,39 +62,44 @@ function sortOrderBook(
 
 // تابع برای دریافت orderbook یک سمبل
 async function getOkexOrderBookForSymbol(symbol: string) {
-  const response = await axiosInstance<any>({
-    params: { 
-      symbol: symbol
+  try {
+    const response = await axiosInstance<any>({
+      params: { 
+        symbol: symbol
+      }
+    });
+
+    if (!response.data || !response.data.bids || !response.data.asks) {
+      return null;
     }
-  });
 
-  if (!response.data || !response.data.bids || !response.data.asks) {
+    if (response.data.bids.length === 0 || response.data.asks.length === 0) {
+      return null;
+    }
+
+    const bestBid = response.data.bids[0];
+    const bestAsk = response.data.asks[0];
+
+    if (!bestBid || !bestAsk) {
+      return null;
+    }
+
+    const bidPrice = parseFloat(bestBid[0]);
+    const bidQty = bestBid[1];
+    const askPrice = parseFloat(bestAsk[0]);
+    const askQty = bestAsk[1];
+
+    return {
+      symbol: symbol.toLowerCase(),
+      bidPrice,
+      bidQty,
+      askPrice,
+      askQty
+    };
+  } catch (error) {
+    // خاموش کردن خطاهای جداگانه سمبل‌ها
     return null;
   }
-
-  if (response.data.bids.length === 0 || response.data.asks.length === 0) {
-    return null;
-  }
-
-  const bestBid = response.data.bids[0];
-  const bestAsk = response.data.asks[0];
-
-  if (!bestBid || !bestAsk) {
-    return null;
-  }
-
-  const bidPrice = parseFloat(bestBid[0]);
-  const bidQty = bestBid[1];
-  const askPrice = parseFloat(bestAsk[0]);
-  const askQty = bestAsk[1];
-
-  return {
-    symbol: symbol.toLowerCase(),
-    bidPrice,
-    bidQty,
-    askPrice,
-    askQty
-  };
 }
 
 // تابع اصلی برای دریافت تمام orderbooks
