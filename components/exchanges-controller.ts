@@ -18,7 +18,7 @@ async function getExchangesOrderBooks() {
   
   return {
     wallexOrderbooks,
-    // okexOrderbooks
+    okexOrderbooks
   }
 }
 

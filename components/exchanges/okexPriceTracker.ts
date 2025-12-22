@@ -17,7 +17,7 @@ const axiosInstance = axios.create({
         limit: 5
     },
     timeout: 5000,
-    maxRedirects: 0
+    // maxRedirects: 0
 });
 
 // تابع جداگانه برای دریافت نرخ USDT-IRT
