@@ -1,10 +1,10 @@
 // import type { WallexOrderbooks } from "../wallex_prices";
 // import type { BinanceOrderbooks } from "../binance_prices";
 import { EventEmitter } from "stream";
-import wallex_binance_common_symbols from "../commonSymbols/wallex_binance_common_symbols";
-import { getAllexchangesOrderBooks, fetchExchangesOnce } from "./controller";
-import { BinanceOrderbooks } from "../fswritefiles/binance_prices";
-import { OkexOrderbooks, WallexOrderbooks } from "./types/types";
+import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance_common_symbols";
+import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller";
+import { BinanceOrderbooks } from "../../../fswritefiles/binance_prices";
+import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 // import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 

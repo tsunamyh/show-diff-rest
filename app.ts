@@ -1,8 +1,8 @@
 import express from "express";
 import path from "path";
-import { getLatestRowsInfo } from "./components/wallex-binance";
+// import { getLatestRowsInfo } from "./components/comparisons/exchanges-vs-binance/wallex-binance";
 import { getUsdtToTmnRate } from "./components/exchanges/wallexPriceTracker";
-import './components/wallex-binance'; // Start price comparison
+import './components/comparisons/exchanges-vs-binance/wallex-binance'; // Start price comparison
 
 const app = express()
 
@@ -14,17 +14,17 @@ app.set("view engine", "ejs");
 app.use(express.json());
 
 // API endpoint برای دریافت اطلاعات مقایسه قیمت‌ها
-app.get('/api/comparison', (req, res) => {
-  try {
-    const rowsInfo = getLatestRowsInfo();
-    res.json({
-      data: rowsInfo,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch comparison data' });
-  }
-});
+// app.get('/api/comparison', (req, res) => {
+//   try {
+//     const rowsInfo = getLatestRowsInfo();
+//     res.json({
+//       data: rowsInfo,
+//       timestamp: new Date().toISOString()
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to fetch comparison data' });
+//   }
+// });
 
 // API endpoint برای دریافت تمام قیمت‌ها
 // app.get('/api/prices', async (req, res) => {
