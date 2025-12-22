@@ -4,7 +4,8 @@ import { EventEmitter } from "stream";
 import wallex_binance_common_symbols from "../commonSymbols/wallex_binance_common_symbols";
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "./controller";
 import { BinanceOrderbooks } from "../fswritefiles/binance_prices";
-import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
+import { OkexOrderbooks, WallexOrderbooks } from "./types/types";
+// import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
 const wallexBinanceCommonSymbols: string[] = wallex_binance_common_symbols.symbols.binance_symbol;
@@ -130,8 +131,9 @@ function getTopFiveCurrenciesWithDifferences() {
 
 async function priceComp() {
     try {
-        const [binanceOrderbooksPromise, wallexOrderBooksPromise] = await getAllexchangesOrderBooks();
-        let binanceOrderbooks: BinanceOrderbooks, wallexOrderbooks: WallexOrderbooks;
+        const [binanceOrderbooksPromise, exchangesOrderbooks] = await getAllexchangesOrderBooks();
+        let binanceOrderbooks: BinanceOrderbooks;
+        let wallexOrderbooks: WallexOrderbooks, okexOrderbooks: OkexOrderbooks;
         if (binanceOrderbooksPromise.status === "rejected") {
             console.error('Error fetching order books:', {
                 binanceError: binanceOrderbooksPromise.status === "rejected" ? binanceOrderbooksPromise.reason : null,
@@ -142,10 +144,12 @@ async function priceComp() {
             if (!binanceOrderbooksPromise.value) return;
             binanceOrderbooks = binanceOrderbooksPromise.value;
         }
-        if (wallexOrderBooksPromise.status === "fulfilled") {
-            if (!wallexOrderBooksPromise.value) return;
-            wallexOrderbooks = wallexOrderBooksPromise.value;
+        if (exchangesOrderbooks.status === "fulfilled") {
+            if (!exchangesOrderbooks.value) return;
+            wallexOrderbooks = exchangesOrderbooks.value.wallexOrderbooks;
+            okexOrderbooks = exchangesOrderbooks.value.okexOrderbooks;
         }
+
 
         // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
 

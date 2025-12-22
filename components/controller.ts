@@ -3,10 +3,10 @@ import { fetchWallexOnce, getExchangesOrderBooks } from "./exchanges-controller"
 
 async function getAllexchangesOrderBooks() {
     const binanceOrderbooks = fetchBinanceOrderBooks();
-    const wallexOrderbooks = (await getExchangesOrderBooks()).wallexOrderbooks;
+    const exchangesOrderbooks = getExchangesOrderBooks();
     const allOrderBooks = await Promise.allSettled([
         binanceOrderbooks, 
-        wallexOrderbooks,
+        exchangesOrderbooks,
     ]);
     return allOrderBooks;
 }
