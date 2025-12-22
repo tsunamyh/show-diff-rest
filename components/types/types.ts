@@ -1,3 +1,7 @@
+export interface BinanceOrderbooks {
+  usdt: { [symbol: string]: { bid: string[]; ask: string[] } };
+}
+
 export interface WallexOrderbooks {
   exchangeName : string;
   tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };

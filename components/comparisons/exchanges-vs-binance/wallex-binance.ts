@@ -3,7 +3,7 @@
 import { EventEmitter } from "stream";
 import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance_common_symbols";
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller";
-import { BinanceOrderbooks } from "../../../fswritefiles/binance_prices";
+import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 // import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
@@ -129,27 +129,8 @@ function getTopFiveCurrenciesWithDifferences() {
     return sortedCurrencies;
 }
 
-async function priceComp() {
+async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrderbooks: WallexOrderbooks) {
     try {
-        const [binanceOrderbooksPromise, exchangesOrderbooks] = await getAllexchangesOrderBooks();
-        let binanceOrderbooks: BinanceOrderbooks;
-        let wallexOrderbooks: WallexOrderbooks, okexOrderbooks: OkexOrderbooks;
-        if (binanceOrderbooksPromise.status === "rejected") {
-            console.error('Error fetching order books:', {
-                binanceError: binanceOrderbooksPromise.status === "rejected" ? binanceOrderbooksPromise.reason : null,
-            });
-            return;
-        }
-        if (binanceOrderbooksPromise.status === "fulfilled") {
-            if (!binanceOrderbooksPromise.value) return;
-            binanceOrderbooks = binanceOrderbooksPromise.value;
-        }
-        if (exchangesOrderbooks.status === "fulfilled") {
-            if (!exchangesOrderbooks.value) return;
-            wallexOrderbooks = exchangesOrderbooks.value.wallexOrderbooks;
-            okexOrderbooks = exchangesOrderbooks.value.okexOrderbooks;
-        }
-
 
         // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
 
@@ -206,15 +187,15 @@ async function priceComp() {
 const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(6);
 
-async function intervalFunc(): Promise<NodeJS.Timeout> {
-    return setInterval(async function () {
-        try {
-            await priceComp();
-        } catch (error) {
-            console.error('Error in priceComp:', error);
-        }
-    }, 10000);
-}
+// async function intervalFunc(): Promise<NodeJS.Timeout> {
+//     return setInterval(async function () {
+//         try {
+//             await wallex_priceComp();
+//         } catch (error) {
+//             console.error('Error in priceComp:', error);
+//         }
+//     }, 10000);
+// }
 
 function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
@@ -326,8 +307,5 @@ function createRowTable(
 }
 
 // اجرای اولیه
-fetchExchangesOnce().finally(async () => {
-    await priceComp();
-});
 
-export { eventEmmiter, intervalFunc, getLatestRowsInfo, getTopFiveCurrenciesWithDifferences };
+export { eventEmmiter, wallex_priceComp , getLatestRowsInfo, getTopFiveCurrenciesWithDifferences };
