@@ -117,9 +117,8 @@ async function fetchOkexPrices(): Promise<OkExOrderbooks | undefined> {
       usdtPairs: {}
     };
 
-    // درخواست‌های موازی برای تمام سمبل‌ها
+    // درخواست‌های موازی برای تمام سمبل‌ها (بدون batching)
     const requests = okexSymbols.map(symbol => getOkexOrderBookForSymbol(symbol));
-
     const results = await Promise.allSettled(requests);
 
     // پردازش تنها نتایج موفق
@@ -135,6 +134,30 @@ async function fetchOkexPrices(): Promise<OkExOrderbooks | undefined> {
         );
       }
     });
+
+    // /* Batching mode - uncomment if needed for rate limiting
+    // const BATCH_SIZE = 20;
+    // for (let i = 0; i < okexSymbols.length; i += BATCH_SIZE) {
+    //   const batch = okexSymbols.slice(i, i + BATCH_SIZE);
+    //   const requests = batch.map(symbol => getOkexOrderBookForSymbol(symbol));
+    //   const results = await Promise.allSettled(requests);
+    //   results.forEach((result) => {
+    //     if (result.status === 'fulfilled' && result.value) {
+    //       const orderBook = result.value;
+    //       okExOrderbooks.usdtPairs[orderBook.symbol] = sortOrderBook(
+    //         orderBook.bidPrice,
+    //         orderBook.bidQty,
+    //         orderBook.askPrice,
+    //         orderBook.askQty,
+    //         usdtToTmnRate
+    //       );
+    //     }
+    //   });
+    //   if (i + BATCH_SIZE < okexSymbols.length) {
+    //     await new Promise(resolve => setTimeout(resolve, 100));
+    //   }
+    // }
+    // */
 
     // خروجی TypeScript بسازیم و بنویسیم
     const tsOutput = `export interface OkExOrderbooks {

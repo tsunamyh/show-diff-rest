@@ -30,11 +30,13 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
                 const wallexTopRowsInfo = await wallex_priceComp(binanceOrderbooks, wallexOrderbooks);
                 okexOrderbooks = exchangesOrderbooksPromise.value.okexOrderbooks;
                 const okexTopRowsInfo = await okex_priceComp(binanceOrderbooks, okexOrderbooks);
+                // console.log("okexTopRowsInfo:", okexTopRowsInfo);
                 
                 const combinedTopRowsInfo = [...wallexTopRowsInfo, ...okexTopRowsInfo];
-                combinedTopRowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
+                combinedTopRowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent)
+                const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 10);
 
-                eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo));
+                eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));
             }
         } catch (error) {
             console.error('Error in priceComp:', error);
