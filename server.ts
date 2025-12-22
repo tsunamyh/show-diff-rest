@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http, { IncomingMessage, Server, ServerResponse } from "http";
 import { app } from "./app";
-import { eventEmmiter } from "./components/comparisons/exchanges-vs-binance/wallex-binance";
+import { eventEmmiter } from "./components/comparisons/comprasion";
 
 const server: Server = http.createServer(app);
 

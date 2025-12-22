@@ -1,7 +1,11 @@
+import { EventEmitter } from "stream";
 import { getAllexchangesOrderBooks } from "../controller";
 import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks } from "../types/types";
 import { wallex_priceComp } from "./exchanges-vs-binance/wallex-binance";
+import { okex_priceComp } from "./exchanges-vs-binance/okex-binance";
 
+const eventEmmiter = new EventEmitter();
+eventEmmiter.setMaxListeners(6);
 async function intervalFunc(): Promise<NodeJS.Timeout> {
     return setInterval(async function () {
         try {
@@ -23,8 +27,14 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
             if (exchangesOrderbooksPromise.status === "fulfilled") {
                 if (!exchangesOrderbooksPromise.value) return;
                 wallexOrderbooks = exchangesOrderbooksPromise.value.wallexOrderbooks;
-                await wallex_priceComp(binanceOrderbooks, wallexOrderbooks);
+                const wallexTopRowsInfo = await wallex_priceComp(binanceOrderbooks, wallexOrderbooks);
                 okexOrderbooks = exchangesOrderbooksPromise.value.okexOrderbooks;
+                const okexTopRowsInfo = await okex_priceComp(binanceOrderbooks, okexOrderbooks);
+                
+                const combinedTopRowsInfo = [...wallexTopRowsInfo, ...okexTopRowsInfo];
+                combinedTopRowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
+
+                eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo));
             }
         } catch (error) {
             console.error('Error in priceComp:', error);
@@ -32,4 +42,4 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
     }, 10000);
 }
 
-export { intervalFunc };
+export { intervalFunc, eventEmmiter };

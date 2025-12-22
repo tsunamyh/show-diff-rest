@@ -1,6 +1,6 @@
 // import type { WallexOrderbooks } from "../wallex_prices";
 // import type { BinanceOrderbooks } from "../binance_prices";
-import { EventEmitter } from "stream";
+// import { EventEmitter } from "stream";
 import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance_common_symbols";
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller";
 import { BinanceOrderbooks } from "../../types/types";
@@ -177,15 +177,16 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
             topFiveCurrencies: topFiveCurrencies
         }, null, 2), 'utf-8');
 
-        eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
+        // eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
+        return latestRowsInfo;
 
     } catch (error) {
         console.error('Error in priceComp try-catch:', error);
     }
 }
 
-const eventEmmiter = new EventEmitter();
-eventEmmiter.setMaxListeners(6);
+// const eventEmmiter = new EventEmitter();
+// eventEmmiter.setMaxListeners(6);
 
 // async function intervalFunc(): Promise<NodeJS.Timeout> {
 //     return setInterval(async function () {
@@ -308,4 +309,4 @@ function createRowTable(
 
 // اجرای اولیه
 
-export { eventEmmiter, wallex_priceComp , getLatestRowsInfo, getTopFiveCurrenciesWithDifferences };
+export {  wallex_priceComp , getLatestRowsInfo, getTopFiveCurrenciesWithDifferences };
