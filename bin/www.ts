@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { server } from "../server";
-import { intervalFunc } from '../components/price_comparison';
+import { intervalFunc } from '../components/wallex-binance';
 
 const port: number = Number(process.env.PORT) || 3000;
 

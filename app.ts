@@ -1,8 +1,8 @@
 import express from "express";
 import path from "path";
-import { getLatestRowsInfo } from "./components/price_comparison";
+import { getLatestRowsInfo } from "./components/wallex-binance";
 import { getUsdtToTmnRate } from "./components/exchanges/wallexPriceTracker";
-import './components/price_comparison'; // Start price comparison
+import './components/wallex-binance'; // Start price comparison
 
 const app = express()
 
