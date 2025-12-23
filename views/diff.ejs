@@ -4,8 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>مقایسه قیمت‌ - والکس و بایننس</title>
-    <meta name="description" content="مقایسه قیمت‌های ارز دیجیتالی بین والکس و بایننس" />
-    
+    <meta
+      name="description"
+      content="مقایسه قیمت‌های ارز دیجیتالی بین والکس و بایننس"
+    />
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/css/base.css" />
     <link rel="stylesheet" href="/css/diff.css" />
@@ -26,22 +29,31 @@
         <div>
           <h3>نرخ تبدیل USDT به TMN</h3>
           <div class="rate-value" id="usdt-rate"><%= usdtToTmnRate %></div>
-          <div class="rate-time">آخرین به‌روزرسانی: <span id="last-update">---</span></div>
+          <div class="rate-time">
+            آخرین به‌روزرسانی: <span id="last-update">---</span>
+          </div>
         </div>
       </div>
 
       <!-- Loading Spinner -->
       <div id="loading-spinner">
-        <div style="text-align: center;">
+        <div style="text-align: center">
           <div class="spinner"></div>
           <div class="loading-text">در حال بارگیری داده‌ها...</div>
         </div>
       </div>
 
       <!-- Content Section -->
-      <div id="content" style="display: none;">
+      <div id="content" style="display: none">
         <!-- Status Info -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
           <h5 id="connection-status"></h5>
           <h3 class="diffMax"></h3>
         </div>
@@ -59,12 +71,32 @@
               <th id="description">توضیحات</th>
             </tr>
           </thead>
-          <tbody id="order">
-          </tbody>
+          <tbody id="order"></tbody>
         </table>
 
+        <!-- Max Diff Tables -->
+        <div id="max-diff-container" style="margin-top: 40px;"></div>
+
+        <!-- Max Diff Table -->
+
+        <!-- <h3 style="margin-top: 40px">📊 بیشترین اختلاف قیمت</h3> -->
+
+        <!-- <table id="max-diff-table">
+          <thead>
+            <tr class="headers">
+              <th>صرافی</th>
+              <th>نماد</th>
+              <th>نوع مقایسه</th>
+              <th>بیشترین اختلاف</th>
+              <th>درصد</th>
+              <th>زمان</th>
+            </tr>
+          </thead>
+          <tbody id="max-diff-body"></tbody>
+        </table> -->
+
         <!-- Empty State -->
-        <div class="empty-state" style="display: none;" id="empty-state">
+        <div class="empty-state" style="display: none" id="empty-state">
           فرصت سودآور پیدا نشد
         </div>
       </div>

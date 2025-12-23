@@ -9,9 +9,19 @@ const lastUpdateDisplay = document.getElementById('last-update');
 
 interface RowsInfo {
   status?: string;
-  maxDiff?: { symbol: string; percent: string }[];
+  maxDiff?: { exchangeName: string;  topFiveCurrencies: CurrencyDiffTracker[]; };
   size?: number;
 //   forEach?: (callback: (rowInfo: RowInfo) => void) => void;
+}
+
+interface CurrencyDiffTracker {
+    symbol: string;
+    statusCompare: string;
+    maxDifference: number;
+    percentages: {
+    time: string;
+    value: number;
+    }[];
 }
 
 ws.onopen = function () {
@@ -20,7 +30,7 @@ ws.onopen = function () {
 };
 
 ws.onmessage = function ({ data }) {
-    console.log("rowsInfo:>", data);
+    // console.log("rowsInfo:>", data);
     try {
         const rowsInfo = JSON.parse(data);
         
@@ -31,7 +41,7 @@ ws.onmessage = function ({ data }) {
         }
         // اگر object باشد (maxDiff, size, balance)
         else if (rowsInfo.status == "maxDiff") {
-            printMaxDiff(rowsInfo.maxDiff);
+            printMaxDiff(rowsInfo);
         }
         else if (rowsInfo.status == "size") {
             printClientSize(rowsInfo.size);
@@ -82,9 +92,202 @@ function updateLastUpdate() {
     }
 }
 
-function printMaxDiff(maxDiff) {
+function printMaxDiff(data: any) {
+  if (data.status !== "maxDiff") return;
 
+  const container = document.getElementById("max-diff-container");
+  if (!container) return;
+
+  const { exchangeName, topFiveCurrencies } = data.maxDiff;
+
+  // id یکتا برای هر صرافی
+  const tableId = `max-diff-${exchangeName}`;
+  const tbodyId = `${tableId}-body`;
+
+  let table = document.getElementById(tableId) as HTMLTableElement | null;
+
+  // اگر جدول وجود ندارد، بساز
+  if (!table) {
+    const wrapper = document.createElement("div");
+    wrapper.style.marginBottom = "40px";
+
+    wrapper.innerHTML = `
+      <h3>📊 بیشترین اختلاف قیمت - ${exchangeName}</h3>
+      <table id="${tableId}">
+        <thead>
+          <tr class="headers">
+            <th>نماد</th>
+            <th>نوع مقایسه</th>
+            <th>بیشترین اختلاف</th>
+            <th>درصد</th>
+            <th>زمان</th>
+          </tr>
+        </thead>
+        <tbody id="${tbodyId}"></tbody>
+      </table>
+    `;
+
+    container.appendChild(wrapper);
+  }
+
+  const tbody = document.getElementById(tbodyId) as HTMLTableSectionElement;
+  if (!tbody) return;
+
+  // فقط جدول همین صرافی آپدیت می‌شود
+  tbody.innerHTML = "";
+
+  topFiveCurrencies.forEach((item: any) => {
+    const tr = document.createElement("tr");
+
+    const compareText =
+      item.statusCompare === "UsdtVsUsdt"
+        ? "USDT ↔ USDT"
+        : "USDT ↔ تومان";
+
+    tr.innerHTML = `
+      <td>${item.symbol}</td>
+      <td>${compareText}</td>
+      <td>${item.maxDifference}</td>
+      <td>${item.percentages?.[0]?.value ?? "-"}</td>
+      <td>${item.percentages?.[0]?.time ?? "-"}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
 }
+
+// function createCurrencyTable(exchangeName, currencies, accentColor) {
+//     const wrapper = document.createElement('div');
+//     wrapper.style.cssText = `
+//         background: white;
+//         border-radius: 12px;
+//         overflow: hidden;
+//         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+//     `;
+    
+//     // سرتیتر
+//     const header = document.createElement('div');
+//     header.style.cssText = `
+//         background: ${accentColor};
+//         color: white;
+//         padding: 15px;
+//         font-weight: bold;
+//         font-size: 18px;
+//         text-align: center;
+//     `;
+//     header.textContent = exchangeName;
+//     wrapper.appendChild(header);
+    
+//     // جدول
+//     const table = document.createElement('table');
+//     table.style.cssText = `
+//         width: 100%;
+//         border-collapse: collapse;
+//         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+//     `;
+    
+//     // سرستون‌ها
+//     const thead = document.createElement('thead');
+//     const headerRow = document.createElement('tr');
+//     headerRow.style.cssText = `
+//         background: #f8f9fa;
+//         border-bottom: 2px solid ${accentColor};
+//     `;
+    
+//     const th1 = document.createElement('th');
+//     th1.textContent = 'ارز';
+//     th1.style.cssText = 'padding: 12px; text-align: right; color: #333; font-weight: 600;';
+    
+//     const th2 = document.createElement('th');
+//     th2.textContent = 'بیشترین تفاوت';
+//     th2.style.cssText = 'padding: 12px; text-align: center; color: #333; font-weight: 600;';
+    
+//     const th3 = document.createElement('th');
+//     th3.textContent = 'آخرین 5 درصد';
+//     th3.style.cssText = 'padding: 12px; text-align: left; color: #333; font-weight: 600;';
+    
+//     headerRow.appendChild(th1);
+//     headerRow.appendChild(th2);
+//     headerRow.appendChild(th3);
+//     thead.appendChild(headerRow);
+//     table.appendChild(thead);
+    
+//     // بدنه جدول
+//     const tbody = document.createElement('tbody');
+    
+//     currencies.forEach((currency, index) => {
+//         const row = document.createElement('tr');
+//         row.style.cssText = `
+//             border-bottom: 1px solid #eee;
+//             transition: background 0.3s ease;
+//         `;
+        
+//         row.addEventListener('mouseover', () => {
+//             row.style.background = '#f8f9fa';
+//         });
+//         row.addEventListener('mouseout', () => {
+//             row.style.background = 'white';
+//         });
+        
+//         // سمبل
+//         const tdSymbol = document.createElement('td');
+//         tdSymbol.textContent = currency.symbol;
+//         tdSymbol.style.cssText = `
+//             padding: 12px;
+//             text-align: right;
+//             font-weight: 600;
+//             color: #333;
+//         `;
+        
+//         // بیشترین تفاوت
+//         const tdMaxDiff = document.createElement('td');
+//         const maxDiffValue = currency.maxDifference.toFixed(2);
+//         tdMaxDiff.innerHTML = `<span style="
+//             background: ${accentColor};
+//             color: white;
+//             padding: 6px 12px;
+//             border-radius: 20px;
+//             font-weight: 600;
+//             display: inline-block;
+//         ">${maxDiffValue}%</span>`;
+//         tdMaxDiff.style.cssText = `
+//             padding: 12px;
+//             text-align: center;
+//         `;
+        
+//         // آخرین 5 درصد
+//         const tdPercentages = document.createElement('td');
+//         const percentagesHtml = (currency.percentages || [])
+//             .slice(0, 5)
+//             .map((p, i) => `
+//                 <span style="
+//                     display: inline-block;
+//                     background: #e8f5e9;
+//                     color: #2e7d32;
+//                     padding: 4px 8px;
+//                     border-radius: 4px;
+//                     margin: 2px;
+//                     font-size: 12px;
+//                     font-weight: 500;
+//                 ">${p.value.toFixed(2)}%</span>
+//             `).join('');
+//         tdPercentages.innerHTML = percentagesHtml || '-';
+//         tdPercentages.style.cssText = `
+//             padding: 12px;
+//             text-align: left;
+//         `;
+        
+//         row.appendChild(tdSymbol);
+//         row.appendChild(tdMaxDiff);
+//         row.appendChild(tdPercentages);
+//         tbody.appendChild(row);
+//     });
+    
+//     table.appendChild(tbody);
+//     wrapper.appendChild(table);
+    
+//     return wrapper;
+// }
 
 function printClientSize(size) {
     const clientElement = document.getElementById('connection-status');
