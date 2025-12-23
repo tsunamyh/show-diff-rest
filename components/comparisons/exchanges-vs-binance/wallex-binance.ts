@@ -36,9 +36,11 @@ interface RowData {
     binance: string;
     value: number;
     description: string;
+    statusCompare: string;
 }
 
 interface RowInfo {
+    exchangeName: string;
     statusbuy: string;
     rowData: RowData;
 }
@@ -56,6 +58,7 @@ interface PercentageRecord {
 
 interface CurrencyDiffTracker {
     symbol: string;
+    statusCompare: string;
     maxDifference: number;
     percentages: PercentageRecord[];
 }
@@ -103,6 +106,7 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
         if (!currencyDiffTracker.has(symbol)) {
             currencyDiffTracker.set(symbol, {
                 symbol,
+                statusCompare: row.rowData.statusCompare,
                 maxDifference: percent,
                 percentages: [percentRecord]
             });
@@ -127,7 +131,10 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
 }
 
 function wallex_getTopFiveCurrenciesWithDifferences() {
-    return sortedCurrencies;
+    return {
+        exchangeName: "wallex",
+        topFiveCurrencies: sortedCurrencies
+    };
 }
 
 async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrderbooks: WallexOrderbooks) {
@@ -137,7 +144,7 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
 
         // const { binanceOrderbooks, wallexOrderbooks } = orderBooks;
 
-        const rowsInfo = [];
+        const rowsInfo : RowInfo[] = [];
 
         for (const symbol of wallexBinanceCommonSymbols) {
             let rowInfo: RowInfo | null = null;
@@ -185,19 +192,6 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
         console.error('Error in priceComp try-catch:', error);
     }
 }
-
-// const eventEmmiter = new EventEmitter();
-// eventEmmiter.setMaxListeners(6);
-
-// async function intervalFunc(): Promise<NodeJS.Timeout> {
-//     return setInterval(async function () {
-//         try {
-//             await wallex_priceComp();
-//         } catch (error) {
-//             console.error('Error in priceComp:', error);
-//         }
-//     }, 10000);
-// }
 
 function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
@@ -277,7 +271,8 @@ function createRowTable(
             ],
             binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
             value: amount_tmn,
-            description: `${exchangeName} at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare ${statusCompare}`
+            description: `${exchangeName} at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare ${statusCompare}`,
+            statusCompare: statusCompare
         };
 
         const statusbuy = statusCompare;
@@ -297,7 +292,8 @@ function createRowTable(
             ],
             binance: binanceAskOrder[BinanceIndex.USDT_PRICE],
             value: amount_tmn,
-            description: `${exchangeName} at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} Binance ${binanceAskOrder[BinanceIndex.USDT_PRICE]} compare ${statusCompare}`
+            description: `${exchangeName} at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} Binance ${binanceAskOrder[BinanceIndex.USDT_PRICE]} compare ${statusCompare}`,
+            statusCompare: statusCompare
         };
         const statusbuy = statusCompare;
         return {

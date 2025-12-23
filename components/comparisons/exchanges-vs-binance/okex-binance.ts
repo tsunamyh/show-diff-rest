@@ -22,9 +22,11 @@ interface RowData {
     binance: string;
     value: number;
     description: string;
+    statusCompare: string;
 }
 
 interface RowInfo {
+    exchangeName: string;
     statusbuy: string;
     rowData: RowData;
 }
@@ -39,6 +41,7 @@ interface PercentageRecord {
 
 interface CurrencyDiffTracker {
     symbol: string;
+    statusCompare: string;
     maxDifference: number;
     percentages: PercentageRecord[];
 }
@@ -79,6 +82,7 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
         if (!currencyDiffTracker.has(symbol)) {
             currencyDiffTracker.set(symbol, {
                 symbol,
+                statusCompare: row.rowData.statusCompare,
                 maxDifference: percent,
                 percentages: [percentRecord]
             });
@@ -103,7 +107,10 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
 }
 
 function okex_getTopFiveCurrenciesWithDifferences() {
-    return sortedCurrencies;
+    return {
+        exchangeName: "okex",
+        topFiveCurrencies: sortedCurrencies
+    };
 }
 
 // تبدیل سمبل binance (BTCUSDT) به سمبل okex (BTC-USDT)
@@ -138,7 +145,8 @@ function createRowTable(
         ],
         binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
         value: amount_tmn,
-        description: `${exchangeName} at ${okexAskOrder[OkExUsdtPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare UsdtVsUsdt`
+        description: `${exchangeName} at ${okexAskOrder[OkExUsdtPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare UsdtVsUsdt`,
+        statusCompare: "UsdtVsUsdt"
     };
 
     const statusbuy = "UsdtVsUsdt";
