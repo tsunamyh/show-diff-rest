@@ -34,7 +34,7 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
                 
                 const combinedTopRowsInfo = [...wallexTopRowsInfo, ...okexTopRowsInfo];
                 combinedTopRowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent)
-                const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 10);
+                const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 12);
 
                 eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));
             }

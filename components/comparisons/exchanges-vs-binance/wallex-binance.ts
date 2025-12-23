@@ -69,8 +69,9 @@ function getLatestRowsInfo() {
 
 function getTehranTime(): string {
     const now = new Date();
-    const tehranTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tehran' }));
-    return tehranTime.toISOString();
+    const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
+    
+    return tehranTime;
 }
 
 function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue: number, minIntervalSeconds: number = 120): boolean {
@@ -125,7 +126,7 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
     return sortedCurrencies;
 }
 
-function getTopFiveCurrenciesWithDifferences() {
+function wallex_getTopFiveCurrenciesWithDifferences() {
     return sortedCurrencies;
 }
 
@@ -168,7 +169,7 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
         // });
 
         // Save top 5 currencies with biggest differences and their top 5 percentages
-        const topFiveCurrencies = getTopFiveCurrenciesWithDifferences();
+        const topFiveCurrencies = wallex_getTopFiveCurrenciesWithDifferences();
         const fs = require('fs');
         const path = require('path');
         const filePath = path.join(process.cwd(), './fswritefiles/top_5_currencies_with_percentages.json');
@@ -309,4 +310,4 @@ function createRowTable(
 
 // اجرای اولیه
 
-export {  wallex_priceComp , getLatestRowsInfo, getTopFiveCurrenciesWithDifferences };
+export {  wallex_priceComp , getLatestRowsInfo, wallex_getTopFiveCurrenciesWithDifferences };
