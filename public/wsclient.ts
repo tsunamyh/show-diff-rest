@@ -7,6 +7,13 @@ const contentDiv = document.getElementById('content');
 const usdtRateDisplay = document.getElementById('usdt-rate');
 const lastUpdateDisplay = document.getElementById('last-update');
 
+interface RowsInfo {
+  status?: string;
+  maxDiff?: { symbol: string; percent: string }[];
+  size?: number;
+//   forEach?: (callback: (rowInfo: RowInfo) => void) => void;
+}
+
 ws.onopen = function () {
     console.log('WebSocket connected');
     showLoading(true);
@@ -26,12 +33,12 @@ ws.onmessage = function ({ data }) {
         else if (rowsInfo.status == "maxDiff") {
             printMaxDiff(rowsInfo.maxDiff);
         }
-        else if (rowsInfo.size) {
+        else if (rowsInfo.status == "size") {
             printClientSize(rowsInfo.size);
         }
-        else if (rowsInfo.status == "balance") {
-            printDataBal(rowsInfo.rowDataBal);
-        }
+        // else if (rowsInfo.status == "balance") {
+        //     printDataBal(rowsInfo.rowDataBal);
+        // }
     } catch (error) {
         console.error('Error parsing WebSocket data:', error);
     }
@@ -76,12 +83,7 @@ function updateLastUpdate() {
 }
 
 function printMaxDiff(maxDiff) {
-    let text = "";
-    text = maxDiff[0].symbol + ":=> " + maxDiff[0].percent + " :" + " بهترین درصد ";
-    let diffMax = document.querySelector("h3");
-    if (diffMax) {
-        diffMax.innerText = text;
-    }
+
 }
 
 function printClientSize(size) {
@@ -119,7 +121,7 @@ function printData(rowsInfo) {
         const tdStatus = document.createElement('td');
         const badge = document.createElement('span');
         badge.className = `status-badge status-${statusbuy.toLowerCase()}`;
-        badge.textContent = statusbuy === 'TMN' ? 'تومان' : 'دلار';
+        badge.textContent = statusbuy;
         tdStatus.appendChild(badge);
         tr.appendChild(tdStatus);
         
@@ -177,19 +179,19 @@ function hideEmptyState() {
     }
 }
 
-function printDataBal(rowDataBal) {
-    const tBody = document.querySelector("tbody#balance");
-    if (!tBody) return;
+// function printDataBal(rowDataBal) {
+//     const tBody = document.querySelector("tbody#balance");
+//     if (!tBody) return;
     
-    const tRow = document.createElement("tr");
-    tRow.setAttribute("class", "balRow");
-    tBody.appendChild(tRow);
-    Object.keys(rowDataBal).forEach(function (key) {
-        const tCell = document.createElement("td");
-        tRow.appendChild(tCell);
-        tCell.innerText = rowDataBal[key];
-    });
-}
+//     const tRow = document.createElement("tr");
+//     tRow.setAttribute("class", "balRow");
+//     tBody.appendChild(tRow);
+//     Object.keys(rowDataBal).forEach(function (key) {
+//         const tCell = document.createElement("td");
+//         tRow.appendChild(tCell);
+//         tCell.innerText = rowDataBal[key];
+//     });
+// }
 
 function clearTable() {
     const tbody = document.getElementById('order');

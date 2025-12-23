@@ -38,9 +38,15 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
 
                 eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));
                 const wallexTopFives = wallex_getTopFiveCurrenciesWithDifferences();
-                eventEmmiter.emit("diff", JSON.stringify(wallexTopFives));
+                eventEmmiter.emit("diff", JSON.stringify({
+                    status: "maxDiff",
+                    maxDiff: wallexTopFives
+                }));
                 const okexTopFives = okex_getTopFiveCurrenciesWithDifferences();
-                eventEmmiter.emit("diff", JSON.stringify(okexTopFives));
+                eventEmmiter.emit("diff", JSON.stringify({
+                    status: "maxDiff",
+                    maxDiff: okexTopFives
+                }));
             }
         } catch (error) {
             console.error('Error in priceComp:', error);

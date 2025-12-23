@@ -27,7 +27,7 @@ server.on("upgrade", function (req: IncomingMessage, socket: any, head: Buffer) 
   // }
   wss.handleUpgrade(req, socket, head, async function (ws: WebSocket) {
     clients.add(ws);
-    const clientSize = { size: clients.size };
+    const clientSize = { status: "size", size: clients.size };
     diffListener(JSON.stringify(clientSize));
     console.log("clients:", clientSize);
     wss.emit("connection", ws, req);
