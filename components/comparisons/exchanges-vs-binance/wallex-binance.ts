@@ -197,14 +197,14 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
     const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
-    const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
+    const binance_tmn_bid = parseFloat(binanceOrderbook.bid[BinanceIndex.TMN_PRICE]);
 
-    if (wallex_tmn_ask < binance_tmn_ask) {
-        const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
+    if (wallex_tmn_ask < binance_tmn_bid) {
+        const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
-            console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
+            console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Bid TMN: ${binance_tmn_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
         }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
+        return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
     }
 
     return null;
@@ -213,13 +213,13 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
 function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
     if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
     const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
-    const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
-    if (wallex_usdt_ask < binance_usdt_ask) {
-        const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
+    const binance_usdt_bid = parseFloat(binanceOrderbook.bid[BinanceIndex.USDT_PRICE]);
+    if (wallex_usdt_ask < binance_usdt_bid) {
+        const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
         if (difference_percent >= +myPercent && amount_tmn > 500000) {
-            console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Ask USDT: ${binance_usdt_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
+            console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
         }
-        return createRowTable(wallexOrderbook.ask, binanceOrderbook.ask, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
+        return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
     }
     return null;
 }
@@ -233,11 +233,11 @@ function exsistAskBid(binanceOrderbook, wallexOrderbook): boolean {
     );
 }
 
-function calcPercentAndAmounts(binanceAskOrder: any, wallexAskOrder: any): [number, number, number] {
-    // binanceAskOrder[BinanceIndex.TMN_PRICE] = TMN Price
-    // wallexAskOrder[WallexTmnIndex.TMN_PRICE] = TMN Price
+function calcPercentAndAmounts(binanceBidOrder: any, wallexAskOrder: any): [number, number, number] {
+    // binanceBidOrder[BinanceIndex.TMN_PRICE] = TMN Price
+    // wallexAskOrder[WallexTmnPairIndex.TMN_PRICE] = TMN Price
     const percent = calculatePercentageDifference(
-        +binanceAskOrder[BinanceIndex.TMN_PRICE],
+        +binanceBidOrder[BinanceIndex.TMN_PRICE],
         +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]
     );
     const amount = +wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY];

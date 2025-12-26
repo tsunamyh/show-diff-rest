@@ -129,7 +129,7 @@ function calculatePercentageDifference(binancePrice: number, buyPrice: number): 
 
 function createRowTable(
     okexAskOrder: any,
-    binanceAskOrder: any,
+    binanceBidOrder: any,
     difference_percent: number,
     amount_currency: number,
     amount_tmn: number,
@@ -143,9 +143,9 @@ function createRowTable(
             okexAskOrder[OkExUsdtPairIndex.TMN_PRICE],
             okexAskOrder[OkExUsdtPairIndex.QUANTITY]
         ],
-        binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
+        binance: binanceBidOrder[BinanceIndex.TMN_PRICE],
         value: amount_tmn,
-        description: `${exchangeName} at ${okexAskOrder[OkExUsdtPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare UsdtVsUsdt`,
+        description: `${exchangeName} at ${okexAskOrder[OkExUsdtPairIndex.TMN_PRICE]} Binance ${binanceBidOrder[BinanceIndex.TMN_PRICE]} compare UsdtVsUsdt`,
         statusCompare: "UsdtVsUsdt"
     };
 
@@ -195,7 +195,7 @@ async function okex_priceComp(binanceOrderbooks: BinanceOrderbooks, okexOrderboo
 
             const rowInfo = createRowTable(
                 okexData.ask,
-                binanceData.ask,
+                binanceData.bid,
                 difference_percent,
                 okex_quantity,
                 amount_tmn,
