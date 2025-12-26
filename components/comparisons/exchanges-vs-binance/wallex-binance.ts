@@ -5,6 +5,7 @@ import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
+import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 // import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
@@ -66,6 +67,15 @@ interface CurrencyDiffTracker {
 let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
 let sortedCurrencies: CurrencyDiffTracker[] = [];
 
+// Initialize tracker with history on startup
+function initializeTrackerWithHistory() {
+    const historyMap = loadHistoryFromFile('wallex');
+    currencyDiffTracker = historyMap;
+    sortedCurrencies = Array.from(currencyDiffTracker.values())
+        .sort((a, b) => b.maxDifference - a.maxDifference)
+        .slice(0, 5);
+}
+
 function getLatestRowsInfo() {
     return latestRowsInfo;
 }
@@ -103,7 +113,7 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
             value: percent
         };
 
-        if (!currencyDiffTracker.has(symbol)) {
+        if (!currencyDiffTracker.has(symbol) /* || currencyDiffTracker.get(symbol).statusCompare !== row.rowData.statusCompare */) {
             currencyDiffTracker.set(symbol, {
                 symbol,
                 statusCompare: row.rowData.statusCompare,
@@ -127,6 +137,10 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
     sortedCurrencies = Array.from(currencyDiffTracker.values())
         .sort((a, b) => b.maxDifference - a.maxDifference)
         .slice(0, 5);
+    
+    // Save to file after update
+    saveHistoryToFile('wallex', currencyDiffTracker);
+    
     return sortedCurrencies;
 }
 
@@ -306,4 +320,4 @@ function createRowTable(
 
 // اجرای اولیه
 
-export {  wallex_priceComp , getLatestRowsInfo, wallex_getTopFiveCurrenciesWithDifferences };
+export {  wallex_priceComp , getLatestRowsInfo, wallex_getTopFiveCurrenciesWithDifferences, initializeTrackerWithHistory };

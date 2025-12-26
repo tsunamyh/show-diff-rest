@@ -1,5 +1,6 @@
 import okex_binance_common_symbols from "../../../commonSymbols/okex_binance_common_symbols";
 import { BinanceOrderbooks, OkexOrderbooks } from "../../types/types";
+import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 
 const okexBinanceCommonSymbols: string[] = okex_binance_common_symbols.symbols.binance_symbol;
 
@@ -48,6 +49,15 @@ interface CurrencyDiffTracker {
 
 let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
 let sortedCurrencies: CurrencyDiffTracker[] = [];
+
+// Initialize tracker with history on startup
+function initializeTrackerWithHistory() {
+    const historyMap = loadHistoryFromFile('okex');
+    currencyDiffTracker = historyMap;
+    sortedCurrencies = Array.from(currencyDiffTracker.values())
+        .sort((a, b) => b.maxDifference - a.maxDifference)
+        .slice(0, 5);
+}
 
 function getTehranTime(): string {
     const now = new Date();
@@ -103,6 +113,10 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
     sortedCurrencies = Array.from(currencyDiffTracker.values())
         .sort((a, b) => b.maxDifference - a.maxDifference)
         .slice(0, 5);
+    
+    // Save to file after update
+    saveHistoryToFile('okex', currencyDiffTracker);
+    
     return sortedCurrencies;
 }
 
@@ -229,4 +243,4 @@ async function okex_priceComp(binanceOrderbooks: BinanceOrderbooks, okexOrderboo
     return topRowsInfo;
 }
 
-export { okex_priceComp, okex_getTopFiveCurrenciesWithDifferences };
+export { okex_priceComp, okex_getTopFiveCurrenciesWithDifferences, initializeTrackerWithHistory };

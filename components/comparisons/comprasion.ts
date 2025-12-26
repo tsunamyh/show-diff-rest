@@ -1,11 +1,16 @@
 import { EventEmitter } from "stream";
 import { getAllexchangesOrderBooks } from "../controller";
 import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks } from "../types/types";
-import { wallex_getTopFiveCurrenciesWithDifferences, wallex_priceComp } from "./exchanges-vs-binance/wallex-binance";
-import { okex_getTopFiveCurrenciesWithDifferences, okex_priceComp } from "./exchanges-vs-binance/okex-binance";
+import { wallex_getTopFiveCurrenciesWithDifferences, wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "./exchanges-vs-binance/wallex-binance";
+import { okex_getTopFiveCurrenciesWithDifferences, okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "./exchanges-vs-binance/okex-binance";
 
 const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(6);
+
+// Initialize history on startup
+initWallexHistory();
+initOkexHistory();
+
 async function intervalFunc(): Promise<NodeJS.Timeout> {
     return setInterval(async function () {
         try {
