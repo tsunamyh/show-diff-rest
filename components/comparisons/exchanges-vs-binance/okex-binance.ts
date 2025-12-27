@@ -38,6 +38,9 @@ const myPercent = process.env.MYPERCENT || 1;
 interface PercentageRecord {
     time: string;
     value: number;
+    exchangeBuyPrice?: number;
+    binanceSellPrice?: number;
+    buyVolume?: number;
 }
 
 interface CurrencyDiffTracker {
@@ -82,11 +85,14 @@ function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue:
 
 function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
     topRowsInfo.forEach(row => {
-        const { symbol, percent } = row.rowData;
+        const { symbol, percent, wallex, binance, value } = row.rowData;
         const currentTime = getTehranTime();
         const percentRecord: PercentageRecord = {
             time: currentTime,
-            value: percent
+            value: percent,
+            exchangeBuyPrice: parseFloat(wallex[0]),
+            binanceSellPrice: parseFloat(binance),
+            buyVolume: value
         };
 
         if (!currencyDiffTracker.has(symbol)) {

@@ -1,8 +1,9 @@
 import { EventEmitter } from "stream";
 import { getAllexchangesOrderBooks } from "../controller";
 import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks } from "../types/types";
-import { wallex_getTopFiveCurrenciesWithDifferences, wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "./exchanges-vs-binance/wallex-binance";
+import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "./exchanges-vs-binance/wallex-binance";
 import { okex_getTopFiveCurrenciesWithDifferences, okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "./exchanges-vs-binance/okex-binance";
+import { getDataByPeriod } from "../utils/historyManager";
 
 const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(6);
@@ -42,12 +43,12 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
                 const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 12);
 
                 eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));
-                const wallexTopFives = wallex_getTopFiveCurrenciesWithDifferences();
+                const wallexTopFives = getDataByPeriod('wallex');
                 eventEmmiter.emit("diff", JSON.stringify({
                     status: "maxDiff",
                     maxDiff: wallexTopFives
                 }));
-                const okexTopFives = okex_getTopFiveCurrenciesWithDifferences();
+                const okexTopFives = getDataByPeriod('okex');
                 eventEmmiter.emit("diff", JSON.stringify({
                     status: "maxDiff",
                     maxDiff: okexTopFives

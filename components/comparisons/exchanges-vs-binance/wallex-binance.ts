@@ -55,6 +55,9 @@ let latestRowsInfo: RowInfo[] = [];
 interface PercentageRecord {
     time: string;
     value: number;
+    exchangeBuyPrice?: number;
+    binanceSellPrice?: number;
+    buyVolume?: number;
 }
 
 interface CurrencyDiffTracker {
@@ -102,15 +105,18 @@ function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue:
     return timeDifferenceSeconds >= minIntervalSeconds;
 }
 
-function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
+function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     // console.log("currencyDiffTracker:", currencyDiffTracker);
 
-    topRowsInfo.forEach(row => {
-        const { symbol, percent } = row.rowData;
+    rowsInfo.forEach(row => {
+        const { symbol, percent, wallex, binance, value } = row.rowData;
         const currentTime = getTehranTime();
         const percentRecord: PercentageRecord = {
             time: currentTime,
-            value: percent
+            value: percent,
+            exchangeBuyPrice: parseFloat(wallex[0]),
+            binanceSellPrice: parseFloat(binance),
+            buyVolume: value
         };
 
         if (!currencyDiffTracker.has(symbol) /* || currencyDiffTracker.get(symbol).statusCompare !== row.rowData.statusCompare */) {
@@ -136,7 +142,6 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
 
     sortedCurrencies = Array.from(currencyDiffTracker.values())
         .sort((a, b) => b.maxDifference - a.maxDifference)
-        .slice(0, 5);
     
     // Save to file after update
     saveHistoryToFile('wallex', currencyDiffTracker);
@@ -144,12 +149,12 @@ function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
     return sortedCurrencies;
 }
 
-function wallex_getTopFiveCurrenciesWithDifferences() {
-    return {
-        exchangeName: "wallex",
-        topFiveCurrencies: sortedCurrencies
-    };
-}
+// function wallex_getTopFiveCurrenciesWithDifferences() {
+//     return {
+//         exchangeName: "wallex",
+//         topFiveCurrencies: sortedCurrencies
+//     };
+// }
 
 async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrderbooks: WallexOrderbooks) {
     try {
@@ -184,20 +189,20 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
         latestRowsInfo = topRowsInfo;
 
         // Update currency tracker with top 10 rows
-        updateCurrencyDiffTracker(topRowsInfo)
+        updateCurrencyDiffTracker(rowsInfo)
         // topRowsInfo.forEach(row => {
         //   updateCurrencyDiffTracker(row.rowData.symbol, row.rowData.percent);
         // });
 
         // Save top 5 currencies with biggest differences and their top 5 percentages
-        const topFiveCurrencies = wallex_getTopFiveCurrenciesWithDifferences();
-        const fs = require('fs');
-        const path = require('path');
-        const filePath = path.join(process.cwd(), './fswritefiles/wallex_top_5_currencies_with_percentages.json');
-        fs.writeFileSync(filePath, JSON.stringify({
-            timestamp: new Date().toISOString(),
-            topFiveCurrencies: topFiveCurrencies
-        }, null, 2), 'utf-8');
+        // const topFiveCurrencies = wallex_getTopFiveCurrenciesWithDifferences();
+        // const fs = require('fs');
+        // const path = require('path');
+        // const filePath = path.join(process.cwd(), './fswritefiles/wallex_top_5_currencies_with_percentages.json');
+        // fs.writeFileSync(filePath, JSON.stringify({
+        //     timestamp: new Date().toISOString(),
+        //     topFiveCurrencies: topFiveCurrencies
+        // }, null, 2), 'utf-8');
 
         // eventEmmiter.emit("diff", JSON.stringify(latestRowsInfo));
         return latestRowsInfo;
@@ -320,4 +325,4 @@ function createRowTable(
 
 // اجرای اولیه
 
-export {  wallex_priceComp , getLatestRowsInfo, wallex_getTopFiveCurrenciesWithDifferences, initializeTrackerWithHistory };
+export {  wallex_priceComp , getLatestRowsInfo, initializeTrackerWithHistory };
