@@ -101,6 +101,13 @@ export function loadHistoryFromFile(exchange: 'wallex' | 'okex'): Map<string, Cu
     try {
         if (fs.existsSync(filePath)) {
             const content = fs.readFileSync(filePath, 'utf-8');
+            
+            // Check if file is empty or not valid JSON
+            if (!content || !content.trim()) {
+                console.log(`${exchange} history file is empty, starting fresh`);
+                return new Map();
+            }
+            
             const parsed = JSON.parse(content);
             const map = new Map<string, CurrencyDiffTracker>();
             
@@ -115,7 +122,7 @@ export function loadHistoryFromFile(exchange: 'wallex' | 'okex'): Map<string, Cu
             return map;
         }
     } catch (error) {
-        console.error(`Error loading ${exchange} history:`, error);
+        console.error(`Error loading ${exchange} history, starting fresh:`, error);
     }
     return new Map();
 }
