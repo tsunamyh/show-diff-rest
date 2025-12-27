@@ -16,8 +16,12 @@ interface CurrencyDiffTracker {
     percentages: PercentageRecord[];
 }
 
-interface TimePeriodData {
-    topCurrencies: CurrencyDiffTracker[];
+interface HistoryFile {
+    timestamp: string;
+    exchangeName: string;
+    last24h: CurrencyDiffTracker[];
+    lastWeek: CurrencyDiffTracker[];
+    allTime: CurrencyDiffTracker[];
 }
 
 const HISTORY_DIR = path.join(process.cwd(), './fswritefiles/history');
@@ -76,15 +80,9 @@ export function saveHistoryToFile(exchange: 'wallex' | 'okex', tracker: Map<stri
         const structuredData = {
             timestamp: new Date().toISOString(),
             exchangeName: exchange,
-            last24h: {
-                topCurrencies: getTop10Currencies(last24h)
-            },
-            lastWeek: {
-                topCurrencies: getTop10Currencies(lastWeek)
-            },
-            allTime: {
-                topCurrencies: getTop10Currencies(allTime)
-            }
+            last24h: getTop10Currencies(last24h),
+            lastWeek: getTop10Currencies(lastWeek),
+            allTime: getTop10Currencies(allTime)
         };
         
         fs.writeFileSync(filePath, JSON.stringify(structuredData, null, 2), 'utf-8');
@@ -108,12 +106,12 @@ export function loadHistoryFromFile(exchange: 'wallex' | 'okex'): Map<string, Cu
                 return new Map();
             }
             
-            const parsed = JSON.parse(content);
+            const parsed: HistoryFile = JSON.parse(content);
             const map = new Map<string, CurrencyDiffTracker>();
             
             // Reconstruct Map from allTime data
-            if (parsed.allTime && parsed.allTime.topCurrencies) {
-                parsed.allTime.topCurrencies.forEach((item: CurrencyDiffTracker) => {
+            if (parsed.allTime && parsed.allTime) {
+                parsed.allTime.forEach((item: CurrencyDiffTracker) => {
                     map.set(item.symbol, item);
                 });
             }
@@ -127,20 +125,31 @@ export function loadHistoryFromFile(exchange: 'wallex' | 'okex'): Map<string, Cu
     return new Map();
 }
 
-export function getDataByPeriod(exchange: 'wallex' | 'okex'): {
-    last24h: TimePeriodData | null;
-    lastWeek: TimePeriodData | null;
-    allTime: TimePeriodData | null;
-} {
+export function getDataByPeriod(exchange: 'wallex' | 'okex'): HistoryFile {
     ensureHistoryDir();
     const filePath = path.join(HISTORY_DIR, `${exchange}_history.json`);
     
     try {
         if (fs.existsSync(filePath)) {
             const content = fs.readFileSync(filePath, 'utf-8');
-            const parsed = JSON.parse(content);
+            
+            // Check if file is empty or not valid JSON
+            if (!content || !content.trim()) {
+                console.log(`${exchange} data by period file is empty`);
+                return {
+                    timestamp: null,
+                    exchangeName: exchange,
+                    last24h: null,
+                    lastWeek: null,
+                    allTime: null
+                };
+            }
+            
+            const parsed: HistoryFile = JSON.parse(content);
             
             return {
+                timestamp: parsed.timestamp || null,
+                exchangeName: parsed.exchangeName || null,
                 last24h: parsed.last24h || null,
                 lastWeek: parsed.lastWeek || null,
                 allTime: parsed.allTime || null
@@ -151,10 +160,12 @@ export function getDataByPeriod(exchange: 'wallex' | 'okex'): {
     }
     
     return {
+        timestamp: null,
+        exchangeName: exchange,
         last24h: null,
         lastWeek: null,
         allTime: null
     };
 }
 
-export type { CurrencyDiffTracker, PercentageRecord, TimePeriodData };
+export type { CurrencyDiffTracker, PercentageRecord };

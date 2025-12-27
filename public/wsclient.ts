@@ -9,383 +9,328 @@ const lastUpdateDisplay = document.getElementById('last-update');
 
 interface RowsInfo {
   status?: string;
-  maxDiff?: { exchangeName: string;  topFiveCurrencies: CurrencyDiffTracker[]; };
+  maxDiff?: HistoryFile;
   size?: number;
-//   forEach?: (callback: (rowInfo: RowInfo) => void) => void;
+  //   forEach?: (callback: (rowInfo: RowInfo) => void) => void;
 }
 
 interface CurrencyDiffTracker {
-    symbol: string;
-    statusCompare: string;
-    maxDifference: number;
-    percentages: {
+  symbol: string;
+  statusCompare: string;
+  maxDifference: number;
+  percentages: {
     time: string;
     value: number;
-    }[];
+    exchangeBuyPrice?: number;
+    binanceSellPrice?: number;
+    buyVolume?: number;
+  }[];
+}
+
+interface HistoryFile {
+  timestamp: string;
+  exchangeName: string;
+  last24h: CurrencyDiffTracker[];
+  lastWeek: CurrencyDiffTracker[];
+  allTime: CurrencyDiffTracker[];
 }
 
 ws.onopen = function () {
-    console.log('WebSocket connected');
-    showLoading(true);
+  console.log('WebSocket connected');
+  showLoading(true);
 };
 
 ws.onmessage = function ({ data }) {
-    // console.log("rowsInfo:>", data);
-    try {
-        const rowsInfo = JSON.parse(data);
-        
-        // اگر آرایه باشد (rowsInfo)
-        if (Array.isArray(rowsInfo) && rowsInfo.length > 0) {
-            printData(rowsInfo);
-            showLoading(false);
-        }
-        // اگر object باشد (maxDiff, size, balance)
-        else if (rowsInfo.status == "maxDiff") {
-            printMaxDiff(rowsInfo);
-        }
-        else if (rowsInfo.status == "size") {
-            printClientSize(rowsInfo.size);
-        }
-        // else if (rowsInfo.status == "balance") {
-        //     printDataBal(rowsInfo.rowDataBal);
-        // }
-    } catch (error) {
-        console.error('Error parsing WebSocket data:', error);
+  // console.log("rowsInfo:>", data);
+  try {
+    const rowsInfo = JSON.parse(data);
+
+    // اگر آرایه باشد (rowsInfo)
+    if (Array.isArray(rowsInfo) && rowsInfo.length > 0) {
+      printData(rowsInfo);
+      showLoading(false);
     }
+    // اگر object باشد (maxDiff, size, balance)
+    else if (rowsInfo.status == "maxDiff") {
+      printMaxDiff(rowsInfo);
+    }
+    else if (rowsInfo.status == "size") {
+      printClientSize(rowsInfo.size);
+    }
+    // else if (rowsInfo.status == "balance") {
+    //     printDataBal(rowsInfo.rowDataBal);
+    // }
+  } catch (error) {
+    console.error('Error parsing WebSocket data:', error);
+  }
 };
 
 ws.onclose = function () {
-    console.log('WebSocket disconnected');
-    showLoading(false);
+  console.log('WebSocket disconnected');
+  showLoading(false);
 };
 
 ws.onerror = function (error) {
-    console.error('WebSocket error:', error);
-    showLoading(false);
+  console.error('WebSocket error:', error);
+  showLoading(false);
 };
 
 function showLoading(isLoading) {
-    if (loadingSpinner) {
-        loadingSpinner.style.display = isLoading ? 'flex' : 'none';
-    }
-    if (contentDiv) {
-        contentDiv.style.display = isLoading ? 'none' : 'block';
-    }
+  if (loadingSpinner) {
+    loadingSpinner.style.display = isLoading ? 'flex' : 'none';
+  }
+  if (contentDiv) {
+    contentDiv.style.display = isLoading ? 'none' : 'block';
+  }
 }
 
 function setTiltle(title) {
-    const titleElement = document.querySelector("h4");
-    if (titleElement) {
-        titleElement.innerHTML = title;
-    }
+  const titleElement = document.querySelector("h4");
+  if (titleElement) {
+    titleElement.innerHTML = title;
+  }
 }
 
 function updateUsdtRate(rate) {
-    if (usdtRateDisplay) {
-        usdtRateDisplay.textContent = rate.toLocaleString('fa-IR');
-    }
+  if (usdtRateDisplay) {
+    usdtRateDisplay.textContent = rate.toLocaleString('fa-IR');
+  }
 }
 
 function updateLastUpdate() {
-    if (lastUpdateDisplay) {
-        lastUpdateDisplay.textContent = new Date().toLocaleTimeString('fa-IR');
-    }
+  if (lastUpdateDisplay) {
+    lastUpdateDisplay.textContent = new Date().toLocaleTimeString('fa-IR');
+  }
 }
 
-function printMaxDiff(data: any) {
-  if (data.status !== "maxDiff") return;
+function printMaxDiff(data: RowsInfo) {
+  if (data.status !== "maxDiff" || !data.maxDiff) return;
 
   const container = document.getElementById("max-diff-container");
   if (!container) return;
 
-  const { exchangeName, topFiveCurrencies } = data.maxDiff;
+  const historyFile: HistoryFile = data.maxDiff;
 
-  // id یکتا برای هر صرافی
-  const tableId = `max-diff-${exchangeName}`;
-  const tbodyId = `${tableId}-body`;
+  // پاک کردن محتوای قبلی
+  container.innerHTML = "";
 
-  let table = document.getElementById(tableId) as HTMLTableElement | null;
+  // نمایش اطلاعات صرافی و زمان
+  const header = document.createElement("div");
+  header.style.cssText = `
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+  `;
+  header.innerHTML = `
+    <h2>${historyFile.exchangeName}</h2>
+    <p>آپدیت شده: ${new Date(historyFile.timestamp).toLocaleString('fa-IR')}</p>
+  `;
+  container.appendChild(header);
 
-  // اگر جدول وجود ندارد، بساز
-  if (!table) {
-    const wrapper = document.createElement("div");
-    wrapper.style.marginBottom = "40px";
+  // نمایش سه دوره زمانی
+  const periods = [
+    { key: 'last24h', label: '📊 آخرین 24 ساعت', data: historyFile.last24h },
+    { key: 'lastWeek', label: '📈 آخرین هفته', data: historyFile.lastWeek },
+    { key: 'allTime', label: '📉 کل دوره', data: historyFile.allTime }
+  ];
 
-    wrapper.innerHTML = `
-      <h3>📊 بیشترین اختلاف قیمت - ${exchangeName}</h3>
-      <table id="${tableId}">
-        <thead>
-          <tr class="headers">
-            <th>نماد</th>
-            <th>نوع مقایسه</th>
-            <th>بیشترین اختلاف</th>
-            <th>درصد</th>
-            <th>زمان</th>
-          </tr>
-        </thead>
-        <tbody id="${tbodyId}"></tbody>
-      </table>
-    `;
-
-    container.appendChild(wrapper);
-  }
-
-  const tbody = document.getElementById(tbodyId) as HTMLTableSectionElement;
-  if (!tbody) return;
-
-  // فقط جدول همین صرافی آپدیت می‌شود
-  tbody.innerHTML = "";
-
-  topFiveCurrencies.forEach((item: any) => {
-    const tr = document.createElement("tr");
-
-    const compareText =
-      item.statusCompare === "UsdtVsUsdt"
-        ? "USDT ↔ USDT"
-        : "USDT ↔ تومان";
-
-    tr.innerHTML = `
-      <td>${item.symbol}</td>
-      <td>${compareText}</td>
-      <td>${item.maxDifference}</td>
-      <td>${item.percentages?.[0]?.value ?? "-"}</td>
-      <td>${item.percentages?.[0]?.time ?? "-"}</td>
-    `;
-
-    tbody.appendChild(tr);
+  periods.forEach(period => {
+    createPeriodTable(container, period.label, period.data);
   });
+
+  updateLastUpdate();
 }
 
-// function createCurrencyTable(exchangeName, currencies, accentColor) {
-//     const wrapper = document.createElement('div');
-//     wrapper.style.cssText = `
-//         background: white;
-//         border-radius: 12px;
-//         overflow: hidden;
-//         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-//     `;
-    
-//     // سرتیتر
-//     const header = document.createElement('div');
-//     header.style.cssText = `
-//         background: ${accentColor};
-//         color: white;
-//         padding: 15px;
-//         font-weight: bold;
-//         font-size: 18px;
-//         text-align: center;
-//     `;
-//     header.textContent = exchangeName;
-//     wrapper.appendChild(header);
-    
-//     // جدول
-//     const table = document.createElement('table');
-//     table.style.cssText = `
-//         width: 100%;
-//         border-collapse: collapse;
-//         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-//     `;
-    
-//     // سرستون‌ها
-//     const thead = document.createElement('thead');
-//     const headerRow = document.createElement('tr');
-//     headerRow.style.cssText = `
-//         background: #f8f9fa;
-//         border-bottom: 2px solid ${accentColor};
-//     `;
-    
-//     const th1 = document.createElement('th');
-//     th1.textContent = 'ارز';
-//     th1.style.cssText = 'padding: 12px; text-align: right; color: #333; font-weight: 600;';
-    
-//     const th2 = document.createElement('th');
-//     th2.textContent = 'بیشترین تفاوت';
-//     th2.style.cssText = 'padding: 12px; text-align: center; color: #333; font-weight: 600;';
-    
-//     const th3 = document.createElement('th');
-//     th3.textContent = 'آخرین 5 درصد';
-//     th3.style.cssText = 'padding: 12px; text-align: left; color: #333; font-weight: 600;';
-    
-//     headerRow.appendChild(th1);
-//     headerRow.appendChild(th2);
-//     headerRow.appendChild(th3);
-//     thead.appendChild(headerRow);
-//     table.appendChild(thead);
-    
-//     // بدنه جدول
-//     const tbody = document.createElement('tbody');
-    
-//     currencies.forEach((currency, index) => {
-//         const row = document.createElement('tr');
-//         row.style.cssText = `
-//             border-bottom: 1px solid #eee;
-//             transition: background 0.3s ease;
-//         `;
-        
-//         row.addEventListener('mouseover', () => {
-//             row.style.background = '#f8f9fa';
-//         });
-//         row.addEventListener('mouseout', () => {
-//             row.style.background = 'white';
-//         });
-        
-//         // سمبل
-//         const tdSymbol = document.createElement('td');
-//         tdSymbol.textContent = currency.symbol;
-//         tdSymbol.style.cssText = `
-//             padding: 12px;
-//             text-align: right;
-//             font-weight: 600;
-//             color: #333;
-//         `;
-        
-//         // بیشترین تفاوت
-//         const tdMaxDiff = document.createElement('td');
-//         const maxDiffValue = currency.maxDifference.toFixed(2);
-//         tdMaxDiff.innerHTML = `<span style="
-//             background: ${accentColor};
-//             color: white;
-//             padding: 6px 12px;
-//             border-radius: 20px;
-//             font-weight: 600;
-//             display: inline-block;
-//         ">${maxDiffValue}%</span>`;
-//         tdMaxDiff.style.cssText = `
-//             padding: 12px;
-//             text-align: center;
-//         `;
-        
-//         // آخرین 5 درصد
-//         const tdPercentages = document.createElement('td');
-//         const percentagesHtml = (currency.percentages || [])
-//             .slice(0, 5)
-//             .map((p, i) => `
-//                 <span style="
-//                     display: inline-block;
-//                     background: #e8f5e9;
-//                     color: #2e7d32;
-//                     padding: 4px 8px;
-//                     border-radius: 4px;
-//                     margin: 2px;
-//                     font-size: 12px;
-//                     font-weight: 500;
-//                 ">${p.value.toFixed(2)}%</span>
-//             `).join('');
-//         tdPercentages.innerHTML = percentagesHtml || '-';
-//         tdPercentages.style.cssText = `
-//             padding: 12px;
-//             text-align: left;
-//         `;
-        
-//         row.appendChild(tdSymbol);
-//         row.appendChild(tdMaxDiff);
-//         row.appendChild(tdPercentages);
-//         tbody.appendChild(row);
-//     });
-    
-//     table.appendChild(tbody);
-//     wrapper.appendChild(table);
-    
-//     return wrapper;
-// }
+function createPeriodTable(container: HTMLElement, title: string, currencies: CurrencyDiffTracker[]) {
+  const wrapper = document.createElement("div");
+  wrapper.style.cssText = `
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  `;
+
+  // عنوان دوره
+  const periodTitle = document.createElement("h3");
+  periodTitle.style.cssText = `
+    margin: 0;
+    padding: 15px;
+    background: #f8f9fa;
+    color: #333;
+    border-bottom: 2px solid #667eea;
+  `;
+  periodTitle.textContent = title;
+  wrapper.appendChild(periodTitle);
+
+  // جدول
+  const table = document.createElement("table");
+  table.style.cssText = `
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  `;
+
+  // سرستون‌ها
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
+      <th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">نماد</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">نوع مقایسه</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">بیشترین اختلاف</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">درصد</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">زمان</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  // بدنه جدول
+  const tbody = document.createElement("tbody");
+
+  if (!currencies || currencies.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="5" style="padding: 15px; text-align: center; color: #999;">داده‌ای موجود نیست</td>`;
+    tbody.appendChild(emptyRow);
+  } else {
+    currencies.forEach((item: CurrencyDiffTracker, index: number) => {
+      const tr = document.createElement("tr");
+      tr.style.cssText = `
+        border-bottom: 1px solid #eee;
+        transition: background 0.3s ease;
+      `;
+
+      tr.addEventListener('mouseover', () => {
+        tr.style.background = '#f8f9fa';
+      });
+      tr.addEventListener('mouseout', () => {
+        tr.style.background = 'white';
+      });
+
+      const compareText = item.statusCompare === "UsdtVsUsdt" ? "USDT ↔ USDT" : "USDT ↔ تومان";
+      const latestPercent = item.percentages?.[0]?.value ?? "-";
+      const latestTime = item.percentages?.[0]?.time ?? "-";
+
+      tr.innerHTML = `
+        <td style="padding: 12px; text-align: right; font-weight: 600; color: #333;">${item.symbol}</td>
+        <td style="padding: 12px; text-align: center; color: #666;">${compareText}</td>
+        <td style="padding: 12px; text-align: center;">
+          <span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
+            ${item.maxDifference.toFixed(2)}%
+          </span>
+        </td>
+        <td style="padding: 12px; text-align: center; color: #666;">${typeof latestPercent === 'number' ? latestPercent.toFixed(2) + '%' : latestPercent}</td>
+        <td style="padding: 12px; text-align: center; color: #999; font-size: 12px;">${latestTime}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  table.appendChild(tbody);
+  wrapper.appendChild(table);
+  container.appendChild(wrapper);
+}
 
 function printClientSize(size) {
-    const clientElement = document.getElementById('connection-status');
-    if (clientElement) {
-        clientElement.textContent = `تعداد افراد آنلاین: ${size}`;
-    }
+  const clientElement = document.getElementById('connection-status');
+  if (clientElement) {
+    clientElement.textContent = `تعداد افراد آنلاین: ${size}`;
+  }
 }
 
 function printData(rowsInfo) {
-    clearTable();
-    
-    if (!rowsInfo || rowsInfo.length === 0) {
-        showEmptyState();
-        return;
-    }
+  clearTable();
 
-    const tbody = document.getElementById('order');
-    
-    rowsInfo.forEach(function (rowInfo) {
-        const statusbuy = rowInfo.statusbuy;
-        const rowData = rowInfo.rowData;
-        
-        // Create table row
-        const tr = document.createElement('tr');
-        tr.className = 'data-row';
-        
-        // Symbol
-        const tdSymbol = document.createElement('td');
-        tdSymbol.textContent = rowData.symbol;
-        tdSymbol.className = 'symbol-cell';
-        tr.appendChild(tdSymbol);
-        
-        // Status Badge
-        const tdStatus = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = `status-badge status-${statusbuy.toLowerCase()}`;
-        badge.textContent = statusbuy;
-        tdStatus.appendChild(badge);
-        tr.appendChild(tdStatus);
-        
-        // Wallex Price
-        const tdWallexPrice = document.createElement('td');
-        tdWallexPrice.textContent = formatPrice(rowData.wallex[0]);
-        tr.appendChild(tdWallexPrice);
-        
-        // Binance Price
-        const tdBinancePrice = document.createElement('td');
-        tdBinancePrice.textContent = formatPrice(rowData.binance);
-        tr.appendChild(tdBinancePrice);
-        
-        // Percent
-        const tdPercent = document.createElement('td');
-        tdPercent.textContent = rowData.percent.toFixed(2) + '%';
-        tdPercent.className = rowData.percent > 0 ? 'percent-positive' : 'percent-negative';
-        tr.appendChild(tdPercent);
-        
-        // Value
-        const tdValue = document.createElement('td');
-        tdValue.textContent = parseInt(rowData.value).toLocaleString('fa-IR');
-        tr.appendChild(tdValue);
-        
-        // Description
-        const tdDescription = document.createElement('td');
-        tdDescription.textContent = rowData.description;
-        tr.appendChild(tdDescription);
-        
-        tbody.appendChild(tr);
-    });
-    
-    updateLastUpdate();
+  if (!rowsInfo || rowsInfo.length === 0) {
+    showEmptyState();
+    return;
+  }
+
+  const tbody = document.getElementById('order');
+
+  rowsInfo.forEach(function (rowInfo) {
+    const statusbuy = rowInfo.statusbuy;
+    const rowData = rowInfo.rowData;
+
+    // Create table row
+    const tr = document.createElement('tr');
+    tr.className = 'data-row';
+
+    // Symbol
+    const tdSymbol = document.createElement('td');
+    tdSymbol.textContent = rowData.symbol;
+    tdSymbol.className = 'symbol-cell';
+    tr.appendChild(tdSymbol);
+
+    // Status Badge
+    const tdStatus = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = `status-badge status-${statusbuy.toLowerCase()}`;
+    badge.textContent = statusbuy;
+    tdStatus.appendChild(badge);
+    tr.appendChild(tdStatus);
+
+    // Wallex Price
+    const tdWallexPrice = document.createElement('td');
+    tdWallexPrice.textContent = formatPrice(rowData.wallex[0]);
+    tr.appendChild(tdWallexPrice);
+
+    // Binance Price
+    const tdBinancePrice = document.createElement('td');
+    tdBinancePrice.textContent = formatPrice(rowData.binance);
+    tr.appendChild(tdBinancePrice);
+
+    // Percent
+    const tdPercent = document.createElement('td');
+    tdPercent.textContent = rowData.percent.toFixed(2) + '%';
+    tdPercent.className = rowData.percent > 0 ? 'percent-positive' : 'percent-negative';
+    tr.appendChild(tdPercent);
+
+    // Value
+    const tdValue = document.createElement('td');
+    tdValue.textContent = parseInt(rowData.value).toLocaleString('fa-IR');
+    tr.appendChild(tdValue);
+
+    // Description
+    const tdDescription = document.createElement('td');
+    tdDescription.textContent = rowData.description;
+    tr.appendChild(tdDescription);
+
+    tbody.appendChild(tr);
+  });
+
+  updateLastUpdate();
 }
 
 function formatPrice(price) {
-    const num = parseFloat(price);
-    return num.toLocaleString('fa-IR', { 
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2
-    });
+  const num = parseFloat(price);
+  return num.toLocaleString('fa-IR', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2
+  });
 }
 
 function showEmptyState() {
-    const emptyState = document.getElementById('empty-state');
-    if (emptyState) {
-        emptyState.style.display = 'block';
-    }
+  const emptyState = document.getElementById('empty-state');
+  if (emptyState) {
+    emptyState.style.display = 'block';
+  }
 }
 
 function hideEmptyState() {
-    const emptyState = document.getElementById('empty-state');
-    if (emptyState) {
-        emptyState.style.display = 'none';
-    }
+  const emptyState = document.getElementById('empty-state');
+  if (emptyState) {
+    emptyState.style.display = 'none';
+  }
 }
 
 // function printDataBal(rowDataBal) {
 //     const tBody = document.querySelector("tbody#balance");
 //     if (!tBody) return;
-    
+
 //     const tRow = document.createElement("tr");
 //     tRow.setAttribute("class", "balRow");
 //     tBody.appendChild(tRow);
@@ -397,32 +342,32 @@ function hideEmptyState() {
 // }
 
 function clearTable() {
-    const tbody = document.getElementById('order');
-    if (tbody) {
-        tbody.innerHTML = '';
-    }
-    hideEmptyState();
+  const tbody = document.getElementById('order');
+  if (tbody) {
+    tbody.innerHTML = '';
+  }
+  hideEmptyState();
 }
 
 function sortTable() {
-    let table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById("exchange");
-    switching = true;
-    while (switching) {
-        switching = false;
-        rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-        for (i = 0; i < rows.length - 1; i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("td")[4]; // percent column
-            y = rows[i + 1].getElementsByTagName("td")[4];
-            if (x && y && +x.innerHTML < +y.innerHTML) {
-                shouldSwitch = true;
-                break;
-            }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-        }
+  let table, rows, switching, i, x, y, shouldSwitch;
+  table = document.getElementById("exchange");
+  switching = true;
+  while (switching) {
+    switching = false;
+    rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    for (i = 0; i < rows.length - 1; i++) {
+      shouldSwitch = false;
+      x = rows[i].getElementsByTagName("td")[4]; // percent column
+      y = rows[i + 1].getElementsByTagName("td")[4];
+      if (x && y && +x.innerHTML < +y.innerHTML) {
+        shouldSwitch = true;
+        break;
+      }
     }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
 }
