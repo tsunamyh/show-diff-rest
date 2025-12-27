@@ -111,11 +111,9 @@ function printMaxDiff(data: RowsInfo) {
 
   const historyFile: HistoryFile = data.maxDiff;
 
-  // بررسی اینکه آیا قبلا container این صرافی ایجاد شده است
   let exchangeSection = document.getElementById(`exchange-${historyFile.exchangeName}`);
   
   if (!exchangeSection) {
-    // اگر اول بار است، ابتدا header کل را اضافه کن (فقط یک بار)
     if (container.children.length === 0) {
       const mainHeader = document.createElement("div");
       mainHeader.style.cssText = `
@@ -130,7 +128,6 @@ function printMaxDiff(data: RowsInfo) {
       container.appendChild(mainHeader);
     }
 
-    // ایجاد section برای این صرافی
     exchangeSection = document.createElement("div");
     exchangeSection.id = `exchange-${historyFile.exchangeName}`;
     exchangeSection.style.cssText = `
@@ -141,7 +138,6 @@ function printMaxDiff(data: RowsInfo) {
       border-right: 4px solid #667eea;
     `;
 
-    // عنوان صرافی
     const exchangeHeader = document.createElement("h2");
     exchangeHeader.style.cssText = `
       margin: 0 0 15px 0;
@@ -152,27 +148,122 @@ function printMaxDiff(data: RowsInfo) {
     exchangeSection.appendChild(exchangeHeader);
 
     container.appendChild(exchangeSection);
-  } else {
-    // اگر قبلا ایجاد شده، محتوای قبلی را پاک کن (جز عنوان)
-    const children = Array.from(exchangeSection.children);
-    children.slice(1).forEach(child => child.remove());
   }
 
-  // نمایش سه دوره زمانی
-  const periods = [
-    { key: 'last24h', label: '📊 آخرین 24 ساعت', data: historyFile.last24h },
-    { key: 'lastWeek', label: '📈 آخرین هفته', data: historyFile.lastWeek },
-    { key: 'allTime', label: '📉 کل دوره', data: historyFile.allTime }
-  ];
+  // بررسی اینکه آیا تب‌ها قبلا ایجاد شده‌اند
+  let tabsContainer = exchangeSection.querySelector(`[data-tabs-container="${historyFile.exchangeName}"]`) as HTMLElement | null;
+  let contentContainer = exchangeSection.querySelector(`[data-content-container="${historyFile.exchangeName}"]`) as HTMLElement | null;
 
-  periods.forEach(period => {
-    createPeriodTable(exchangeSection, period.label, period.data);
-  });
+  if (!tabsContainer || !contentContainer) {
+    // پاک کردن محتوای قدیمی (جز عنوان)
+    const children = Array.from(exchangeSection.children);
+    children.slice(1).forEach(child => child.remove());
+
+    // ایجاد تب‌ها برای انتخاب دوره
+    tabsContainer = document.createElement("div");
+    tabsContainer.setAttribute("data-tabs-container", historyFile.exchangeName);
+    tabsContainer.style.cssText = `
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ddd;
+      flex-wrap: wrap;
+    `;
+
+    const periods = [
+      { key: 'last24h', label: '📊 آخرین 24 ساعت', data: historyFile.last24h },
+      { key: 'lastWeek', label: '📈 آخرین هفته', data: historyFile.lastWeek },
+      { key: 'allTime', label: '📉 کل دوره', data: historyFile.allTime }
+    ];
+
+    contentContainer = document.createElement("div");
+    contentContainer.setAttribute("data-content-container", historyFile.exchangeName);
+
+    // متغیر برای ذخیره تب فعلی
+    let activeTabKey = 'last24h';
+
+    periods.forEach((period, index) => {
+      const tab = document.createElement("button");
+      const isActive = index === 0;
+
+      tab.setAttribute("data-tab-key", period.key);
+      tab.textContent = period.label;
+      tab.style.cssText = `
+        padding: 10px 15px;
+        border: none;
+        background: ${isActive ? '#667eea' : '#e8e8e8'};
+        color: ${isActive ? 'white' : '#333'};
+        border-radius: 4px 4px 0 0;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 14px;
+      `;
+
+      tab.addEventListener('mouseover', () => {
+        if (tab.getAttribute("data-tab-key") !== activeTabKey) {
+          tab.style.background = '#d0d0d0';
+        }
+      });
+
+      tab.addEventListener('mouseout', () => {
+        if (tab.getAttribute("data-tab-key") !== activeTabKey) {
+          tab.style.background = '#e8e8e8';
+        }
+      });
+
+      tab.addEventListener('click', () => {
+        activeTabKey = period.key;
+
+        // حذف محتوای قبلی
+        contentContainer!.innerHTML = '';
+
+        // آپدیت استایل تب‌ها
+        Array.from(tabsContainer!.querySelectorAll('button')).forEach(btn => {
+          btn.style.background = '#e8e8e8';
+          btn.style.color = '#333';
+        });
+        tab.style.background = '#667eea';
+        tab.style.color = 'white';
+
+        // نمایش جدول انتخاب‌شده
+        createPeriodTable(contentContainer!, period.label, period.data, true);
+      });
+
+      tabsContainer!.appendChild(tab);
+
+      // نمایش جدول اول (24 ساعت گذشته) به صورت پیشفرض
+      if (isActive) {
+        createPeriodTable(contentContainer, period.label, period.data, true);
+      }
+    });
+
+    exchangeSection.appendChild(tabsContainer);
+    exchangeSection.appendChild(contentContainer);
+  } else {
+    // اگر تب‌ها قبلا وجود دارند، فقط داده‌ها را آپدیت کن
+    const periods = [
+      { key: 'last24h', label: '📊 آخرین 24 ساعت', data: historyFile.last24h },
+      { key: 'lastWeek', label: '📈 آخرین هفته', data: historyFile.lastWeek },
+      { key: 'allTime', label: '📉 کل دوره', data: historyFile.allTime }
+    ];
+
+    // یافتن تب فعلی
+    const activeTab = tabsContainer.querySelector('button[style*="#667eea"]') as HTMLElement | null;
+    const activeTabKey = activeTab?.getAttribute("data-tab-key") || 'last24h';
+
+    // آپدیت محتوا برای تب فعلی
+    const activePeriod = periods.find(p => p.key === activeTabKey);
+    if (activePeriod) {
+      contentContainer.innerHTML = '';
+      createPeriodTable(contentContainer, activePeriod.label, activePeriod.data, true);
+    }
+  }
 
   updateLastUpdate();
 }
 
-function createPeriodTable(container: HTMLElement, title: string, currencies: CurrencyDiffTracker[]) {
+function createPeriodTable(container: HTMLElement, title: string, currencies: CurrencyDiffTracker[], isTabContent: boolean = false) {
   const wrapper = document.createElement("div");
   wrapper.style.cssText = `
     margin-bottom: 30px;
@@ -182,17 +273,19 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   `;
 
-  // عنوان دوره
-  const periodTitle = document.createElement("h3");
-  periodTitle.style.cssText = `
-    margin: 0;
-    padding: 15px;
-    background: #f8f9fa;
-    color: #333;
-    border-bottom: 2px solid #667eea;
-  `;
-  periodTitle.textContent = title;
-  wrapper.appendChild(periodTitle);
+  // عنوان دوره (فقط اگر از تب نباشد)
+  if (!isTabContent) {
+    const periodTitle = document.createElement("h3");
+    periodTitle.style.cssText = `
+      margin: 0;
+      padding: 15px;
+      background: #f8f9fa;
+      color: #333;
+      border-bottom: 2px solid #667eea;
+    `;
+    periodTitle.textContent = title;
+    wrapper.appendChild(periodTitle);
+  }
 
   // جدول
   const table = document.createElement("table");
