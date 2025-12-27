@@ -111,24 +111,52 @@ function printMaxDiff(data: RowsInfo) {
 
   const historyFile: HistoryFile = data.maxDiff;
 
-  // پاک کردن محتوای قبلی
-  container.innerHTML = "";
+  // بررسی اینکه آیا قبلا container این صرافی ایجاد شده است
+  let exchangeSection = document.getElementById(`exchange-${historyFile.exchangeName}`);
+  
+  if (!exchangeSection) {
+    // اگر اول بار است، ابتدا header کل را اضافه کن (فقط یک بار)
+    if (container.children.length === 0) {
+      const mainHeader = document.createElement("div");
+      mainHeader.style.cssText = `
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+      `;
+      mainHeader.innerHTML = `<h2>📊 تحلیل تفاوت قیمت صرافی‌ها</h2>`;
+      container.appendChild(mainHeader);
+    }
 
-  // نمایش اطلاعات صرافی و زمان
-  const header = document.createElement("div");
-  header.style.cssText = `
-    padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    text-align: center;
-  `;
-  header.innerHTML = `
-    <h2>${historyFile.exchangeName}</h2>
-    <p>آپدیت شده: ${new Date(historyFile.timestamp).toLocaleString('fa-IR')}</p>
-  `;
-  container.appendChild(header);
+    // ایجاد section برای این صرافی
+    exchangeSection = document.createElement("div");
+    exchangeSection.id = `exchange-${historyFile.exchangeName}`;
+    exchangeSection.style.cssText = `
+      margin-bottom: 30px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-right: 4px solid #667eea;
+    `;
+
+    // عنوان صرافی
+    const exchangeHeader = document.createElement("h2");
+    exchangeHeader.style.cssText = `
+      margin: 0 0 15px 0;
+      color: #667eea;
+      font-size: 20px;
+    `;
+    exchangeHeader.textContent = `${historyFile.exchangeName}`;
+    exchangeSection.appendChild(exchangeHeader);
+
+    container.appendChild(exchangeSection);
+  } else {
+    // اگر قبلا ایجاد شده، محتوای قبلی را پاک کن (جز عنوان)
+    const children = Array.from(exchangeSection.children);
+    children.slice(1).forEach(child => child.remove());
+  }
 
   // نمایش سه دوره زمانی
   const periods = [
@@ -138,7 +166,7 @@ function printMaxDiff(data: RowsInfo) {
   ];
 
   periods.forEach(period => {
-    createPeriodTable(container, period.label, period.data);
+    createPeriodTable(exchangeSection, period.label, period.data);
   });
 
   updateLastUpdate();
