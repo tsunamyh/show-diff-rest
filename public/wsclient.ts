@@ -300,8 +300,9 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
   thead.innerHTML = `
     <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
       <th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">نماد</th>
-      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">نوع مقایسه</th>
-      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">بیشترین اختلاف</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">قیمت خرید</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">قیمت فروش</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">حجم</th>
       <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">درصد</th>
       <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">زمان</th>
     </tr>
@@ -313,7 +314,7 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
 
   if (!currencies || currencies.length === 0) {
     const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="5" style="padding: 15px; text-align: center; color: #999;">داده‌ای موجود نیست</td>`;
+    emptyRow.innerHTML = `<td colspan="6" style="padding: 15px; text-align: center; color: #999;">داده‌ای موجود نیست</td>`;
     tbody.appendChild(emptyRow);
   } else {
     currencies.forEach((item: CurrencyDiffTracker, index: number) => {
@@ -330,19 +331,26 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
         tr.style.background = 'white';
       });
 
-      const compareText = item.statusCompare === "UsdtVsUsdt" ? "USDT ↔ USDT" : "USDT ↔ تومان";
       const latestPercent = item.percentages?.[0]?.value ?? "-";
       const latestTime = item.percentages?.[0]?.time ?? "-";
+      const exchangeBuyPrice = item.percentages?.[0]?.exchangeBuyPrice ?? "-";
+      const binanceSellPrice = item.percentages?.[0]?.binanceSellPrice ?? "-";
+      const buyVolume = item.percentages?.[0]?.buyVolume ?? "-";
+
+      const formattedBuyPrice = typeof exchangeBuyPrice === 'number' ? exchangeBuyPrice.toLocaleString('fa-IR', { maximumFractionDigits: 2 }) : exchangeBuyPrice;
+      const formattedSellPrice = typeof binanceSellPrice === 'number' ? binanceSellPrice.toLocaleString('fa-IR', { maximumFractionDigits: 2 }) : binanceSellPrice;
+      const formattedVolume = typeof buyVolume === 'number' ? buyVolume.toLocaleString('fa-IR') : buyVolume;
 
       tr.innerHTML = `
         <td style="padding: 12px; text-align: right; font-weight: 600; color: #333;">${item.symbol}</td>
-        <td style="padding: 12px; text-align: center; color: #666;">${compareText}</td>
+        <td style="padding: 12px; text-align: center; color: #27ae60; font-weight: 500;">${formattedBuyPrice}</td>
+        <td style="padding: 12px; text-align: center; color: #e74c3c; font-weight: 500;">${formattedSellPrice}</td>
+        <td style="padding: 12px; text-align: center; color: #666;">${formattedVolume}</td>
         <td style="padding: 12px; text-align: center;">
           <span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
-            ${item.maxDifference.toFixed(2)}%
+            ${typeof latestPercent === 'number' ? latestPercent.toFixed(2) + '%' : latestPercent}
           </span>
         </td>
-        <td style="padding: 12px; text-align: center; color: #666;">${typeof latestPercent === 'number' ? latestPercent.toFixed(2) + '%' : latestPercent}</td>
         <td style="padding: 12px; text-align: center; color: #999; font-size: 12px;">${latestTime}</td>
       `;
 
