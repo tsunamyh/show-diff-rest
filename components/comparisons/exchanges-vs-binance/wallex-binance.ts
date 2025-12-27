@@ -9,7 +9,7 @@ import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManag
 // import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
-const wallexBinanceCommonSymbols: string[] = wallex_binance_common_symbols.symbols.binance_symbol;
+const wallexBinanceCommonSymbols = wallex_binance_common_symbols.symbols;
 
 //  * مثال: [tmnPrice, volumeCurrency, usdtPrice]
 enum WallexUsdtPairIndex {
@@ -160,7 +160,7 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
 
         const rowsInfo : RowInfo[] = [];
 
-        for (const symbol of wallexBinanceCommonSymbols) {
+        for (const symbol of wallexBinanceCommonSymbols["binance_symbol"]) {
             let rowInfo: RowInfo | null = null;
             const binanceData = binanceOrderbooks?.usdt?.[symbol];
             const wallexDataTmn = wallexOrderbooks?.tmnPairs?.[symbol.replace("USDT", "TMN").toLowerCase()];
@@ -277,7 +277,7 @@ function createRowTable(
 ) {
     if (statusCompare === "UsdtVsTmn") {
         const rowData: RowData = {
-            symbol: symbol,
+            symbol: symbol.replace("USDT","TMN"),
             percent: difference_percent,
             wallex: [
                 wallexAskOrder[WallexTmnPairIndex.TMN_PRICE],

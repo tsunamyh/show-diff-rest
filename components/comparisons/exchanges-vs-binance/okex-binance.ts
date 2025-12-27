@@ -151,7 +151,7 @@ function createRowTable(
     exchangeName: string
 ) {
     const rowData: RowData = {
-        symbol: symbol,
+        symbol: symbol.replace("USDT","TMN"),
         percent: difference_percent,
         wallex: [
             okexAskOrder[OkExUsdtPairIndex.TMN_PRICE],
