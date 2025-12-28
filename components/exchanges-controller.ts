@@ -1,5 +1,5 @@
-import { fetchOkexPrices } from "./exchanges/okexPriceTracker";
-import { fetchWallexPrices } from "./exchanges/wallexPriceTracker";
+import { fetchOkexPrices } from "./exchanges/tracker/okexPriceTracker";
+import { fetchWallexPrices } from "./exchanges/tracker/wallexPriceTracker";
 
 let wallexFetched = false;
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
-import binance_okex_common_symbols from '../../commonSymbols/okex_binance_common_symbols';
+import binance_okex_common_symbols from '../../../commonSymbols/okex_binance_common_symbols';
 
 interface OkExOrderbooks {
   exchangeName: string;
