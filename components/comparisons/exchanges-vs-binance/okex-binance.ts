@@ -19,7 +19,7 @@ enum BinanceIndex {
 interface RowData {
     symbol: string;
     percent: number;
-    wallex: [string, string];
+    okex: [string, string];
     binance: string;
     value: number;
     description: string;
@@ -85,12 +85,12 @@ function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue:
 
 function updateCurrencyDiffTracker(topRowsInfo: RowInfo[]) {
     topRowsInfo.forEach(row => {
-        const { symbol, percent, wallex, binance, value } = row.rowData;
+        const { symbol, percent, okex, binance, value } = row.rowData;
         const currentTime = getTehranTime();
         const percentRecord: PercentageRecord = {
             time: currentTime,
             value: percent,
-            exchangeBuyPrice: parseFloat(wallex[0]),
+            exchangeBuyPrice: parseFloat(okex[0]),
             binanceSellPrice: parseFloat(binance),
             buyVolume: value
         };
@@ -159,7 +159,7 @@ function createRowTable(
     const rowData: RowData = {
         symbol: symbol.replace("USDT","TMN"),
         percent: difference_percent,
-        wallex: [
+        okex: [
             okexAskOrder[OkExUsdtPairIndex.TMN_PRICE],
             okexAskOrder[OkExUsdtPairIndex.QUANTITY]
         ],
@@ -201,16 +201,16 @@ async function okex_priceComp(binanceOrderbooks: BinanceOrderbooks, okexOrderboo
 
         // okex format: [tmnPrice, quantity, usdtPrice]
         const okex_tmn_ask = parseFloat(okexData.ask[OkExUsdtPairIndex.TMN_PRICE]);
-        const binance_tmn_ask = parseFloat(binanceData.ask[BinanceIndex.TMN_PRICE]);
+        const binance_tmn_bid = parseFloat(binanceData.bid[BinanceIndex.TMN_PRICE]);
 
-        if (okex_tmn_ask < binance_tmn_ask) {
+        if (okex_tmn_ask < binance_tmn_bid) {
             const okex_quantity = parseFloat(okexData.ask[OkExUsdtPairIndex.QUANTITY]);
             
-            const difference_percent = calculatePercentageDifference(binance_tmn_ask, okex_tmn_ask);
+            const difference_percent = calculatePercentageDifference(binance_tmn_bid, okex_tmn_ask);
             const amount_tmn = Math.floor(okex_quantity * okex_tmn_ask);
 
             if (difference_percent >= +myPercent && amount_tmn > 500000) {
-                console.log(`Symbol: ${symbol} | okex Ask TMN: ${okex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${okex_quantity} | Amount TMN: ${amount_tmn}`);
+                console.log(`Symbol: ${symbol} | okex Ask TMN: ${okex_tmn_ask} | Binance Ask TMN: ${binance_tmn_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${okex_quantity} | Amount TMN: ${amount_tmn}`);
             }
 
             const rowInfo = createRowTable(

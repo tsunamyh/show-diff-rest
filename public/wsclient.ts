@@ -11,9 +11,24 @@ interface RowsInfo {
   status?: string;
   maxDiff?: HistoryFile;
   size?: number;
-  //   forEach?: (callback: (rowInfo: RowInfo) => void) => void;
+  // forEach?: (callback: (rowInfo: RowInfo) => void) => void;
+  RowInfo?: RowInfo[];
 }
 
+interface RowInfo {
+  exchangeName: string;
+  statusbuy: string;
+  rowData: {
+    symbol: string;
+    percent: number;
+    wallex?: [string, string];
+    okex?: [string, string];
+    binance: string;
+    value: number;
+    description: string;
+    statusCompare: string;
+  };
+}
 interface CurrencyDiffTracker {
   symbol: string;
   statusCompare: string;
@@ -47,6 +62,7 @@ ws.onmessage = function ({ data }) {
 
     // اگر آرایه باشد (rowsInfo)
     if (Array.isArray(rowsInfo) && rowsInfo.length > 0) {
+      
       printData(rowsInfo);
       showLoading(false);
     }
@@ -112,7 +128,7 @@ function printMaxDiff(data: RowsInfo) {
   const historyFile: HistoryFile = data.maxDiff;
 
   let exchangeSection = document.getElementById(`exchange-${historyFile.exchangeName}`);
-  
+
   if (!exchangeSection) {
     if (container.children.length === 0) {
       const mainHeader = document.createElement("div");
@@ -383,6 +399,7 @@ function printData(rowsInfo) {
   rowsInfo.forEach(function (rowInfo) {
     const statusbuy = rowInfo.statusbuy;
     const rowData = rowInfo.rowData;
+    const exchangeName = rowInfo.exchangeName;
 
     // Create table row
     const tr = document.createElement('tr');
@@ -402,10 +419,34 @@ function printData(rowsInfo) {
     tdStatus.appendChild(badge);
     tr.appendChild(tdStatus);
 
-    // Wallex Price
-    const tdWallexPrice = document.createElement('td');
-    tdWallexPrice.textContent = formatPrice(rowData.wallex[0]);
-    tr.appendChild(tdWallexPrice);
+    // Exchange Name
+    const tdExchangeName = document.createElement('td');
+    tdExchangeName.textContent = exchangeName;
+    tdExchangeName.style.fontWeight = '600';
+    tdExchangeName.style.color = '#667eea';
+    tr.appendChild(tdExchangeName);
+
+    // Get exchange price (wallex or okex)
+    const exchangePrice = rowData.wallex?.[0] || rowData.okex?.[0] || "0";
+    
+    // Buy Price (خرید)
+    const tdBuyPrice = document.createElement('td');
+    tdBuyPrice.textContent = formatPrice(exchangePrice);
+    tdBuyPrice.style.color = '#27ae60';
+    tdBuyPrice.style.fontWeight = '500';
+    tr.appendChild(tdBuyPrice);
+
+    // Sell Price (فروش)
+    const tdSellPrice = document.createElement('td');
+    tdSellPrice.textContent = formatPrice(rowData.binance);
+    tdSellPrice.style.color = '#e74c3c';
+    tdSellPrice.style.fontWeight = '500';
+    tr.appendChild(tdSellPrice);
+
+    // Exchange Price
+    const tdExchangePrice = document.createElement('td');
+    tdExchangePrice.textContent = formatPrice(exchangePrice);
+    tr.appendChild(tdExchangePrice);
 
     // Binance Price
     const tdBinancePrice = document.createElement('td');
@@ -422,11 +463,6 @@ function printData(rowsInfo) {
     const tdValue = document.createElement('td');
     tdValue.textContent = parseInt(rowData.value).toLocaleString('fa-IR');
     tr.appendChild(tdValue);
-
-    // Description
-    const tdDescription = document.createElement('td');
-    tdDescription.textContent = rowData.description;
-    tr.appendChild(tdDescription);
 
     tbody.appendChild(tr);
   });
