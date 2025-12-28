@@ -24,7 +24,7 @@ interface HistoryFile {
     allTime: CurrencyDiffTracker[];
 }
 
-const HISTORY_DIR = path.join(process.cwd(), './database/history');
+const HISTORY_DIR = path.join(process.cwd(), './database/maxDiffhistory');
 
 export function ensureHistoryDir() {
     if (!fs.existsSync(HISTORY_DIR)) {
