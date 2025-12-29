@@ -231,7 +231,7 @@ export class WallexPurchasingService {
    * @param clientOrderId - The order ID to cancel
    * @returns Response indicating success/failure of cancellation
    */
-  async cancelOrder(clientOrderId: string): Promise<{
+  async cancelOrderById(clientOrderId: string): Promise<{
     success: boolean;
     message: string;
     result?: any;
