@@ -6,7 +6,7 @@ import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller"
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
-import { wallexPlaceOrder } from "../../exchanges/purchasing/parchasing-controller";
+import { validateAndExecuteTrade } from "../../exchanges/purchasing/tradeValidator";
 // import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
@@ -159,11 +159,6 @@ function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
 
 async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrderbooks: WallexOrderbooks) {
   try {
-
-    // console.log("orderBooks ::::",orderBooks?.wallexOrderbooks);
-
-    // const { binanceOrderbooks, wallexOrderbooks } = orderBooks;
-
     const rowsInfo: RowInfo[] = [];
 
     for (const symbol of wallexBinanceCommonSymbols["binance_symbol"]) {
@@ -224,14 +219,13 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Bid TMN: ${binance_tmn_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
       
-      // Auto-buy triggered
-      wallexPlaceOrder({
-        symbol: symbol.replace("USDT", "TMN"),
-        type: 'LIMIT',
-        side: 'BUY',
-        price: wallex_tmn_ask,
-        quantity: amount_currency
-      }).catch(err => console.error(`Auto-buy failed for ${symbol}:`, err));
+      // Validate and execute trade (uses default config from tradeValidator)
+      validateAndExecuteTrade(
+        symbol.replace("USDT", "TMN"),
+        amount_currency,
+        wallex_tmn_ask,
+        'BUY'
+      ).catch(err => console.error(`Trade validation failed for ${symbol}:`, err));
     }
     return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
   }
@@ -246,16 +240,16 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
   if (wallex_usdt_ask < binance_usdt_bid) {
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
-      console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
+      console.log(`\n📊 Arbitrage Opportunity Found!`);
+      console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
       
-      // Auto-buy triggered
-      wallexPlaceOrder({
-        symbol: symbol,
-        type: 'LIMIT',
-        side: 'BUY',
-        price: wallex_usdt_ask,
-        quantity: amount_currency
-      }).catch(err => console.error(`Auto-buy failed for ${symbol}:`, err));
+      // Validate and execute trade (uses default config from tradeValidator)
+      validateAndExecuteTrade(
+        symbol,
+        amount_currency,
+        wallex_usdt_ask,
+        'BUY'
+      ).catch(err => console.error(`Trade validation failed for ${symbol}:`, err));
     }
     return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
   }
