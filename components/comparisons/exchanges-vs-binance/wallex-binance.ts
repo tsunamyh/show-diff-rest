@@ -6,6 +6,7 @@ import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller"
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
+import { wallexPlaceOrder } from "../../exchanges/purchasing/parchasing-controller";
 // import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
 // const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
 
@@ -222,6 +223,15 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Bid TMN: ${binance_tmn_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
+      
+      // Auto-buy triggered
+      wallexPlaceOrder({
+        symbol: symbol.replace("USDT", "TMN"),
+        type: 'LIMIT',
+        side: 'BUY',
+        price: wallex_tmn_ask,
+        quantity: amount_currency
+      }).catch(err => console.error(`Auto-buy failed for ${symbol}:`, err));
     }
     return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
   }
@@ -237,6 +247,15 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
+      
+      // Auto-buy triggered
+      wallexPlaceOrder({
+        symbol: symbol,
+        type: 'LIMIT',
+        side: 'BUY',
+        price: wallex_usdt_ask,
+        quantity: amount_currency
+      }).catch(err => console.error(`Auto-buy failed for ${symbol}:`, err));
     }
     return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
   }

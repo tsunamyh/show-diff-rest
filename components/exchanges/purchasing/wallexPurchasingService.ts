@@ -155,45 +155,7 @@ export class WallexPurchasingService {
     }
   }
 
-  /**
-   * Place a BUY order
-   */
-  async buyOrder(
-    symbol: string,
-    quantity: number,
-    price: number,
-    type: 'LIMIT' | 'MARKET' = 'LIMIT',
-    client_id?: string
-  ): Promise<OrderResponse> {
-    return this.placeOrder({
-      symbol,
-      type,
-      side: 'BUY',
-      price,
-      quantity,
-      client_id
-    });
-  }
 
-  /**
-   * Place a SELL order
-   */
-  async sellOrder(
-    symbol: string,
-    quantity: number,
-    price: number,
-    type: 'LIMIT' | 'MARKET' = 'LIMIT',
-    client_id?: string
-  ): Promise<OrderResponse> {
-    return this.placeOrder({
-      symbol,
-      type,
-      side: 'SELL',
-      price,
-      quantity,
-      client_id
-    });
-  }
 
   /**
    * Get order details by clientOrderId

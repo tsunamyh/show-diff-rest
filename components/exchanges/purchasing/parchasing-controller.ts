@@ -13,31 +13,7 @@ export async function wallexPlaceOrder(orderData: PlaceOrderRequest): Promise<Or
   return await wallexService.placeOrder(orderData);
 }
 
-/**
- * Place a buy order on Wallex
- */
-export async function wallexBuyOrder(
-  symbol: string,
-  quantity: number,
-  price: number,
-  type: 'LIMIT' | 'MARKET' = 'LIMIT',
-  client_id?: string
-): Promise<OrderResponse> {
-  return await wallexService.buyOrder(symbol, quantity, price, type, client_id);
-}
 
-/**
- * Place a sell order on Wallex
- */
-export async function wallexSellOrder(
-  symbol: string,
-  quantity: number,
-  price: number,
-  type: 'LIMIT' | 'MARKET' = 'LIMIT',
-  client_id?: string
-): Promise<OrderResponse> {
-  return await wallexService.sellOrder(symbol, quantity, price, type, client_id);
-}
 
 /**
  * Get order details from Wallex
