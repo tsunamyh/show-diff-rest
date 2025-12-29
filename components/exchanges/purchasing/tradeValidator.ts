@@ -129,11 +129,11 @@ export async function validateAndExecuteTrade(
       console.log(`📤 Placing ${side} order: ${validQuantity} ${symbol} @ ${price}`);
 
       const orderResult = await wallexPlaceOrder({
-        symbol,
+        symbol: symbol.toUpperCase(),
         type: 'LIMIT',
         side,
-        price,
-        quantity: validQuantity
+        price: price.toString(),
+        quantity: validQuantity.toString()
       });
 
       if (orderResult.success) {

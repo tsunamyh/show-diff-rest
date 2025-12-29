@@ -52,7 +52,7 @@ const  binance_wallex_common_symbols: Coin = {
       "SANDUSDT",
       "NMRUSDT",
       "DOTUSDT",
-      "PAXGUSDT",
+      // "PAXGUSDT",
       "TRBUSDT",
       "SUSHIUSDT",
       "EGLDUSDT",
@@ -319,10 +319,10 @@ const  binance_wallex_common_symbols: Coin = {
         "DOTTMN",
         "DOTUSDT"
       ],
-      [
-        "PAXGTMN",
-        "PAXGUSDT"
-      ],
+      // [
+      //   "PAXGTMN",
+      //   "PAXGUSDT"
+      // ],
       [
         "TRBTMN",
         "TRBUSDT"

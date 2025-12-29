@@ -1,74 +1,18 @@
 {
-  "timestamp": "2025-12-28T15:17:29.730Z",
+  "timestamp": "2025-12-29T20:22:45.406Z",
   "exchangeName": "okex",
   "last24h": [
-    {
-      "symbol": "TRUMPTMN",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.3,
-      "percentages": [
-        {
-          "time": "12/28/2025, 5:50:04 PM",
-          "value": 1.3,
-          "exchangeBuyPrice": 696469.9500000001,
-          "binanceSellPrice": 705510.273,
-          "buyVolume": 331882557
-        },
-        {
-          "time": "12/28/2025, 4:29:56 PM",
-          "value": 0.91,
-          "exchangeBuyPrice": 685812.2999999999,
-          "binanceSellPrice": 692023.716,
-          "buyVolume": 291335808
-        },
-        {
-          "time": "12/28/2025, 4:30:17 PM",
-          "value": 0.9,
-          "exchangeBuyPrice": 685812.2999999999,
-          "binanceSellPrice": 692008.92,
-          "buyVolume": 291335808
-        },
-        {
-          "time": "12/28/2025, 4:30:47 PM",
-          "value": 0.9,
-          "exchangeBuyPrice": 685812.2999999999,
-          "binanceSellPrice": 691989.192,
-          "buyVolume": 291335808
-        },
-        {
-          "time": "12/28/2025, 4:30:55 PM",
-          "value": 0.9,
-          "exchangeBuyPrice": 685812.2999999999,
-          "binanceSellPrice": 691989.192,
-          "buyVolume": 291335808
-        }
-      ]
-    },
-    {
-      "symbol": "SYSTMN",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.3,
-      "percentages": [
-        {
-          "time": "12/28/2025, 5:50:15 PM",
-          "value": 1.3,
-          "exchangeBuyPrice": 2522.76893,
-          "binanceSellPrice": 2555.4633000000003,
-          "buyVolume": 8239363
-        }
-      ]
-    },
     {
       "symbol": "GLMTMN",
       "statusCompare": "UsdtVsUsdt",
       "maxDifference": 1.29,
       "percentages": [
         {
-          "time": "12/28/2025, 5:50:04 PM",
-          "value": 1.29,
-          "exchangeBuyPrice": 28759.2844,
-          "binanceSellPrice": 29129.1845,
-          "buyVolume": 9033291
+          "time": "12/29/2025, 10:44:58 PM",
+          "value": 0.46,
+          "exchangeBuyPrice": 27500.1111,
+          "binanceSellPrice": 27627.831,
+          "buyVolume": 8313283
         }
       ]
     },
@@ -78,165 +22,25 @@
       "maxDifference": 1.24,
       "percentages": [
         {
-          "time": "12/28/2025, 5:50:15 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 4164.7496,
-          "binanceSellPrice": 4216.372,
-          "buyVolume": 126654200
+          "time": "12/29/2025, 11:36:53 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.304,
+          "buyVolume": 109118882
         },
         {
-          "time": "12/28/2025, 4:33:32 PM",
-          "value": 0.98,
-          "exchangeBuyPrice": 4117.6856,
-          "binanceSellPrice": 4143.9408,
-          "buyVolume": 143538402
+          "time": "12/29/2025, 11:37:24 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.462,
+          "buyVolume": 109118882
         },
         {
-          "time": "12/28/2025, 6:35:39 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4230.0225,
-          "buyVolume": 130985042
-        },
-        {
-          "time": "12/28/2025, 6:38:29 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4230.0225,
-          "buyVolume": 128228481
-        },
-        {
-          "time": "12/28/2025, 6:32:39 PM",
-          "value": 0.5,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4229.3691,
-          "buyVolume": 130985042
-        }
-      ]
-    },
-    {
-      "symbol": "ONTTMN",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.24,
-      "percentages": [
-        {
-          "time": "12/28/2025, 5:49:55 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 8878.233100000001,
-          "binanceSellPrice": 8988.027100000001,
-          "buyVolume": 11905710
-        },
-        {
-          "time": "12/28/2025, 4:30:07 PM",
-          "value": 0.87,
-          "exchangeBuyPrice": 8750.019,
-          "binanceSellPrice": 8825.7506,
-          "buyVolume": 13186278
-        },
-        {
-          "time": "12/28/2025, 4:29:34 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 8763.93,
-          "binanceSellPrice": 8839.278,
-          "buyVolume": 11708610
-        },
-        {
-          "time": "12/28/2025, 4:30:17 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 8750.019,
-          "binanceSellPrice": 8825.499,
-          "buyVolume": 13186278
-        },
-        {
-          "time": "12/28/2025, 4:30:37 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 8750.019,
-          "binanceSellPrice": 8825.6877,
-          "buyVolume": 13186278
-        }
-      ]
-    },
-    {
-      "symbol": "BTCTMN",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.24,
-      "percentages": [
-        {
-          "time": "12/28/2025, 5:49:55 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 12378349165.27,
-          "binanceSellPrice": 12531416479.79,
-          "buyVolume": 5446473
-        },
-        {
-          "time": "12/28/2025, 5:49:45 PM",
-          "value": 1.23,
-          "exchangeBuyPrice": 12379096287.58,
-          "binanceSellPrice": 12531416479.79,
-          "buyVolume": 166746426
-        },
-        {
-          "time": "12/28/2025, 4:30:07 PM",
-          "value": 0.87,
-          "exchangeBuyPrice": 12220906703.699999,
-          "binanceSellPrice": 12326667685.26,
-          "buyVolume": 43506427
-        },
-        {
-          "time": "12/28/2025, 4:29:48 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 12220908094.8,
-          "binanceSellPrice": 12326228432.31,
-          "buyVolume": 49739095
-        },
-        {
-          "time": "12/28/2025, 4:30:17 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 12220908094.8,
-          "binanceSellPrice": 12326316282.9,
-          "buyVolume": 70514639
-        }
-      ]
-    },
-    {
-      "symbol": "ZILTMN",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.24,
-      "percentages": [
-        {
-          "time": "12/28/2025, 5:49:45 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 688.0278900000001,
-          "binanceSellPrice": 696.5364900000001,
-          "buyVolume": 2266501
-        },
-        {
-          "time": "12/28/2025, 4:30:07 PM",
-          "value": 0.87,
-          "exchangeBuyPrice": 676.0745999999999,
-          "binanceSellPrice": 681.92604,
-          "buyVolume": 805475
-        },
-        {
-          "time": "12/28/2025, 4:29:34 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 676.0745999999999,
-          "binanceSellPrice": 681.88716,
-          "buyVolume": 805475
-        },
-        {
-          "time": "12/28/2025, 4:30:17 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 676.0745999999999,
-          "binanceSellPrice": 681.9065999999999,
-          "buyVolume": 805475
-        },
-        {
-          "time": "12/28/2025, 4:30:37 PM",
-          "value": 0.86,
-          "exchangeBuyPrice": 676.0745999999999,
-          "binanceSellPrice": 681.9211799999999,
-          "buyVolume": 805475
+          "time": "12/29/2025, 11:38:03 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.304,
+          "buyVolume": 109118882
         }
       ]
     },
@@ -246,88 +50,214 @@
       "maxDifference": 1.24,
       "percentages": [
         {
-          "time": "12/28/2025, 5:49:45 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 1753134.4600000002,
-          "binanceSellPrice": 1774814.86,
-          "buyVolume": 3401080
+          "time": "12/29/2025, 11:37:03 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684362,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:35:08 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 28869646
+          "time": "12/29/2025, 11:37:14 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:35:18 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 28869646
+          "time": "12/29/2025, 11:37:24 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:36:29 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1778335,
-          "binanceSellPrice": 1787433.75,
-          "buyVolume": 11808144
-        },
-        {
-          "time": "12/28/2025, 6:36:39 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 8202814
+          "time": "12/29/2025, 11:37:33 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         }
       ]
     },
     {
-      "symbol": "AUCTIONTMN",
+      "symbol": "ZRXUSDT",
       "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.24,
+      "maxDifference": 0.79,
       "percentages": [
         {
-          "time": "12/28/2025, 5:49:45 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 713354.0700000001,
-          "binanceSellPrice": 722175.87,
-          "buyVolume": 78868425
-        },
-        {
-          "time": "12/28/2025, 6:40:58 PM",
-          "value": 0.49,
-          "exchangeBuyPrice": 721253,
-          "binanceSellPrice": 724770.19,
-          "buyVolume": 35810211
-        },
-        {
-          "time": "12/28/2025, 6:45:30 PM",
-          "value": 0.49,
-          "exchangeBuyPrice": 721253,
-          "binanceSellPrice": 724765.1,
-          "buyVolume": 35810211
-        },
-        {
-          "time": "12/28/2025, 6:15:08 PM",
-          "value": 0.17,
-          "exchangeBuyPrice": 719353.4,
-          "binanceSellPrice": 720581.12,
-          "buyVolume": 99788703
+          "time": "12/29/2025, 11:52:15 PM",
+          "value": 0.79,
+          "exchangeBuyPrice": 18468.809999999998,
+          "binanceSellPrice": 18614.9414,
+          "buyVolume": 37343933
         }
       ]
     },
     {
-      "symbol": "VICTMN",
+      "symbol": "ONTUSDT",
       "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 1.24,
+      "maxDifference": 0.78,
       "percentages": [
         {
-          "time": "12/28/2025, 5:49:45 PM",
-          "value": 1.24,
-          "exchangeBuyPrice": 12592.7395,
-          "binanceSellPrice": 12748.4695,
-          "buyVolume": 12160682
+          "time": "12/29/2025, 11:52:37 PM",
+          "value": 0.78,
+          "exchangeBuyPrice": 10287.630000000001,
+          "binanceSellPrice": 10367.3934,
+          "buyVolume": 2510181
+        },
+        {
+          "time": "12/29/2025, 11:52:06 PM",
+          "value": 0.64,
+          "exchangeBuyPrice": 10301.220000000001,
+          "binanceSellPrice": 10366.711200000002,
+          "buyVolume": 3832053
+        },
+        {
+          "time": "12/29/2025, 11:51:57 PM",
+          "value": 0.63,
+          "exchangeBuyPrice": 10301.220000000001,
+          "binanceSellPrice": 10365.953200000002,
+          "buyVolume": 3832053
+        }
+      ]
+    },
+    {
+      "symbol": "CELRUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.7,
+      "percentages": [
+        {
+          "time": "12/29/2025, 11:50:56 PM",
+          "value": 0.7,
+          "exchangeBuyPrice": 517.779,
+          "binanceSellPrice": 521.382488,
+          "buyVolume": 4392267
+        },
+        {
+          "time": "12/29/2025, 11:51:16 PM",
+          "value": 0.69,
+          "exchangeBuyPrice": 517.779,
+          "binanceSellPrice": 521.344368,
+          "buyVolume": 4392267
+        }
+      ]
+    },
+    {
+      "symbol": "TSTUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.7,
+      "percentages": [
+        {
+          "time": "12/29/2025, 11:52:15 PM",
+          "value": 0.7,
+          "exchangeBuyPrice": 2438.0460000000003,
+          "binanceSellPrice": 2455.0933,
+          "buyVolume": 21671059
+        }
+      ]
+    },
+    {
+      "symbol": "INJUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.69,
+      "percentages": [
+        {
+          "time": "12/29/2025, 11:52:25 PM",
+          "value": 0.69,
+          "exchangeBuyPrice": 623781,
+          "binanceSellPrice": 628107.536,
+          "buyVolume": 147137462
+        },
+        {
+          "time": "12/29/2025, 11:52:06 PM",
+          "value": 0.68,
+          "exchangeBuyPrice": 623781,
+          "binanceSellPrice": 628020.288,
+          "buyVolume": 147137462
+        }
+      ]
+    },
+    {
+      "symbol": "ETHUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.65,
+      "percentages": [
+        {
+          "time": "12/29/2025, 11:50:56 PM",
+          "value": 0.65,
+          "exchangeBuyPrice": 399005118,
+          "binanceSellPrice": 401580773.66,
+          "buyVolume": 15241995
+        },
+        {
+          "time": "12/29/2025, 11:52:15 PM",
+          "value": 0.64,
+          "exchangeBuyPrice": 398881449,
+          "binanceSellPrice": 401443999.66,
+          "buyVolume": 39768480
+        },
+        {
+          "time": "12/29/2025, 11:51:16 PM",
+          "value": 0.63,
+          "exchangeBuyPrice": 398949399,
+          "binanceSellPrice": 401469354.35999995,
+          "buyVolume": 32753745
+        },
+        {
+          "time": "12/29/2025, 11:51:57 PM",
+          "value": 0.63,
+          "exchangeBuyPrice": 399017349,
+          "binanceSellPrice": 401520684.32,
+          "buyVolume": 20230179
+        },
+        {
+          "time": "12/29/2025, 11:51:05 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 398949399,
+          "binanceSellPrice": 401410644.55999994,
+          "buyVolume": 32753745
+        }
+      ]
+    },
+    {
+      "symbol": "BTCUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.65,
+      "percentages": [
+        {
+          "time": "12/29/2025, 11:51:36 PM",
+          "value": 0.65,
+          "exchangeBuyPrice": 11881628280,
+          "binanceSellPrice": 11958904750.08,
+          "buyVolume": 27208928
+        },
+        {
+          "time": "12/29/2025, 11:50:56 PM",
+          "value": 0.64,
+          "exchangeBuyPrice": 11884465872,
+          "binanceSellPrice": 11960886300,
+          "buyVolume": 35534552
+        },
+        {
+          "time": "12/29/2025, 11:52:15 PM",
+          "value": 0.64,
+          "exchangeBuyPrice": 11876184126,
+          "binanceSellPrice": 11952551292.44,
+          "buyVolume": 17220466
+        },
+        {
+          "time": "12/29/2025, 11:52:37 PM",
+          "value": 0.64,
+          "exchangeBuyPrice": 11878313679,
+          "binanceSellPrice": 11954399241.33,
+          "buyVolume": 830056559
+        },
+        {
+          "time": "12/29/2025, 11:51:26 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 11882347191,
+          "binanceSellPrice": 11956281876.48,
+          "buyVolume": 202950490
         }
       ]
     }
@@ -400,6 +330,13 @@
           "exchangeBuyPrice": 28759.2844,
           "binanceSellPrice": 29129.1845,
           "buyVolume": 9033291
+        },
+        {
+          "time": "12/29/2025, 10:44:58 PM",
+          "value": 0.46,
+          "exchangeBuyPrice": 27500.1111,
+          "binanceSellPrice": 27627.831,
+          "buyVolume": 8313283
         }
       ]
     },
@@ -423,25 +360,25 @@
           "buyVolume": 143538402
         },
         {
-          "time": "12/28/2025, 6:35:39 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4230.0225,
-          "buyVolume": 130985042
+          "time": "12/29/2025, 11:36:53 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.304,
+          "buyVolume": 109118882
         },
         {
-          "time": "12/28/2025, 6:38:29 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4230.0225,
-          "buyVolume": 128228481
+          "time": "12/29/2025, 11:37:24 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.462,
+          "buyVolume": 109118882
         },
         {
-          "time": "12/28/2025, 6:32:39 PM",
-          "value": 0.5,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4229.3691,
-          "buyVolume": 130985042
+          "time": "12/29/2025, 11:38:03 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.304,
+          "buyVolume": 109118882
         }
       ]
     },
@@ -584,32 +521,32 @@
           "buyVolume": 3401080
         },
         {
-          "time": "12/28/2025, 6:35:08 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 28869646
+          "time": "12/29/2025, 11:37:03 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684362,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:35:18 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 28869646
+          "time": "12/29/2025, 11:37:14 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:36:29 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1778335,
-          "binanceSellPrice": 1787433.75,
-          "buyVolume": 11808144
+          "time": "12/29/2025, 11:37:24 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:36:39 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 8202814
+          "time": "12/29/2025, 11:37:33 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         }
       ]
     },
@@ -731,6 +668,13 @@
           "exchangeBuyPrice": 28759.2844,
           "binanceSellPrice": 29129.1845,
           "buyVolume": 9033291
+        },
+        {
+          "time": "12/29/2025, 10:44:58 PM",
+          "value": 0.46,
+          "exchangeBuyPrice": 27500.1111,
+          "binanceSellPrice": 27627.831,
+          "buyVolume": 8313283
         }
       ]
     },
@@ -754,25 +698,25 @@
           "buyVolume": 143538402
         },
         {
-          "time": "12/28/2025, 6:35:39 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4230.0225,
-          "buyVolume": 130985042
+          "time": "12/29/2025, 11:36:53 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.304,
+          "buyVolume": 109118882
         },
         {
-          "time": "12/28/2025, 6:38:29 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4230.0225,
-          "buyVolume": 128228481
+          "time": "12/29/2025, 11:37:24 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.462,
+          "buyVolume": 109118882
         },
         {
-          "time": "12/28/2025, 6:32:39 PM",
-          "value": 0.5,
-          "exchangeBuyPrice": 4208.49,
-          "binanceSellPrice": 4229.3691,
-          "buyVolume": 130985042
+          "time": "12/29/2025, 11:38:03 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 4300.76,
+          "binanceSellPrice": 4327.304,
+          "buyVolume": 109118882
         }
       ]
     },
@@ -915,32 +859,32 @@
           "buyVolume": 3401080
         },
         {
-          "time": "12/28/2025, 6:35:08 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 28869646
+          "time": "12/29/2025, 11:37:03 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684362,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:35:18 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 28869646
+          "time": "12/29/2025, 11:37:14 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:36:29 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1778335,
-          "binanceSellPrice": 1787433.75,
-          "buyVolume": 11808144
+          "time": "12/29/2025, 11:37:24 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         },
         {
-          "time": "12/28/2025, 6:36:39 PM",
-          "value": 0.51,
-          "exchangeBuyPrice": 1775501,
-          "binanceSellPrice": 1784585.25,
-          "buyVolume": 8202814
+          "time": "12/29/2025, 11:37:33 PM",
+          "value": 0.62,
+          "exchangeBuyPrice": 1674030,
+          "binanceSellPrice": 1684423.5,
+          "buyVolume": 6361314
         }
       ]
     },

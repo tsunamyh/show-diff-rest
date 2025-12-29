@@ -6,8 +6,8 @@ export interface PlaceOrderRequest {
   symbol: string;
   type: 'LIMIT' | 'MARKET';
   side: 'BUY' | 'SELL';
-  price?: number | string;
-  quantity: number;
+  price?: string;
+  quantity: string;
   client_id?: string; // Optional, auto-generated if not provided
 }
 
