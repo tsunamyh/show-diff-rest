@@ -2,7 +2,7 @@ import { EventEmitter } from "stream";
 import { getAllexchangesOrderBooks } from "../controller";
 import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks } from "../types/types";
 import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "./exchanges-vs-binance/wallex-binance";
-import { okex_getTopFiveCurrenciesWithDifferences, okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "./exchanges-vs-binance/okex-binance";
+import { okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "./exchanges-vs-binance/okex-binance";
 import { getDataByPeriod } from "../utils/historyManager";
 
 const eventEmmiter = new EventEmitter();
