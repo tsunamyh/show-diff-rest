@@ -150,7 +150,8 @@ export class WallexPurchasingService {
       return response.data;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to place order';
-      console.error('Error placing order:', errorMessage);
+      
+      console.error('Error placing order:', JSON.stringify(error.response?.data?.result));
       
       throw {
         success: false,

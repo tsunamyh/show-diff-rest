@@ -7,18 +7,19 @@ import commonSymbols from "../../../commonSymbols/wallex_binance_common_symbols"
  * Get amount and price precision for a trading pair
  */
 function getPrecision(symbol: string): { amount: number; price: number } {
-  const pair = symbol.toLowerCase();
+  const pair = symbol.toUpperCase();
   
   try {
-    if (symbol.includes('TMN')) {
+    if (symbol.endsWith('TMN')) {
       const precision = commonSymbols.symbols.wallex_symbol.tmnPairs[pair];
+      console.log(`   TMN pair - found:`, precision);
       if (precision) {
         return {
           amount: precision.amount_precision,
           price: precision.price_precision
         };
       }
-    } else if (symbol.includes('USDT')) {
+    } else if (symbol.endsWith('USDT')) {
       const precision = commonSymbols.symbols.wallex_symbol.usdtPairs[pair];
       if (precision) {
         return {
@@ -32,7 +33,8 @@ function getPrecision(symbol: string): { amount: number; price: number } {
   }
   
   // Default fallback
-  return { amount: 4, price: 2 };
+  console.warn(`⚠️ Could not find precision for ${symbol}, using defaults (4, 2)`);
+  return { amount: 10, price: 10 };
 }
 
 /**
