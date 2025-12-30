@@ -71,7 +71,7 @@ async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
     
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`[${new Date().toISOString()}] API Error:`, error.message);
+      console.error(`[${new Date().toISOString()}] API Error Binance:`, error.message);
       if (error.response) {
         console.error('Response status:', error.response.status);
       }

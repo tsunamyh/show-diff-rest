@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-12-30T16:48:48.242Z",
+  "timestamp": "2025-12-30T17:54:46.340Z",
   "exchangeName": "wallex",
   "last24h": [
     {
@@ -311,44 +311,30 @@
       ]
     },
     {
-      "symbol": "OSMOUSDT",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 0.2,
+      "symbol": "KITETMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.92,
       "percentages": [
         {
-          "time": "12/30/2025, 8:17:58 PM",
-          "value": 0.2,
-          "exchangeBuyPrice": 0.0504,
-          "binanceSellPrice": 0.0505,
-          "buyVolume": 38994089
+          "time": "12/30/2025, 9:24:46 PM",
+          "value": 0.92,
+          "exchangeBuyPrice": 12864,
+          "binanceSellPrice": 12982.788299999998,
+          "buyVolume": 59174
         }
       ]
     },
     {
-      "symbol": "ZRXTMN",
+      "symbol": "SKLTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.16,
+      "maxDifference": 0.33,
       "percentages": [
         {
-          "time": "12/30/2025, 8:18:28 PM",
-          "value": 0.16,
-          "exchangeBuyPrice": 23314,
-          "binanceSellPrice": 23350.7124,
-          "buyVolume": 165762
-        },
-        {
-          "time": "12/30/2025, 8:18:18 PM",
-          "value": 0.15,
-          "exchangeBuyPrice": 23314,
-          "binanceSellPrice": 23349.0344,
-          "buyVolume": 165762
-        },
-        {
-          "time": "12/30/2025, 8:18:48 PM",
-          "value": 0,
-          "exchangeBuyPrice": 23425,
-          "binanceSellPrice": 23425.8453,
-          "buyVolume": 166551
+          "time": "12/30/2025, 9:24:46 PM",
+          "value": 0.33,
+          "exchangeBuyPrice": 1362,
+          "binanceSellPrice": 1366.4628200000002,
+          "buyVolume": 91608
         }
       ]
     }

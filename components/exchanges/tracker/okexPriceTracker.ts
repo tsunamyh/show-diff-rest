@@ -34,9 +34,9 @@ async function getUsdtToIrtRate(): Promise<number> {
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('USDT-IRT fetch error:', error.message, error.response?.status, error.response?.data);
+      console.error('USDT-IRT fetch error Okex:', error.message, error.response?.status, error.response?.data);
     } else {
-      console.error('USDT-IRT fetch error:', error);
+      console.error('USDT-IRT fetch error Okex:', error);
     }
   }
   
@@ -180,7 +180,7 @@ export default okexOrderbooks;
     if (axios.isAxiosError(error)) {
       console.error(`[${new Date().toISOString()}] ok-ex.io API Error:`, error.message);
       if (error.response) {
-        console.error('Response status:', error.response.status);
+        console.error('Response status Okex:', error.response.status);
       }
     } else {
       console.error(`[${new Date().toISOString()}] ok-ex.io Error:`, error);
