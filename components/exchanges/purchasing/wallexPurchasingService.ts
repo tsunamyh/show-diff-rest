@@ -121,18 +121,23 @@ export class WallexPurchasingService {
         throw new Error('Price is required for LIMIT orders');
       }
 
+      // Format quantity and price to avoid precision issues
+      // Remove trailing zeros from quantity and price (already formatted by caller)
+      const quantity = parseFloat(orderData.quantity).toString();
+      const price = parseFloat(orderData.price).toString();
+
       // Build request body
       const requestBody: any = {
         symbol: orderData.symbol,
         type: orderData.type,
         side: orderData.side,
-        quantity: orderData.quantity,
+        quantity: quantity,
         client_id: orderData.client_id || this.generateClientId() // Generate if not provided
       };
 
       // Add price for LIMIT orders
       if (orderData.type === 'LIMIT') {
-        requestBody.price = orderData.price;
+        requestBody.price = price;
       }
 
       console.log(`Placing ${orderData.side} order for ${orderData.symbol}:`, requestBody);

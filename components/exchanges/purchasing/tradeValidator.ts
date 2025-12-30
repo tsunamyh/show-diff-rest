@@ -1,4 +1,58 @@
 import { wallexGetBalances, wallexGetOpenOrders, wallexPlaceOrder } from "./parchasing-controller";
+import commonSymbols from "../../../commonSymbols/wallex_binance_common_symbols";
+
+// ==================== Helper Functions ====================
+
+/**
+ * Get amount and price precision for a trading pair
+ */
+function getPrecision(symbol: string): { amount: number; price: number } {
+  const pair = symbol.toLowerCase();
+  
+  try {
+    if (symbol.includes('TMN')) {
+      const precision = commonSymbols.symbols.wallex_symbol.tmnPairs[pair];
+      if (precision) {
+        return {
+          amount: precision.amount_precision,
+          price: precision.price_precision
+        };
+      }
+    } else if (symbol.includes('USDT')) {
+      const precision = commonSymbols.symbols.wallex_symbol.usdtPairs[pair];
+      if (precision) {
+        return {
+          amount: precision.amount_precision,
+          price: precision.price_precision
+        };
+      }
+    }
+  } catch (error) {
+    console.warn(`Could not find precision for ${symbol}, using defaults`);
+  }
+  
+  // Default fallback
+  return { amount: 4, price: 2 };
+}
+
+/**
+ * Format quantity and price based on symbol precision
+ */
+function formatOrderData(
+  symbol: string,
+  quantity: number,
+  price: number
+): { quantity: string; price: string } {
+  const precision = getPrecision(symbol);
+  
+  const formattedQuantity = quantity.toFixed(precision.amount);
+  const formattedPrice = price.toFixed(precision.price);
+  
+  return {
+    quantity: formattedQuantity,
+    price: formattedPrice
+  };
+}
 
 // ==================== Types ====================
 
@@ -128,12 +182,17 @@ export async function validateAndExecuteTrade(
       console.log(`\n✅ All validations passed!`);
       console.log(`📤 Placing ${side} order: ${validQuantity} ${symbol} @ ${price}`);
 
+      // Format quantity and price based on symbol precision
+      const { quantity: formattedQuantity, price: formattedPrice } = formatOrderData(symbol, validQuantity, price);
+      
+      console.log(`📏 Formatted: quantity=${formattedQuantity}, price=${formattedPrice}`);
+
       const orderResult = await wallexPlaceOrder({
         symbol: symbol.toUpperCase(),
         type: 'LIMIT',
         side,
-        price: price.toString(),
-        quantity: validQuantity.toString()
+        price: formattedPrice,
+        quantity: formattedQuantity
       });
 
       if (orderResult.success) {
