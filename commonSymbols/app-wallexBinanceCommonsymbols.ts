@@ -42,7 +42,8 @@ async function getCommonSymbolss(): Promise<void> {
     );
 
     const wallexMarkets = wallexResponse.data.result.markets;
-
+    // console.log(wallexMarkets);
+    
     // فیلتر: فقط TMN یا USDT
     const wallexTMNorUSDT = wallexMarkets
       .filter(
@@ -87,7 +88,18 @@ async function getCommonSymbolss(): Promise<void> {
 
     // ساخت نتیجه
     const binanceSymbols: string[] = [];
-    const wallexSymbols: string[][] = [];
+    const wallexSymbols: { 
+      "tmnPairs": {
+        [pair: string]: {
+        "amount_precision": number;
+        "price_precision": number;
+      }};
+      "usdtPairs": {
+        [pair: string]: {
+        "amount_precision": number;
+        "price_precision": number;
+      }};
+   }  = {"tmnPairs": {}, "usdtPairs": {}};
 
     commonBases.forEach((base) => {
       // پیدا کردن سمبل Binance
@@ -100,17 +112,33 @@ async function getCommonSymbolss(): Promise<void> {
       const wallexSymbolsTMN = wallexTMNorUSDT.find(
         (sym: string) => sym === `${base}TMN`
       );
+      // console.log(wallexSymbolsTMN);
       const wallexSymbolsUSDT = wallexTMNorUSDT.find(
         (sym: string) => sym === `${base}USDT`
       );
 
-      const pair: string[] = [];
-      if (wallexSymbolsTMN) pair.push(wallexSymbolsTMN);
-      if (wallexSymbolsUSDT) pair.push(wallexSymbolsUSDT);
-
-      if (pair.length > 0) {
-        wallexSymbols.push(pair);
+      // const pair: string[] = [];
+      if (wallexSymbolsTMN) {
+        wallexSymbols.tmnPairs[wallexSymbolsTMN] = {
+          amount_precision: wallexMarkets.find((m: any) => m.symbol === wallexSymbolsTMN)?.amount_precision ,
+          price_precision: wallexMarkets.find((m: any) => m.symbol === wallexSymbolsTMN)?.price_precision ,
+        };
+        // if (wallexSymbolsTMN == "BTCTMN") {
+        //   console.log(wallexMarkets.find((m: any) => m.symbol === wallexSymbolsTMN)?.price_precision);
+        
+        // }
       }
+      if (wallexSymbolsUSDT) {
+        wallexSymbols.usdtPairs[wallexSymbolsUSDT] = {
+          amount_precision: wallexMarkets.find((m: any) => m.symbol === wallexSymbolsUSDT)?.amount_precision ,
+          price_precision: wallexMarkets.find((m: any) => m.symbol === wallexSymbolsUSDT)?.price_precision ,
+        };
+        // pair.push(wallexSymbolsUSDT);
+      }
+
+      // if (pair.length > 0) {
+      //   // wallexSymbols.push(pair);
+      // }
     });
 
     const resultObj = {
@@ -128,7 +156,18 @@ async function getCommonSymbolss(): Promise<void> {
   timestamp: string;
   symbols: {
     binance_symbol: string[];
-    wallex_symbol: [string, string][];
+    wallex_symbol: { 
+      "tmnPairs": {
+        [pair: string]: {
+        "amount_precision": number;
+        "price_precision": number;
+      }};
+      "usdtPairs": {
+        [pair: string]: {
+        "amount_precision": number;
+        "price_precision": number;
+      }};
+    };
   };
 } \n\nconst  binance_wallex_common_symbols: Coin = ${JSON.stringify(
       resultObj,

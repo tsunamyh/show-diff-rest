@@ -65,7 +65,7 @@ const  binance_wallex_common_symbols: Coin = {
       "SANDUSDT",
       "NMRUSDT",
       "DOTUSDT",
-      // "PAXGUSDT",
+      "PAXGUSDT",
       "TRBUSDT",
       "SUSHIUSDT",
       "EGLDUSDT",
@@ -347,10 +347,10 @@ const  binance_wallex_common_symbols: Coin = {
           "amount_precision": 2,
           "price_precision": 0
         },
-        // "PAXGTMN": {
-        //   "amount_precision": 6,
-        //   "price_precision": 0
-        // },
+        "PAXGTMN": {
+          "amount_precision": 6,
+          "price_precision": 0
+        },
         "TRBTMN": {
           "amount_precision": 3,
           "price_precision": 0
@@ -961,10 +961,10 @@ const  binance_wallex_common_symbols: Coin = {
           "amount_precision": 2,
           "price_precision": 3
         },
-        // "PAXGUSDT": {
-        //   "amount_precision": 6,
-        //   "price_precision": 2
-        // },
+        "PAXGUSDT": {
+          "amount_precision": 6,
+          "price_precision": 2
+        },
         "TRBUSDT": {
           "amount_precision": 3,
           "price_precision": 4
