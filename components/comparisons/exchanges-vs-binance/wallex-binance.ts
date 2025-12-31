@@ -7,8 +7,20 @@ import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../../exchanges/purchasing/tradeValidator";
-// import { WallexOrderbooks } from "../fswritefiles/wallex_prices";
-// const binance_wallex_common_symbols = require("../commonSymbols/common_symbols").default;
+import { wallexGetBalances } from "../../exchanges/purchasing/parchasing-controller";
+
+// تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
+async function getAvailableBalance(symbol: string): Promise<number> {
+  try {
+    const availableBalanceStr = await wallexGetBalances(symbol.toUpperCase());
+    const currentBalance = parseFloat(availableBalanceStr) || 0;
+    console.log(`Available balance for ${symbol}: ${currentBalance}`);
+    return currentBalance;
+  } catch (error) {
+    console.error(`Error fetching balance for ${symbol}:`, error);
+    return 0;
+  }
+}
 
 const wallexBinanceCommonSymbols = wallex_binance_common_symbols.symbols;
 
@@ -219,13 +231,28 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
       
-      // Validate and execute trade (uses default config from tradeValidator)
+      // BUY from Wallex, then SELL in Wallex
       validateAndExecuteTrade(
         symbol.replace("USDT", "TMN"),
         amount_currency,
         wallex_tmn_ask,
         'BUY'
-      ).catch(err => console.error(`Trade validation failed for ${symbol}:`, err));
+      ).then(() => {
+        // دریافت موجودی واقعی قبل از فروش (از API والکس)
+        getAvailableBalance(symbol.replace("USDT", "TMN")).then(availableBalance => {
+          if (availableBalance > 0) {
+            // SELL in Wallex با مقدار موجود
+            validateAndExecuteTrade(
+              symbol.replace("USDT", "TMN"),
+              availableBalance, // استفاده از موجودی واقعی
+              binance_tmn_ask * 0.98, // کمی کمتر برای تضمین فروش
+              'SELL'
+            ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+          } else {
+            console.warn(`⚠️ No balance available for SELL: ${symbol.replace("USDT", "TMN")}`);
+          }
+        });
+      }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
     }
     return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
   }
@@ -243,13 +270,28 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
       console.log(`\n📊 Arbitrage Opportunity Found!`);
       console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
       
-      // Validate and execute trade (uses default config from tradeValidator)
-      validateAndExecuteTrade(
-        symbol,
-        amount_currency,
-        wallex_usdt_ask,
-        'BUY'
-      ).catch(err => console.error(`Trade validation failed for ${symbol}:`, err));
+      // BUY from Wallex, then SELL in Wallex
+      // validateAndExecuteTrade(
+      //   symbol,
+      //   amount_currency,
+      //   wallex_usdt_ask,
+      //   'BUY'
+      // ).then(() => {
+      //   // دریافت موجودی واقعی قبل از فروش (از API والکس)
+      //   getAvailableBalance(symbol).then(availableBalance => {
+      //     if (availableBalance > 0) {
+      //       // SELL in Wallex با مقدار موجود
+      //       validateAndExecuteTrade(
+      //         symbol,
+      //         availableBalance, // استفاده از موجودی واقعی
+      //         binance_usdt_bid,
+      //         'SELL'
+      //       ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+      //     } else {
+      //       console.warn(`⚠️ No balance available for SELL: ${symbol}`);
+      //     }
+      //   });
+      // }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
     }
     return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
   }
