@@ -278,7 +278,7 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
   if (wallex_usdt_ask < binance_usdt_bid) {
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
-      console.log(`\n📊 Arbitrage Opportunity Found!`);
+      console.log(`\n📊(UsdtVsUsdt) Arbitrage Opportunity Found!`);
       console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
 
       // BUY from Wallex, then SELL in Wallex

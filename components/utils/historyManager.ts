@@ -26,6 +26,13 @@ interface HistoryFile {
 
 const HISTORY_DIR = path.join(process.cwd(), './database/maxDiffhistory');
 
+function getTehranTime(): string {
+  const now = new Date();
+  const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
+
+  return tehranTime;
+}
+
 export function ensureHistoryDir() {
     if (!fs.existsSync(HISTORY_DIR)) {
         fs.mkdirSync(HISTORY_DIR, { recursive: true });
@@ -47,7 +54,7 @@ export function saveHistoryToFile(exchange: 'wallex' | 'okex', tracker: Map<stri
     const filePath = path.join(HISTORY_DIR, `${exchange}_history.json`);
     
     try {
-        const now = new Date().getTime();
+        const now = new Date(getTehranTime()).getTime();
         const oneDayMs = 24 * 60 * 60 * 1000;
         const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
         
@@ -55,23 +62,35 @@ export function saveHistoryToFile(exchange: 'wallex' | 'okex', tracker: Map<stri
         
         // Filter by time periods
         const last24h = allCurrencies
-            .map(currency => ({
-                ...currency,
-                percentages: currency.percentages.filter(p => {
-                    const recordTime = new Date(p.time).getTime();
+            .map(currency => {
+                const filtered24h = currency.percentages.filter(p => {
+                    const recordTime = new Date(p.time).getTime(); // ISO string
                     return (now - recordTime) <= oneDayMs;
-                })
-            }))
+                });
+                return {
+                    ...currency,
+                    percentages: filtered24h,
+                    maxDifference: filtered24h.length > 0 
+                        ? Math.max(...filtered24h.map(p => p.value))
+                        : 0
+                };
+            })
             .filter(c => c.percentages.length > 0);
         
         const lastWeek = allCurrencies
-            .map(currency => ({
-                ...currency,
-                percentages: currency.percentages.filter(p => {
+            .map(currency => {
+                const filtered7d = currency.percentages.filter(p => {
                     const recordTime = new Date(p.time).getTime();
                     return (now - recordTime) <= sevenDaysMs;
-                })
-            }))
+                });
+                return {
+                    ...currency,
+                    percentages: filtered7d,
+                    maxDifference: filtered7d.length > 0 
+                        ? Math.max(...filtered7d.map(p => p.value))
+                        : 0
+                };
+            })
             .filter(c => c.percentages.length > 0);
         
         const allTime = allCurrencies.filter(c => c.percentages.length > 0);
