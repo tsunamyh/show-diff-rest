@@ -122,8 +122,7 @@ function getUsdtToTmnRate(): number {
 export {
   fetchWallexPrices,
   getUsdtToTmnRate
-}; 
+};
 
 // Set up interval for fetching every 10 seconds
 // setInterval(fetchWallexPrices, INTERVAL);
-
