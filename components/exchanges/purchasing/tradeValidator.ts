@@ -67,8 +67,8 @@ export interface ValidateTradeConfig {
 
 // ==================== Default Configuration ====================
 const defaultWallexConfig: ValidateTradeConfig = {
-  maxTradeAmountInTMN: parseFloat(process.env.WALLEX_MAX_TRADE_AMOUNT || '600000'),    // حداکثر 600,000 تومان
-  maxBalanceUsagePercent: parseFloat(process.env.WALLEX_MAX_BALANCE_PERCENT || '80'),  // حداکثر 80% موجودی
+  maxTradeAmountInTMN: parseFloat(process.env.WALLEX_MAX_TRADE_AMOUNT || '500000'),    // حداکثر 600,000 تومان
+  maxBalanceUsagePercent: parseFloat(process.env.WALLEX_MAX_BALANCE_PERCENT || '95'),  // حداکثر 80% موجودی
   allowDuplicatePosition: process.env.WALLEX_ALLOW_DUPLICATE === 'true',  // default: false
   minProfitPercent: parseFloat(process.env.MYPERCENT || '1')
 };

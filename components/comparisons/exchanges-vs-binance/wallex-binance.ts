@@ -212,12 +212,12 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
   if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
 
   const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
-  const binance_tmn_bid = parseFloat(binanceOrderbook.bid[BinanceIndex.TMN_PRICE]);
+  const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
 
-  if (wallex_tmn_ask < binance_tmn_bid) {
+  if (wallex_tmn_ask < binance_tmn_ask) {
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
-      console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Bid TMN: ${binance_tmn_bid} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
+      console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
       
       // Validate and execute trade (uses default config from tradeValidator)
       validateAndExecuteTrade(
