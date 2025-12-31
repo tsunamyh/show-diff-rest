@@ -115,9 +115,9 @@ export async function validateAndExecuteTrade(
 
     // For SELL orders, determine what currency we're selling
     if (side === 'SELL') {
-      if (symbol.includes('TMN')) {
+      if (symbol.endsWith('TMN')) {
         baseCurrency = symbol.replace('TMN', ''); // e.g., BTCTMN → BTC
-      } else if (symbol.includes('USDT')) {
+      } else if (symbol.endsWith('USDT')) {
         baseCurrency = symbol.replace('USDT', ''); // e.g., BTCUSDT → BTC
       }
     }

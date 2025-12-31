@@ -12,7 +12,12 @@ import { wallexGetBalances } from "../../exchanges/purchasing/parchasing-control
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
 async function getAvailableBalance(symbol: string): Promise<number> {
   try {
-    const availableBalanceStr = await wallexGetBalances(symbol.toUpperCase());
+    let baseCurrency = '';
+    if (symbol.endsWith('TMN')) {
+      baseCurrency = symbol.replace('TMN', ''); // e.g., BTCTMN → BTC
+    } else if (symbol.endsWith('USDT')) {
+      baseCurrency = symbol.replace('USDT', ''); // e.g., BTCUSDT → BTC
+    } const availableBalanceStr = await wallexGetBalances(baseCurrency);
     const currentBalance = parseFloat(availableBalanceStr) || 0;
     console.log(`Available balance for ${symbol}: ${currentBalance}`);
     return currentBalance;
@@ -230,7 +235,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
-      
+
       // BUY from Wallex, then SELL in Wallex
       validateAndExecuteTrade(
         symbol.replace("USDT", "TMN"),
@@ -269,7 +274,7 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`\n📊 Arbitrage Opportunity Found!`);
       console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
-      
+
       // BUY from Wallex, then SELL in Wallex
       // validateAndExecuteTrade(
       //   symbol,
