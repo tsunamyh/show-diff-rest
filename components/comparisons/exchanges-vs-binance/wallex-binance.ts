@@ -64,7 +64,7 @@ interface RowInfo {
   rowData: RowData;
 }
 
-const myPercent = process.env.MYPERCENT || 1;
+const myPercent = process.env.MYPERCENT || 2.2;
 const internalPercent = process.env.INTERNALPERCENT || 0.5;
 
 // Global variable to store the latest rows info
