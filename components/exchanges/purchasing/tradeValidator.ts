@@ -47,8 +47,8 @@ function formatOrderData(
 ): { quantity: string; price: string } {
   const precision = getPrecision(symbol);
   
-  const formattedQuantity = quantity.toFixed(precision.amount);
-  const formattedPrice = price.toFixed(precision.price);
+  const formattedQuantity = (Math.floor(quantity * Math.pow(10, precision.amount)) / Math.pow(10, precision.amount)).toString();
+  const formattedPrice = (Math.floor(price * Math.pow(10, precision.price)) / Math.pow(10, precision.price)).toString();
   
   return {
     quantity: formattedQuantity,

@@ -65,6 +65,7 @@ interface RowInfo {
 }
 
 const myPercent = process.env.MYPERCENT || 1;
+const internalPercent = process.env.INTERNALPERCENT || 0.5;
 
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
@@ -233,7 +234,12 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
 
   if (wallex_tmn_ask < binance_tmn_ask) {
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
-    if (difference_percent >= +myPercent && amount_tmn > 500000) {
+    // اختلاف درصد بین ask و bid والکس
+    const askBidDifferencePercentInWallex = calculatePercentageDifference(
+      parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]),
+      parseFloat(wallexOrderbook.bid[WallexTmnPairIndex.TMN_PRICE])
+    );
+    if (difference_percent >= +myPercent && amount_tmn > 500000 && askBidDifferencePercentInWallex < +internalPercent) {
       console.log(`Symbol: ${symbol} | Wallex Ask TMN: ${wallex_tmn_ask} | Binance Ask TMN: ${binance_tmn_ask} | Difference Percent: ${difference_percent}% | Amount Currency: ${amount_currency} | Amount TMN: ${amount_tmn}`);
 
       // BUY from Wallex, then SELL in Wallex
@@ -327,7 +333,7 @@ function calcPercentAndAmounts(binanceBidOrder: any, wallexAskOrder: any): [numb
 function calculatePercentageDifference(binancePrice: number, buyPrice: number): number {
   const priceDifference = binancePrice - buyPrice;
   const percentageDifference = (priceDifference / buyPrice) * 100;
-  return Number(percentageDifference.toFixed(2));
+  return Number(Math.floor(percentageDifference * 100) / 100);
 }
 
 function createRowTable(
