@@ -47,7 +47,7 @@ const  binance_wallex_common_symbols: Coin = {
       "ONEUSDT",
       "ALGOUSDT",
       "DOGEUSDT",
-      "CVCUSDT",
+      // "CVCUSDT",
       "CHZUSDT",
       "BANDUSDT",
       "XTZUSDT",
@@ -275,10 +275,10 @@ const  binance_wallex_common_symbols: Coin = {
           "amount_precision": 1,
           "price_precision": 0
         },
-        "CVCTMN": {
-          "amount_precision": 2,
-          "price_precision": 2
-        },
+        // "CVCTMN": {
+        //   "amount_precision": 2,
+        //   "price_precision": 2
+        // },
         "CHZTMN": {
           "amount_precision": 1,
           "price_precision": 0
@@ -889,10 +889,10 @@ const  binance_wallex_common_symbols: Coin = {
           "amount_precision": 1,
           "price_precision": 5
         },
-        "CVCUSDT": {
-          "amount_precision": 2,
-          "price_precision": 4
-        },
+        // "CVCUSDT": {
+        //   "amount_precision": 2,
+        //   "price_precision": 4
+        // },
         "CHZUSDT": {
           "amount_precision": 1,
           "price_precision": 5
