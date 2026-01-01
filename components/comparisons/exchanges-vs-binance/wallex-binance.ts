@@ -261,7 +261,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
               validateAndExecuteTrade(
                 symbol,
                 availableBalance, // استفاده از موجودی واقعی
-                binance_tmn_ask * 0.99, // کمی کمتر برای تضمین فروش
+                binance_tmn_ask, // کمی کمتر برای تضمین فروش
                 'SELL'
               ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
             } else {
