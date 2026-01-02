@@ -112,7 +112,7 @@ export async function validateAndExecuteTrade(
   if (side === 'BUY') {
     // ==================== Step 1: Check the minimum available amount(quantity) for trade ====================
     if (amountTmn !== undefined && amountTmn <= config.minTradeAmountInTMN) {
-      console.log(`📊 Step 1 - Not enough amount for trade: ${amountTmn} TMN < ${config.minTradeAmountInTMN} TMN`)
+      console.log(`📊 Step 1${symbol}: Not enough amount for trade: ${amountTmn} TMN < ${config.minTradeAmountInTMN} TMN`)
       return {
         success: false,
         reason: `Amount for trade is less than the minimum trade amount limit`
@@ -120,7 +120,7 @@ export async function validateAndExecuteTrade(
     }
     // ==================== Step 2: check Ask & Bid difference percent in Wallex ====================
     if (askBidDifferencePercentInWallex !== undefined && askBidDifferencePercentInWallex > (config.AskBidDifferencePercentInWallex)) {
-      console.log(`📊 Step 2 - Ask-Bid difference percent is greater than the allowed internal percent: ${askBidDifferencePercentInWallex} > ${config.AskBidDifferencePercentInWallex}`);
+      console.log(`📊 Step 2 :${symbol} Ask-Bid diff percent is greater than the allowed internal percent: ${askBidDifferencePercentInWallex} > ${config.AskBidDifferencePercentInWallex}`);
       return {
         success: false,
         reason: `Ask-Bid difference percent is greater than the allowed internal percent`
@@ -256,7 +256,7 @@ export async function validateAndExecuteTrade(
     const { quantity: formattedAmountCurrency, price: formattedPrice } = formatOrderData(symbol, amountCurrency, price);
     const amountTmnForSell = +formattedAmountCurrency * +formattedPrice; //needed Amount مبلغ مورد نیاز برای فروش
     if (amountTmnForSell < config.minTradeAmountInTMN) {
-      console.log(`📊 SELL Step 1 - Trade amount is less than minimum trade amount limit: ${amountTmnForSell.toFixed(0)} TMN < ${config.minTradeAmountInTMN} TMN`);
+      console.log(`📊 SELL Step 1${symbol}: Trade amount is less than minimum trade amount limit: ${amountTmnForSell.toFixed(0)} TMN < ${config.minTradeAmountInTMN} TMN`);
       return {
         success: false,
         reason: `Trade amount is less than the minimum trade amount limit`

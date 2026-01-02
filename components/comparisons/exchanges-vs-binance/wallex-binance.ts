@@ -17,7 +17,7 @@ async function getAvailableBalance(symbol: string): Promise<number> {
       baseCurrency = symbol.replace('TMN', ''); // e.g., BTCTMN → BTC
     } else if (symbol.endsWith('USDT')) {
       baseCurrency = symbol.replace('USDT', ''); // e.g., BTCUSDT → BTC
-    } 
+    }
     const availableBalanceStr = await wallexGetBalances(baseCurrency);
     const currentBalance = parseFloat(availableBalanceStr) || 0;
     console.log(`Available balance for ${symbol}: ${currentBalance}`);
@@ -41,7 +41,7 @@ enum WallexUsdtPairIndex {
 enum WallexTmnPairIndex {
   TMN_PRICE = 0,           // "11511692152"
   VOLUME_CURRENCY = 1,     // "0.008717" quantity
-  TMN_Amount = 3           // TMN_Price * VOLUME_CURRENCY 
+  TMN_Amount = 2           // TMN_Price * VOLUME_CURRENCY 
 }
 
 //* مثال: [usdtPrice, tmnPrice]
@@ -235,7 +235,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
   const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
 
   if (wallex_tmn_ask < binance_tmn_ask) {
-    const [difference_percent, currencyAmount, amountTmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);   
+    const [difference_percent, currencyAmount, amountTmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
     // اختلاف درصد بین ask و bid والکس
     const askBidDifferencePercentInWallex = calculatePercentageDifference(
       parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]),
@@ -251,21 +251,23 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
         'BUY',
         amountTmn,
         askBidDifferencePercentInWallex
-      ).then(() => {
+      ).then((condition) => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
-        getAvailableBalance(symbol).then(availableBalance => {
-          if (availableBalance > 0) {
-            // SELL in Wallex با مقدار موجود
-            validateAndExecuteTrade(
-              symbol,
-              availableBalance, // استفاده از موجودی واقعی
-              binance_tmn_ask, // کمی کمتر برای تضمین فروش
-              'SELL'
-            ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
-          } else {
-            console.warn(`⚠️ No balance available for SELL: ${symbol.replace("USDT", "TMN")}`);
-          }
-        });
+        if (condition.success) {
+          getAvailableBalance(symbol).then(availableBalance => {
+            if (availableBalance > 0) {
+              // SELL in Wallex با مقدار موجود
+              validateAndExecuteTrade(
+                symbol,
+                availableBalance, // استفاده از موجودی واقعی
+                binance_tmn_ask, // کمی کمتر برای تضمین فروش
+                'SELL'
+              ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+            } else {
+              console.warn(`⚠️ No balance available for SELL: ${symbol.replace("USDT", "TMN")}`);
+            }
+          });
+        }
       }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
 
     }
