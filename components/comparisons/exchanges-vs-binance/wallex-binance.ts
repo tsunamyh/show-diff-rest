@@ -17,7 +17,8 @@ async function getAvailableBalance(symbol: string): Promise<number> {
       baseCurrency = symbol.replace('TMN', ''); // e.g., BTCTMN → BTC
     } else if (symbol.endsWith('USDT')) {
       baseCurrency = symbol.replace('USDT', ''); // e.g., BTCUSDT → BTC
-    } const availableBalanceStr = await wallexGetBalances(baseCurrency);
+    } 
+    const availableBalanceStr = await wallexGetBalances(baseCurrency);
     const currentBalance = parseFloat(availableBalanceStr) || 0;
     console.log(`Available balance for ${symbol}: ${currentBalance}`);
     return currentBalance;
@@ -252,7 +253,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
         askBidDifferencePercentInWallex
       ).then(() => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
-        getAvailableBalance(symbol.replace("USDT", "TMN")).then(availableBalance => {
+        getAvailableBalance(symbol).then(availableBalance => {
           if (availableBalance > 0) {
             // SELL in Wallex با مقدار موجود
             validateAndExecuteTrade(

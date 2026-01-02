@@ -83,13 +83,13 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | undefined> {
         const bidPriceTmn = (parseFloat(bestBid.price) * usdtToTmnRate).toString();
         const askPriceTmn = (parseFloat(bestAsk.price) * usdtToTmnRate).toString();
         wallexOrderbooks.usdtPairs[lowerPair] = {
-          bid: [bidPriceTmn, bestBid.quantity.toString(), bestBid.price],
-          ask: [askPriceTmn, bestAsk.quantity.toString(), bestAsk.price]
+          bid: [bidPriceTmn, bestBid.quantity.toString(), bestBid.price, bestBid.sum],
+          ask: [askPriceTmn, bestAsk.quantity.toString(), bestAsk.price, bestAsk.sum]
         };
       } else if (pairType === 'TMN') {
         wallexOrderbooks.tmnPairs[lowerPair] = {
-          bid: [bestBid.price, bestBid.quantity.toString()],
-          ask: [bestAsk.price, bestAsk.quantity.toString()]
+          bid: [bestBid.price, bestBid.quantity.toString(), bestBid.sum],
+          ask: [bestAsk.price, bestAsk.quantity.toString(), bestAsk.sum]
         };
       }
     });
