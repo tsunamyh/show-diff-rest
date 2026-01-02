@@ -4,7 +4,8 @@ import axios from "axios";
 
 export interface PlaceOrderRequest {
   symbol: string;
-  type: 'LIMIT' | 'MARKET';
+  type: "LIMIT" | "MARKET" | "STOP_LIMIT" | "STOP_MARKET";
+  stop_price?: string; // Required for STOP orders
   side: 'BUY' | 'SELL';
   price?: string;
   quantity: string;

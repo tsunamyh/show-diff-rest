@@ -39,7 +39,8 @@ enum WallexUsdtPairIndex {
 // * مثال: [tmnPrice, volumeCurrency]
 enum WallexTmnPairIndex {
   TMN_PRICE = 0,           // "11511692152"
-  VOLUME_CURRENCY = 1      // "0.008717"
+  VOLUME_CURRENCY = 1,     // "0.008717" quantity
+  TMN_Amount = 3           // TMN_Price * VOLUME_CURRENCY 
 }
 
 //* مثال: [usdtPrice, tmnPrice]
@@ -233,7 +234,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
   const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
 
   if (wallex_tmn_ask < binance_tmn_ask) {
-    const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
+    const [difference_percent, currencyAmount, amountTmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);   
     // اختلاف درصد بین ask و bid والکس
     const askBidDifferencePercentInWallex = calculatePercentageDifference(
       parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]),
@@ -244,10 +245,10 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
       // BUY from Wallex, then SELL in Wallex
       validateAndExecuteTrade(
         symbol,
-        amount_currency,
+        currencyAmount,
         wallex_tmn_ask,
         'BUY',
-        amount_tmn,
+        amountTmn,
         askBidDifferencePercentInWallex
       ).then(() => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
@@ -267,7 +268,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
       }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
 
     }
-    return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsTmn", exchangeName);
+    return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, currencyAmount, amountTmn, symbol, "UsdtVsTmn", exchangeName);
   }
 
   return null;
@@ -327,9 +328,9 @@ function calcPercentAndAmounts(binanceBidOrder: any, wallexAskOrder: any): [numb
     +binanceBidOrder[BinanceIndex.TMN_PRICE],
     +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]
   );
-  const amount = +wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY];
-  const amountRls = Math.floor(amount * +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]);
-  return [percent, amount, amountRls];
+  const currencyAmount = +wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY];
+  const amountTmn = +wallexAskOrder[WallexTmnPairIndex.TMN_Amount];
+  return [percent, currencyAmount, amountTmn];
 }
 
 function calculatePercentageDifference(binancePrice: number, buyPrice: number): number {

@@ -9,7 +9,7 @@ import { parse } from "path";
  */
 function getPrecision(symbol: string): { amount: number; price: number } {
   const pair = symbol.toUpperCase();
-  
+
   try {
     if (symbol.endsWith('TMN')) {
       const precision = commonSymbols.symbols.wallex_symbol.tmnPairs[pair];
@@ -32,7 +32,7 @@ function getPrecision(symbol: string): { amount: number; price: number } {
   } catch (error) {
     console.warn(`Could not find precision for ${symbol}, using defaults`);
   }
-  
+
   // Default fallback
   console.warn(`⚠️ Could not find precision for ${symbol}, using defaults (4, 2)`);
   return { amount: 10, price: 10 };
@@ -47,10 +47,10 @@ function formatOrderData(
   price: number
 ): { quantity: string; price: string } {
   const precision = getPrecision(symbol);
-  
+
   const formattedQuantity = (Math.floor(quantity * Math.pow(10, precision.amount)) / Math.pow(10, precision.amount)).toString();
   const formattedPrice = (Math.floor(price * Math.pow(10, precision.price)) / Math.pow(10, precision.price)).toString();
-  
+
   return {
     quantity: formattedQuantity,
     price: formattedPrice
@@ -69,7 +69,7 @@ export interface ValidateTradeConfig {
 
 // ==================== Default Configuration ====================
 const defaultWallexConfig: ValidateTradeConfig = {
-  maxTradeAmountInTMN: parseFloat(process.env.WALLEX_MAX_TRADE_AMOUNT || '500000'),    // حداکثر 600,000 تومان
+  maxTradeAmountInTMN: parseFloat(process.env.WALLEX_MAX_TRADE_AMOUNT || '600000'),    // حداکثر 600,000 تومان
   maxBalanceUsagePercent: parseFloat(process.env.WALLEX_MAX_BALANCE_PERCENT || '95'),  // حداکثر 80% موجودی
   allowDuplicatePosition: process.env.WALLEX_ALLOW_DUPLICATE === 'true',  // default: false
   amountInTMN: parseFloat(process.env.TRADE_AMOUNT_IN_TMN || '200000'),
@@ -94,7 +94,7 @@ export interface TradeValidationResult {
  * @param amountCourency - Quantity calculated from price comparison
  * @param price - Current ask price
  * @param side - BUY or SELL
- * @param amountInTMN - (Optional) Custom trade amount in TMN
+ * @param amountTmn - (Optional) Custom trade amount in TMN
  * @param askBidDifferencePercentInWallex - (Optional) Custom internal percent for calculations
  * @returns TradeValidationResult indicating success or failure and details
  */
@@ -103,15 +103,22 @@ export async function validateAndExecuteTrade(
   amountCourency: number,
   price: number,
   side: 'BUY' | 'SELL',
-  amountInTMN?: number,
+  amountTmn?: number,
   askBidDifferencePercentInWallex?: number,
 ): Promise<TradeValidationResult> {
   // Use provided config or default config
   const config = defaultWallexConfig;
+  // ==================== Step 1: Check the minimum available amount(quantity) for trade ====================
+  if (amountTmn < config.maxTradeAmountInTMN) {
+    console.log(`📊 Step 1 - Not enough amount for trade: ${amountTmn} TMN < ${config.maxTradeAmountInTMN} TMN`)
+    return {
+      success: false,
+      reason: `Amount for trade is less than the maximum trade amount limit`
+    };
+  }
 
   try {
     console.log(`\n🔍 Validating trade for ${symbol}...`);
-    // ==================== 
     // ==================== Step 1: Limit quantity by max trade amount ====================
     const maxAmountCurrency = config.maxTradeAmountInTMN / price;
     let validQuantity = Math.min(amountCourency, maxAmountCurrency);
@@ -194,7 +201,7 @@ export async function validateAndExecuteTrade(
 
       // Format quantity and price based on symbol precision
       const { quantity: formattedQuantity, price: formattedPrice } = formatOrderData(symbol, validQuantity, price);
-      
+
       console.log(`📏 Formatted: quantity=${formattedQuantity}, price=${formattedPrice}`);
 
       const orderResult = await wallexPlaceOrder({
