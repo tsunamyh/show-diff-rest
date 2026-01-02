@@ -105,7 +105,7 @@ export function saveHistoryToFile(exchange: 'wallex' | 'okex', tracker: Map<stri
         };
         
         fs.writeFileSync(filePath, JSON.stringify(structuredData, null, 2), 'utf-8');
-        console.log(`Saved ${exchange} history with structured time periods`);
+        // console.log(`Saved ${exchange} history with structured time periods`);
     } catch (error) {
         console.error(`Error saving ${exchange} history:`, error);
     }

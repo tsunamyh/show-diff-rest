@@ -1,5 +1,6 @@
 import { wallexGetBalances, wallexGetOpenOrders, wallexPlaceOrder } from "./parchasing-controller";
 import commonSymbols from "../../../commonSymbols/wallex_binance_common_symbols";
+import { parse } from "path";
 
 // ==================== Helper Functions ====================
 
@@ -62,7 +63,8 @@ export interface ValidateTradeConfig {
   maxTradeAmountInTMN: number;       // حداکثر مبلغ خرید برای یک trade (تومان)
   maxBalanceUsagePercent: number;    // حداکثر درصد موجودی برای استفاده (0-100)
   allowDuplicatePosition: boolean;   // آیا میتونیم برای یک symbol دوباره بخریم؟
-  minProfitPercent: number;          // حداقل سود مورد نیاز (از myPercent استفاده کن)
+  amountInTMN?: number;              // مقدار دلخواه برای معامله (تومان)
+  AskBidDifferencePercentInWallex?: number;          // درصد داخلی دلخواه برای محاسبه سود
 }
 
 // ==================== Default Configuration ====================
@@ -70,7 +72,8 @@ const defaultWallexConfig: ValidateTradeConfig = {
   maxTradeAmountInTMN: parseFloat(process.env.WALLEX_MAX_TRADE_AMOUNT || '500000'),    // حداکثر 600,000 تومان
   maxBalanceUsagePercent: parseFloat(process.env.WALLEX_MAX_BALANCE_PERCENT || '95'),  // حداکثر 80% موجودی
   allowDuplicatePosition: process.env.WALLEX_ALLOW_DUPLICATE === 'true',  // default: false
-  minProfitPercent: parseFloat(process.env.MYPERCENT || '1')
+  amountInTMN: parseFloat(process.env.TRADE_AMOUNT_IN_TMN || '200000'),
+  AskBidDifferencePercentInWallex: parseFloat(process.env.INTERNAL_PERCENT || '0.5'),
 };
 
 export interface TradeValidationResult {
@@ -88,27 +91,32 @@ export interface TradeValidationResult {
  * Checks: balance, quantity limits, duplicate positions
  * 
  * @param symbol - Trading pair symbol (e.g., BTCTMN, ETHUSDT)
- * @param calculatedQuantity - Quantity calculated from price comparison
+ * @param amountCourency - Quantity calculated from price comparison
  * @param price - Current ask price
  * @param side - BUY or SELL
+ * @param amountInTMN - (Optional) Custom trade amount in TMN
+ * @param askBidDifferencePercentInWallex - (Optional) Custom internal percent for calculations
+ * @returns TradeValidationResult indicating success or failure and details
  */
 export async function validateAndExecuteTrade(
   symbol: string,
-  calculatedQuantity: number,
+  amountCourency: number,
   price: number,
-  side: 'BUY' | 'SELL'
+  side: 'BUY' | 'SELL',
+  amountInTMN?: number,
+  askBidDifferencePercentInWallex?: number,
 ): Promise<TradeValidationResult> {
   // Use provided config or default config
   const config = defaultWallexConfig;
 
   try {
     console.log(`\n🔍 Validating trade for ${symbol}...`);
-
+    // ==================== 
     // ==================== Step 1: Limit quantity by max trade amount ====================
-    const maxQuantityByAmount = config.maxTradeAmountInTMN / price;
-    let validQuantity = Math.min(calculatedQuantity, maxQuantityByAmount);
+    const maxAmountCurrency = config.maxTradeAmountInTMN / price;
+    let validQuantity = Math.min(amountCourency, maxAmountCurrency);
     const tradeAmount = validQuantity * price;
-    console.log(`📊 Step 1 - Amount limit: ${config.maxTradeAmountInTMN} TMN | Quantity: ${calculatedQuantity} → ${validQuantity} | Trade Amount: ${tradeAmount.toFixed(0)} TMN`);
+    console.log(`📊 Step 1 - Amount limit: ${config.maxTradeAmountInTMN} TMN | Quantity: ${amountCourency} → ${validQuantity} | Trade Amount: ${tradeAmount.toFixed(0)} TMN`);
 
     // ==================== Step 2: Check balance ====================
     let baseCurrency = 'TMN'; // Default for BUY orders (need TMN)
