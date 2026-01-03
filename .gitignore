@@ -3,4 +3,4 @@ dist/
 .env
 fswritefiles/
 abc.*
-database
+database/maxDiffhistory/*.json
