@@ -78,19 +78,11 @@ th#sell-price, td:nth-child(5) {
     width: 120px;
 }
 
-th#wallex-price, td:nth-child(6) {
-    width: 120px;
-}
-
-th#binance-price, td:nth-child(7) {
-    width: 120px;
-}
-
-th#percent, td:nth-child(8) {
+th#percent, td:nth-child(6) {
     width: 100px;
 }
 
-th#value, td:nth-child(9) {
+th#value, td:nth-child(7) {
     width: 120px;
 }
 
