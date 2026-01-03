@@ -10,7 +10,7 @@ import { validateAndExecuteTrade } from "../../exchanges/purchasing/tradeValidat
 import { wallexCancelOrderById, wallexGetBalances } from "../../exchanges/purchasing/parchasing-controller";
 
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
-async function getAvailableBalance(symbol: string): Promise<number> {
+async function getAvailableBalance(symbol: string,price: number): Promise<number> {
   try {
     let baseCurrency = '';
     if (symbol.endsWith('TMN')) {
@@ -21,7 +21,11 @@ async function getAvailableBalance(symbol: string): Promise<number> {
     const availableBalanceStr = await wallexGetBalances(baseCurrency);
     const currentBalance = parseFloat(availableBalanceStr) || 0;
     console.log(`Available balance for ${symbol}: ${currentBalance}`);
-    return currentBalance;
+    if (currentBalance * price > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
+      return currentBalance;
+    } else {
+      return 0;
+    }  
   } catch (error) {
     console.error(`Error fetching balance for ${symbol}:`, error);
     return 0;
@@ -254,21 +258,26 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
       ).then((condition) => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
         if (condition.success) {
-          getAvailableBalance(symbol).then(availableBalance => {
+          getAvailableBalance(symbol,wallex_tmn_ask).then(availableBalance => {
             if (availableBalance > 0) {
               // SELL in Wallex با مقدار موجود
-              validateAndExecuteTrade(
-                symbol,
-                availableBalance, // استفاده از موجودی واقعی
-                binance_tmn_ask, // کمی کمتر برای تضمین فروش
-                'SELL'
-              ).then(() => {}).
-              catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+              setTimeout(() => {
+                validateAndExecuteTrade(
+                  symbol,
+                  availableBalance, // استفاده از موجودی واقعی
+                  binance_tmn_ask, // کمی کمتر برای تضمین فروش
+                  'SELL'
+                ).then(() => {}).
+                catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+              }, 150);
             } else {
-              wallexCancelOrderById(condition.orderId || "").then((res) => {
-                console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
-              });
-              console.warn(`⚠️ No balance available for SELL: ${symbol}`);
+              setTimeout(() => {
+                wallexCancelOrderById(condition.orderId || "").then((res) => {
+                  console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
+                });
+                console.warn(`⚠️ No balance available for SELL: ${symbol}`);
+              }, 150);  
+                
             }
           });
         }
