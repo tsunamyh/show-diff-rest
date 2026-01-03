@@ -443,16 +443,6 @@ function printData(rowsInfo) {
     tdSellPrice.style.fontWeight = '500';
     tr.appendChild(tdSellPrice);
 
-    // Exchange Price
-    const tdExchangePrice = document.createElement('td');
-    tdExchangePrice.textContent = formatPrice(exchangePrice);
-    tr.appendChild(tdExchangePrice);
-
-    // Binance Price
-    const tdBinancePrice = document.createElement('td');
-    tdBinancePrice.textContent = formatPrice(rowData.binance);
-    tr.appendChild(tdBinancePrice);
-
     // Percent
     const tdPercent = document.createElement('td');
     tdPercent.textContent = rowData.percent.toFixed(2) + '%';
