@@ -1,7 +1,99 @@
 {
-  "timestamp": "2026-01-03T00:38:59.109Z",
+  "timestamp": "2026-01-03T23:26:36.049Z",
   "exchangeName": "okex",
-  "last24h": [],
+  "last24h": [
+    {
+      "symbol": "ASTERUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.24,
+      "percentages": [
+        {
+          "time": "1/4/2026, 2:56:36 AM",
+          "value": 0.24,
+          "exchangeBuyPrice": 101978.2,
+          "binanceSellPrice": 102225.126,
+          "buyVolume": 8595742
+        }
+      ]
+    },
+    {
+      "symbol": "HUMAUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.17,
+      "percentages": [
+        {
+          "time": "1/4/2026, 2:56:36 AM",
+          "value": 0.17,
+          "exchangeBuyPrice": 3777.0209999999997,
+          "binanceSellPrice": 3783.42591,
+          "buyVolume": 3916770
+        }
+      ]
+    },
+    {
+      "symbol": "VIRTUALUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.14,
+      "percentages": [
+        {
+          "time": "1/4/2026, 2:56:36 AM",
+          "value": 0.14,
+          "exchangeBuyPrice": 120391.69,
+          "binanceSellPrice": 120559.8738,
+          "buyVolume": 2636578
+        },
+        {
+          "time": "1/4/2026, 2:56:26 AM",
+          "value": 0.11,
+          "exchangeBuyPrice": 120323.34,
+          "binanceSellPrice": 120450.249,
+          "buyVolume": 16015036
+        }
+      ]
+    },
+    {
+      "symbol": "NXPCUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.14,
+      "percentages": [
+        {
+          "time": "1/4/2026, 2:56:36 AM",
+          "value": 0.14,
+          "exchangeBuyPrice": 53299.33,
+          "binanceSellPrice": 53373.5745,
+          "buyVolume": 20648160
+        }
+      ]
+    },
+    {
+      "symbol": "AWEUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.12,
+      "percentages": [
+        {
+          "time": "1/4/2026, 2:56:36 AM",
+          "value": 0.12,
+          "exchangeBuyPrice": 7842.478999999999,
+          "binanceSellPrice": 7851.8763,
+          "buyVolume": 13230262
+        }
+      ]
+    },
+    {
+      "symbol": "LAUSDT",
+      "statusCompare": "UsdtVsUsdt",
+      "maxDifference": 0.06,
+      "percentages": [
+        {
+          "time": "1/4/2026, 2:56:26 AM",
+          "value": 0.06,
+          "exchangeBuyPrice": 45466.42,
+          "binanceSellPrice": 45494.292,
+          "buyVolume": 12589651
+        }
+      ]
+    }
+  ],
   "lastWeek": [
     {
       "symbol": "TRUMPTMN",
