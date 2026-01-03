@@ -63,7 +63,6 @@ export interface ValidateTradeConfig {
   minTradeAmountInTMN: number;      // حداقل مبلغ خرید برای یک trade (تومان)
   maxBalanceUsagePercent: number;    // حداکثر درصد موجودی برای استفاده (0-100)
   allowDuplicatePosition: boolean;   // آیا میتونیم برای یک symbol دوباره بخریم؟
-  amountInTMN?: number;              // مقدار دلخواه برای معامله (تومان)
   AskBidDifferencePercentInWallex?: number;          // درصد داخلی دلخواه برای محاسبه سود
 }
 
@@ -73,9 +72,15 @@ const defaultWallexConfig: ValidateTradeConfig = {
   minTradeAmountInTMN: parseFloat(process.env.WALLEX_MIN_TRADE_AMOUNT || '60000'),     // حداقل 60,000 تومان
   maxBalanceUsagePercent: parseFloat(process.env.WALLEX_MAX_BALANCE_PERCENT || '97'),  // حداکثر 80% موجودی
   allowDuplicatePosition: process.env.WALLEX_ALLOW_DUPLICATE === 'true',  // default: false
-  amountInTMN: parseFloat(process.env.TRADE_AMOUNT_IN_TMN || '200000'),
   AskBidDifferencePercentInWallex: parseFloat(process.env.INTERNAL_PERCENT || '0.5'),
 };
+console.log({
+  maxTradeAmountInTmn : defaultWallexConfig.maxTradeAmountInTMN,
+  minTradeAmountInTmn : defaultWallexConfig.minTradeAmountInTMN,
+  maxBalanceUsagePercent : defaultWallexConfig.maxBalanceUsagePercent,
+  allowDuplicatePosition : defaultWallexConfig.allowDuplicatePosition,
+  AskBidDifferencePercentInWallex : defaultWallexConfig.AskBidDifferencePercentInWallex,
+});
 
 export interface TradeValidationResult {
   success: boolean;

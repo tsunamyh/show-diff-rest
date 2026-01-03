@@ -7,7 +7,7 @@ import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../../exchanges/purchasing/tradeValidator";
-import { wallexGetBalances } from "../../exchanges/purchasing/parchasing-controller";
+import { wallexCancelOrderById, wallexGetBalances } from "../../exchanges/purchasing/parchasing-controller";
 
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
 async function getAvailableBalance(symbol: string): Promise<number> {
@@ -262,9 +262,13 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
                 availableBalance, // استفاده از موجودی واقعی
                 binance_tmn_ask, // کمی کمتر برای تضمین فروش
                 'SELL'
-              ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+              ).then(() => {}).
+              catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
             } else {
-              console.warn(`⚠️ No balance available for SELL: ${symbol.replace("USDT", "TMN")}`);
+              wallexCancelOrderById(condition.orderId || "").then((res) => {
+                console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
+              });
+              console.warn(`⚠️ No balance available for SELL: ${symbol}`);
             }
           });
         }
