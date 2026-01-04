@@ -57,10 +57,8 @@ if [[ -z "$EMAIL" ]]; then
     print_error "Email cannot be empty!"
 fi
 
-read -p "Enter GitHub Repository URL: " REPO_URL
-if [[ -z "$REPO_URL" ]]; then
-    print_error "Repository URL cannot be empty!"
-fi
+# Repository URL (hardcoded)
+REPO_URL="https://github.com/tsunamyh/show-diff-rest.git"
 
 read -p "Enter Node.js port (default: 3000): " NODE_PORT
 NODE_PORT=${NODE_PORT:-3000}
