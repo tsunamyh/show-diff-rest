@@ -2,6 +2,19 @@ import WebSocket from 'ws';
 import { EventEmitter } from 'stream';
 import binance_wallex_common_symbols from '../../../commonSymbols/wallex_binance_common_symbols';
 
+// Enums
+enum WallexTmnPairIndex {
+  PRICE = 0,
+  QUANTITY = 1,
+  SUM = 2
+}
+
+enum WallexUsdtPairIndex {
+  TMN_PRICE = 0,           // "11504590301.58"
+  VOLUME_CURRENCY = 1,     // "0.008676"
+  USDT_PRICE = 2           // "91762.17"
+}
+
 // Types
 interface OrderBook {
   quantity: number;
@@ -100,7 +113,7 @@ function handleDepthUpdate(message: any): void {
   }
 
   // Parse channel name: "SYMBOL@buyDepth" or "SYMBOL@sellDepth"
-  const match = channel.match(/^(.+)@(buyDepth|sellDepth)$/);
+  const match = channel.match(/^([^@]+)@(buyDepth|sellDepth)$/);
   if (!match) {
     return;
   }
@@ -116,9 +129,9 @@ function handleDepthUpdate(message: any): void {
     return;
   }
 
-  // Convert OrderBook to string format [price, quantity] - similar to REST API format
-  const priceArray = data.map(order => order.price.toString());
-  const qtyArray = data.map(order => order.quantity.toString());
+  // Get first order book entry (best bid/ask)
+  const firstOrder = data[0];
+  if (!firstOrder) return;
 
   // Store data as strings
   if (isTmn) {
@@ -126,24 +139,39 @@ function handleDepthUpdate(message: any): void {
       tmnPairsData[symbol] = { bid: [], ask: [] };
     }
     
+    const orderData = [
+      firstOrder.price.toString(),           // PRICE
+      firstOrder.quantity.toString(),        // QUANTITY
+      firstOrder.sum.toString()              // SUM
+    ];
+
     if (depthType === 'buyDepth') {
       // buyDepth = Ask side (sellers)
-      tmnPairsData[symbol].ask = [priceArray[0] || '0', qtyArray[0] || '0'];
+      tmnPairsData[symbol].ask = orderData;
     } else {
       // sellDepth = Bid side (buyers)
-      tmnPairsData[symbol].bid = [priceArray[0] || '0', qtyArray[0] || '0'];
+      tmnPairsData[symbol].bid = orderData;
     }
   } else if (isUsdt) {
     if (!usdtPairsData[symbol]) {
       usdtPairsData[symbol] = { bid: [], ask: [] };
     }
     
+    // For USDT pairs: [tmnPrice, volumeCurrency, usdtPrice]
+    // Wallex sends: price (in TMN), quantity (in currency), sum (in TMN)
+    // We map: sum->tmnPrice, quantity->volumeCurrency, price->usdtPrice
+    const orderData = [
+      firstOrder.sum.toString(),             // TMN_PRICE (converted to USDT equivalent)
+      firstOrder.quantity.toString(),        // VOLUME_CURRENCY
+      firstOrder.price.toString()            // USDT_PRICE
+    ];
+
     if (depthType === 'buyDepth') {
       // buyDepth = Ask side
-      usdtPairsData[symbol].ask = [priceArray[0] || '0', qtyArray[0] || '0'];
+      usdtPairsData[symbol].ask = orderData;
     } else {
       // sellDepth = Bid side
-      usdtPairsData[symbol].bid = [priceArray[0] || '0', qtyArray[0] || '0'];
+      usdtPairsData[symbol].bid = orderData;
     }
   }
 
@@ -286,11 +314,15 @@ async function testWallexWebSocket(): Promise<void> {
     if (tmnData && (tmnData.bid.length > 0 || tmnData.ask.length > 0)) {
       const bidPrice = tmnData.bid[0] || '0';
       const askPrice = tmnData.ask[0] || '0';
-      console.log(`[UPDATE #${updateCount}] ${data.symbol}: BID=${bidPrice} ASK=${askPrice}`);
+      console.log(`[UPDATE #${updateCount}] ${data.symbol} (TMN): BID=${bidPrice} ASK=${askPrice}`);
     } else if (usdtData && (usdtData.bid.length > 0 || usdtData.ask.length > 0)) {
-      const bidPrice = usdtData.bid[0] || '0';
-      const askPrice = usdtData.ask[0] || '0';
-      console.log(`[UPDATE #${updateCount}] ${data.symbol}: BID=${bidPrice} ASK=${askPrice}`);
+      const bidTmnPrice = usdtData.bid[WallexUsdtPairIndex.TMN_PRICE] || '0';
+      const bidVolume = usdtData.bid[WallexUsdtPairIndex.VOLUME_CURRENCY] || '0';
+      const bidUsdtPrice = usdtData.bid[WallexUsdtPairIndex.USDT_PRICE] || '0';
+      const askTmnPrice = usdtData.ask[WallexUsdtPairIndex.TMN_PRICE] || '0';
+      const askVolume = usdtData.ask[WallexUsdtPairIndex.VOLUME_CURRENCY] || '0';
+      const askUsdtPrice = usdtData.ask[WallexUsdtPairIndex.USDT_PRICE] || '0';
+      console.log(`[UPDATE #${updateCount}] ${data.symbol} (USDT): BID=[${bidTmnPrice},${bidVolume},${bidUsdtPrice}] ASK=[${askTmnPrice},${askVolume},${askUsdtPrice}]`);
     }
   };
 
@@ -321,9 +353,14 @@ async function testWallexWebSocket(): Promise<void> {
         const usdtSamples = Object.entries(orderbooks.usdtPairs).slice(0, 3);
         console.log('\nSample USDT pairs:');
         usdtSamples.forEach(([symbol, data]) => {
-          const bidPrice = data.bid[0] || '-';
-          const askPrice = data.ask[0] || '-';
-          console.log(`  ${symbol}: BID=${bidPrice} ASK=${askPrice}`);
+          const bidTmnPrice = data.bid[WallexUsdtPairIndex.TMN_PRICE] || '-';
+          const bidVolume = data.bid[WallexUsdtPairIndex.VOLUME_CURRENCY] || '-';
+          const bidUsdtPrice = data.bid[WallexUsdtPairIndex.USDT_PRICE] || '-';
+          const askTmnPrice = data.ask[WallexUsdtPairIndex.TMN_PRICE] || '-';
+          const askVolume = data.ask[WallexUsdtPairIndex.VOLUME_CURRENCY] || '-';
+          const askUsdtPrice = data.ask[WallexUsdtPairIndex.USDT_PRICE] || '-';
+          console.log(`  ${symbol} BID: [${bidTmnPrice}, ${bidVolume}, ${bidUsdtPrice}]`);
+          console.log(`  ${symbol} ASK: [${askTmnPrice}, ${askVolume}, ${askUsdtPrice}]`);
         });
       }
 
