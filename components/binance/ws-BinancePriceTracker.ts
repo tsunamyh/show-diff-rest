@@ -13,12 +13,18 @@ interface BookTicker {
 }
 
 interface BinancePriceData {
-  [symbol: string]: {
+  usdt: { [symbol: string]: {
     bid: [string, string];  // [USDT price, TMN price]
     ask: [string, string];  // [USDT price, TMN price]
-  };
+  }};
 }
 
+// interface BinancePriceData {
+//   [symbol: string]: {
+//     bid: [string, string];  // [USDT price, TMN price]
+//     ask: [string, string];  // [USDT price, TMN price]
+//   };
+// }
 // Global state
 let ws: WebSocket | null = null;
 let reconnectAttempts = 0;
@@ -27,7 +33,7 @@ const RECONNECT_DELAY = 3000; // 3 seconds
 const BINANCE_WS_URL = 'wss://data-stream.binance.vision/ws';
 
 // Store latest prices
-let binancePrices: BinancePriceData = {};
+let binancePrices: BinancePriceData = {"usdt": {}};
 let usdtToTmnRate = 1;
 
 // Event emitter for price updates
@@ -38,7 +44,7 @@ priceUpdateEmitter.setMaxListeners(10);
 function getSymbolsToSubscribe(): string[] {
   try {
     const symbols = binance_wallex_common_symbols?.symbols?.binance_symbol || [];
-    return symbols.filter(s => s.endsWith('USDT')).map(s => s.toLowerCase() + '@bookTicker');
+    return symbols.map(s => s.toLowerCase() + '@bookTicker');
   } catch (error) {
     console.error('[Binance WS] Failed to get symbols:', error);
     return [];
@@ -78,27 +84,29 @@ function handleBookTicker(message: BookTicker): void {
 function connect(): void {
   try {
     console.log('[Binance WS] Connecting to Binance WebSocket...');
+    console.log('[Binance WS] URL:', BINANCE_WS_URL);
 
     ws = new WebSocket(BINANCE_WS_URL);
+    console.log('[Binance WS] WebSocket object created');
 
     ws.on('open', () => {
       console.log('[Binance WS] Connected successfully');
       reconnectAttempts = 0;
       
       // Subscribe to all symbols
-      const symbols = getSymbolsToSubscribe();
-      if (symbols.length === 0) {
+      const symbolsToSubscribe = getSymbolsToSubscribe(); // e.g., btcusdt@bookTicker
+      if (symbolsToSubscribe.length === 0) {
         console.warn('[Binance WS] No symbols to subscribe to');
         return;
       }
 
       const subscribeMessage = {
         method: 'SUBSCRIBE',
-        params: symbols,
+        params: symbolsToSubscribe,
         id: Date.now()
       };
 
-      console.log(`[Binance WS] Subscribing to ${symbols.length} symbols...`);
+      console.log(`[Binance WS] Subscribing to ${symbolsToSubscribe.length} symbols...`);
       ws!.send(JSON.stringify(subscribeMessage));
       
       // Emit ready event
@@ -220,8 +228,74 @@ function offPriceUpdate(callback: (data: { symbol: string }) => void): void {
   priceUpdateEmitter.off('priceUpdate', callback);
 }
 
-// Initialize WebSocket on import
-connect();
+// Test function
+async function testBinanceWebSocket(): Promise<void> {
+  console.log('\n========== BINANCE WEBSOCKET TEST ==========\n');
+  console.log('[TEST] Starting test...');
+  
+  // Call connect explicitly
+  console.log('[TEST] Calling connect()...');
+  connect();
+  
+  let updateCount = 0;
+  let connectedFlag = false;
+
+  // Setup connection event listeners
+  priceUpdateEmitter.on('ready', () => {
+    connectedFlag = true;
+    console.log('[TEST] ✓ WebSocket ready and subscribed to symbols');
+  });
+
+  priceUpdateEmitter.on('error', (error) => {
+    console.error('[TEST] WebSocket error:', error.message);
+  });
+
+  priceUpdateEmitter.on('disconnected', () => {
+    console.log('[TEST] WebSocket disconnected');
+  });
+
+  // Setup price update listener
+  const priceListener = (data: { symbol: string }) => {
+    updateCount++;
+    const prices = getSymbolPrice(data.symbol);
+    console.log(`[UPDATE #${updateCount}] ${data.symbol}: BID=${prices?.bid[0]} ASK=${prices?.ask[0]}`);
+  };
+
+  onPriceUpdate(priceListener);
+
+  // Test timeout - run for 20 seconds
+  await new Promise<void>((resolve) => {
+    const testTimeout = setTimeout(() => {
+      console.log('\n========== TEST SUMMARY ==========');
+      console.log(`Connected: ${connectedFlag}`);
+      console.log(`Total price updates received: ${updateCount}`);
+      console.log(`Total symbols cached: ${Object.keys(getBinancePrices()).length}`);
+      
+      if (Object.keys(getBinancePrices()).length > 0) {
+        const samples = Object.entries(getBinancePrices()).slice(0, 5);
+        console.log('\nSample prices:');
+        samples.forEach(([symbol, prices]) => {
+          console.log(`  ${symbol}: BID=${prices.bid[0]} ASK=${prices.ask[0]}`);
+        });
+      }
+
+      console.log('\n[TEST] Disconnecting...\n');
+      offPriceUpdate(priceListener);
+      disconnect();
+      resolve();
+    }, 20000);
+  });
+}
+
+// Initialize WebSocket on import (only if not in test mode)
+if (process.argv[1]?.includes('ws-BinancePriceTracker')) {
+  console.log('[Binance WS] Test mode detected, calling testBinanceWebSocket...');
+  // Don't call connect() here, let testBinanceWebSocket do it
+  testBinanceWebSocket().catch(console.error);
+} else {
+  console.log('[Binance WS] Production mode, connecting to WebSocket...');
+  connect();
+}
 
 export {
   connect,
@@ -233,5 +307,6 @@ export {
   onReady,
   onPriceUpdate,
   offPriceUpdate,
-  priceUpdateEmitter
+  priceUpdateEmitter,
+  testBinanceWebSocket
 };
