@@ -97,6 +97,11 @@ function subscribeToAllSymbols(): void {
     subscribeToDepth(symbol, 'buyDepth');  // Ask
     subscribeToDepth(symbol, 'sellDepth'); // Bid
   });
+
+  // Subscribe to USDTTMN conversion rate pair
+  console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
+  subscribeToDepth('USDTTMN', 'buyDepth');
+  // subscribeToDepth('USDTTMN', 'sellDepth');
 }
 
 // Handle depth update message
@@ -258,6 +263,11 @@ function getWallexOrderbooks(): WallexOrderbooks {
   };
 }
 
+function getUsdtToTmnRate(): number {
+  const usdtToTmnRate = parseFloat(usdtPairsData["usdttmn"]?.ask[WallexUsdtPairIndex.TMN_PRICE] || "1");
+  return usdtToTmnRate;
+}
+
 // Get connection status
 function isConnected(): boolean {
   return ws?.readyState === WebSocket.OPEN;
@@ -390,5 +400,6 @@ export {
   onPriceUpdate,
   offPriceUpdate,
   priceUpdateEmitter,
+  getUsdtToTmnRate,
   testWallexWebSocket
 };

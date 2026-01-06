@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import { EventEmitter } from 'stream';
 import binance_wallex_common_symbols from '../../commonSymbols/wallex_binance_common_symbols';
+import { getUsdtToTmnRate } from '../exchanges/wsTracker/ws-WallexPriceTracker';
 
 // Types
 interface BookTicker {
@@ -34,7 +35,6 @@ const BINANCE_WS_URL = 'wss://data-stream.binance.vision/ws';
 
 // Store latest prices
 let binancePrices: BinancePriceData = {"usdt": {}};
-let usdtToTmnRate = 1;
 
 // Event emitter for price updates
 const priceUpdateEmitter = new EventEmitter();
@@ -67,9 +67,10 @@ function handleBookTicker(message: BookTicker): void {
     return;
   }
 
-  // Store in memory
-  const bidTmn = (bid * usdtToTmnRate).toString();
-  const askTmn = (ask * usdtToTmnRate).toString();
+  // Store in memory - use latest rate from rate tracker
+  const rate = getUsdtToTmnRate();
+  const bidTmn = (bid * rate).toString();
+  const askTmn = (ask * rate).toString();
 
   binancePrices[symbol.toUpperCase()] = {
     bid: [bidPrice, bidTmn],
@@ -185,29 +186,6 @@ function getSymbolPrice(symbol: string): { bid: [string, string]; ask: [string, 
   return binancePrices[upperSymbol] || null;
 }
 
-// Update USDT to TMN rate (called from wallexPriceTracker)
-function setUsdtToTmnRate(rate: number): void {
-  if (rate > 0 && !isNaN(rate)) {
-    const oldRate = usdtToTmnRate;
-    usdtToTmnRate = rate;
-
-    // Recalculate all TMN prices with new rate
-    Object.keys(binancePrices).forEach(symbol => {
-      const bid = parseFloat(binancePrices[symbol].bid[0]);
-      const ask = parseFloat(binancePrices[symbol].ask[0]);
-
-      if (bid > 0 && ask > 0) {
-        binancePrices[symbol].bid[1] = (bid * rate).toString();
-        binancePrices[symbol].ask[1] = (ask * rate).toString();
-      }
-    });
-
-    if (oldRate !== rate) {
-      console.log(`[Binance WS] USDT rate updated: ${oldRate} -> ${rate}`);
-    }
-  }
-}
-
 // Get connection status
 function isConnected(): boolean {
   return ws?.readyState === WebSocket.OPEN;
@@ -269,13 +247,17 @@ async function testBinanceWebSocket(): Promise<void> {
       console.log('\n========== TEST SUMMARY ==========');
       console.log(`Connected: ${connectedFlag}`);
       console.log(`Total price updates received: ${updateCount}`);
-      console.log(`Total symbols cached: ${Object.keys(getBinancePrices()).length}`);
+      const allPrices = getBinancePrices();
+      const symbolCount = Object.keys(allPrices).filter(k => k !== 'usdt').length;
+      console.log(`Total symbols cached: ${symbolCount}`);
       
-      if (Object.keys(getBinancePrices()).length > 0) {
-        const samples = Object.entries(getBinancePrices()).slice(0, 5);
+      if (symbolCount > 0) {
+        const samples = Object.entries(allPrices).filter(([k]) => k !== 'usdt').slice(0, 5);
         console.log('\nSample prices:');
         samples.forEach(([symbol, prices]) => {
-          console.log(`  ${symbol}: BID=${prices.bid[0]} ASK=${prices.ask[0]}`);
+          if (prices && prices.bid && prices.ask) {
+            console.log(`  ${symbol}: BID=${prices.bid[0]} (${prices.bid[1]} TMN) ASK=${prices.ask[0]} (${prices.ask[1]} TMN)`);
+          }
         });
       }
 
@@ -303,7 +285,6 @@ export {
   isConnected,
   getBinancePrices,
   getSymbolPrice,
-  setUsdtToTmnRate,
   onReady,
   onPriceUpdate,
   offPriceUpdate,
