@@ -45,7 +45,13 @@ import test from 'node:test';
     const orderbooks = getWallexOrderbooks();
     const tmnData = orderbooks.tmnPairs[data.symbol];
     const usdtData = orderbooks.usdtPairs[data.symbol];
-    console.log("tmndata:",tmnData,"usdtdataaaaaaaaaaaaaaaaaa:",usdtData,getUsdtToTmnRate());
+    if(data.symbol == "METTMN"){
+      console.log(data.symbol,tmnData);
+    }
+    if(data.symbol.endsWith("USDT")){
+      console.log(data.symbol,usdtData);
+    }  
+    // console.log(data.symbol,"tmndata:"/* ,tmnData */,"usdtdataaaaaaaaaaaaaaaaaa:",usdtData,getUsdtToTmnRate());
     
     if (tmnData && (tmnData.bid.length > 0 || tmnData.ask.length > 0)) {
       const bidPrice = tmnData.bid[WallexTmnPairIndex.PRICE] || '0';

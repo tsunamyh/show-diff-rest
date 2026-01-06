@@ -95,11 +95,12 @@ function subscribeToAllSymbols(): void {
     subscribeToDepth(symbol, 'sellDepth'); // Bid (buyer side)
   });
 
-  console.log(`[Wallex WS] Subscribing to ${usdtPairs.length} USDT pairs (bid+ask)...`);
-  usdtPairs.forEach(symbol => {
-    subscribeToDepth(symbol, 'buyDepth');  // Ask
-    subscribeToDepth(symbol, 'sellDepth'); // Bid
-  });
+  // console.log(`[Wallex WS] Subscribing to ${usdtPairs.length} USDT pairs (bid+ask)...`);
+  
+  // usdtPairs.forEach(symbol => {
+  //   subscribeToDepth(symbol, 'buyDepth');  // Ask
+  //   subscribeToDepth(symbol, 'sellDepth'); // Bid
+  // });
 
   // Subscribe to USDTTMN conversion rate pair
   console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
