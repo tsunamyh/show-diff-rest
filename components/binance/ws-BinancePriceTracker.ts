@@ -207,71 +207,71 @@ function offPriceUpdate(callback: (data: { symbol: string }) => void): void {
 }
 
 // Test function
-async function testBinanceWebSocket(): Promise<void> {
-  console.log('\n========== BINANCE WEBSOCKET TEST ==========\n');
-  console.log('[TEST] Starting test...');
+// async function testBinanceWebSocket(): Promise<void> {
+//   console.log('\n========== BINANCE WEBSOCKET TEST ==========\n');
+//   console.log('[TEST] Starting test...');
   
-  // Call connect explicitly
-  console.log('[TEST] Calling connect()...');
-  connect();
+//   // Call connect explicitly
+//   console.log('[TEST] Calling connect()...');
+//   connect();
   
-  let updateCount = 0;
-  let connectedFlag = false;
+//   let updateCount = 0;
+//   let connectedFlag = false;
 
-  // Setup connection event listeners
-  priceUpdateEmitter.on('ready', () => {
-    connectedFlag = true;
-    console.log('[TEST] ✓ WebSocket ready and subscribed to symbols');
-  });
+//   // Setup connection event listeners
+//   priceUpdateEmitter.on('ready', () => {
+//     connectedFlag = true;
+//     console.log('[TEST] ✓ WebSocket ready and subscribed to symbols');
+//   });
 
-  priceUpdateEmitter.on('error', (error) => {
-    console.error('[TEST] WebSocket error:', error.message);
-  });
+//   priceUpdateEmitter.on('error', (error) => {
+//     console.error('[TEST] WebSocket error:', error.message);
+//   });
 
-  priceUpdateEmitter.on('disconnected', () => {
-    console.log('[TEST] WebSocket disconnected');
-  });
+//   priceUpdateEmitter.on('disconnected', () => {
+//     console.log('[TEST] WebSocket disconnected');
+//   });
 
-  // Setup price update listener
-  const priceListener = (data: { symbol: string }) => {
-    updateCount++;
-    const prices = getSymbolPrice(data.symbol);
-    console.log(`[UPDATE #${updateCount}] ${data.symbol}: BID=${prices?.bid[0]} ASK=${prices?.ask[0]}`);
-  };
+//   // Setup price update listener
+//   const priceListener = (data: { symbol: string }) => {
+//     updateCount++;
+//     const prices = getSymbolPrice(data.symbol);
+//     console.log(`[UPDATE #${updateCount}] ${data.symbol}: BID=${prices?.bid[0]} ASK=${prices?.ask[0]}`);
+//   };
 
-  onPriceUpdate(priceListener);
+//   onPriceUpdate(priceListener);
 
-  // Test timeout - run for 20 seconds
-  await new Promise<void>((resolve) => {
-    const testTimeout = setTimeout(() => {
-      console.log('\n========== TEST SUMMARY ==========');
-      console.log(`Connected: ${connectedFlag}`);
-      console.log(`Total price updates received: ${updateCount}`);
-      const allPrices = getBinanceOrderBooks();
-      const symbolCount = Object.keys(allPrices).filter(k => k !== 'usdt').length;
-      console.log(`Total symbols cached: ${symbolCount}`);
+//   // Test timeout - run for 20 seconds
+//   await new Promise<void>((resolve) => {
+//     const testTimeout = setTimeout(() => {
+//       console.log('\n========== TEST SUMMARY ==========');
+//       console.log(`Connected: ${connectedFlag}`);
+//       console.log(`Total price updates received: ${updateCount}`);
+//       const allPrices = getBinanceOrderBooks();
+//       const symbolCount = Object.keys(allPrices).filter(k => k !== 'usdt').length;
+//       console.log(`Total symbols cached: ${symbolCount}`);
       
-      if (symbolCount > 0) {
-        const samples = Object.entries(allPrices).filter(([k]) => k !== 'usdt').slice(0, 5);
-        console.log('\nSample prices:');
-        samples.forEach(([symbol, prices]) => {
-          if (prices && prices.bid && prices.ask) {
-            console.log(`  ${symbol}: BID=${prices.bid[0]} (${prices.bid[1]} TMN) ASK=${prices.ask[0]} (${prices.ask[1]} TMN)`);
-          }
-        });
-      }
+//       if (symbolCount > 0) {
+//         const samples = Object.entries(allPrices).filter(([k]) => k !== 'usdt').slice(0, 5);
+//         console.log('\nSample prices:');
+//         samples.forEach(([symbol, prices]) => {
+//           if (prices && prices.bid && prices.ask) {
+//             console.log(`  ${symbol}: BID=${prices.bid[0]} (${prices.bid[1]} TMN) ASK=${prices.ask[0]} (${prices.ask[1]} TMN)`);
+//           }
+//         });
+//       }
 
-      console.log('\n[TEST] Disconnecting...\n');
-      offPriceUpdate(priceListener);
-      disconnect();
-      resolve();
-    }, 20000);
-  });
-}
+//       console.log('\n[TEST] Disconnecting...\n');
+//       offPriceUpdate(priceListener);
+//       disconnect();
+//       resolve();
+//     }, 20000);
+//   });
+// }
 
 // Initialize WebSocket on import (only if not in test mode)
 
-  testBinanceWebSocket().catch(console.error);
+// testBinanceWebSocket().catch(console.error);
 
 
 export {
@@ -284,5 +284,5 @@ export {
   onPriceUpdate,
   offPriceUpdate,
   priceUpdateEmitter,
-  testBinanceWebSocket
+  // testBinanceWebSocket
 };

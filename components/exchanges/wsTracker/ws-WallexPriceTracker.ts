@@ -34,6 +34,7 @@ let reconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 10;
 const RECONNECT_DELAY = 3000; // 3 seconds
 const WALLEX_WS_URL = 'wss://api.wallex.ir/ws';
+let usdtToTmnRate = 1;
 
 // Store latest prices for each symbol (store as strings for final output)
 let tmnPairsData: { [pair: string]: { bid: string[]; ask: string[] } } = {};
@@ -84,7 +85,7 @@ function subscribeToDepth(symbol: string, type: 'buyDepth' | 'sellDepth'): void 
 
 // Subscribe to all symbols
 function subscribeToAllSymbols(): void {
-  subscribeToDepth('USDTTMN', 'buyDepth');
+  subscribeToDepth('USDTTMN', 'sellDepth');
   const { tmnPairs, usdtPairs } = getSymbolsToSubscribe();
   // Subscribe to USDTTMN conversion rate pair
   console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
@@ -111,8 +112,8 @@ function handleDepthUpdate(message: any): void {
     return;
   }
 
-  const channel: string = message[0];
-  const data: OrderBook[] = message[1];
+  const channel: string = message[0]; // "USDTTMN@sellDepth"
+  const data: OrderBook[] = message[1]; // Array of order book entries
 
   if (!channel || !Array.isArray(data) || data.length === 0) {
     return;
@@ -126,7 +127,10 @@ function handleDepthUpdate(message: any): void {
 
   const symbol = match[1].toUpperCase();
   const depthType = match[2];
-
+  if(symbol === "USDTTMN" && depthType === "sellDepth"){
+    usdtToTmnRate = parseFloat(data[0].price.toString());
+    return;
+  }
   // Determine if it's TMN or USDT pair
   const isTmn = symbol.endsWith('TMN');
   const isUsdt = symbol.endsWith('USDT');
@@ -152,11 +156,11 @@ function handleDepthUpdate(message: any): void {
     ];
 
     if (depthType === 'buyDepth') {
-      // buyDepth = Ask side (sellers)
-      tmnPairsData[symbol].ask = orderData;
-    } else {
-      // sellDepth = Bid side (buyers)
+      // buyDepth = Bid side (buyers)
       tmnPairsData[symbol].bid = orderData;
+    } else {
+      // sellDepth = Ask side (sellers)
+      tmnPairsData[symbol].ask = orderData;
     }
   } else if (isUsdt) {
     if (!usdtPairsData[symbol]) {
@@ -173,11 +177,11 @@ function handleDepthUpdate(message: any): void {
     ];
 
     if (depthType === 'buyDepth') {
-      // buyDepth = Ask side
-      usdtPairsData[symbol].ask = orderData;
-    } else {
-      // sellDepth = Bid side
+      // buyDepth = Bid side
       usdtPairsData[symbol].bid = orderData;
+    } else {
+      // sellDepth = Ask side
+      usdtPairsData[symbol].ask = orderData;
     }
   }
 
@@ -265,7 +269,6 @@ function getWallexOrderbooks(): WallexOrderbooks {
 }
 
 function getUsdtToTmnRate(): number {
-  const usdtToTmnRate = parseFloat(usdtPairsData["usdttmn"]?.ask[WallexUsdtPairIndex.TMN_PRICE] || "1");
   return usdtToTmnRate;
 }
 
@@ -403,4 +406,7 @@ export {
   offPriceUpdate,
   priceUpdateEmitter,
   getUsdtToTmnRate,
+  WallexTmnPairIndex,
+  WallexUsdtPairIndex
+  // testWallexWebSocket
 };
