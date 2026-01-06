@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http, { IncomingMessage, Server, ServerResponse } from "http";
 import { app } from "./app";
-import { eventEmmiter } from "./components/comparisons/comprasion";
+// import { eventEmmiter } from "./components/comparisons/comprasion";
 
 const server: Server = http.createServer(app);
 
@@ -35,11 +35,11 @@ server.on("upgrade", function (req: IncomingMessage, socket: any, head: Buffer) 
 });
 
 wss.on("connection", async function connection(ws: WebSocket, req: IncomingMessage) {
-  eventEmmiter.on("diff", diffListener);
+  // eventEmmiter.on("diff", diffListener);
 
   ws.on("close", () => {
     clients.delete(ws);
-    eventEmmiter.removeListener("diff", diffListener);
+    // eventEmmiter.removeListener("diff", diffListener);
     console.log("clients.size:", clients.size);
     // if (clients.size === 0) {
     //   clearInterval(getOrderInterval);

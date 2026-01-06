@@ -270,14 +270,9 @@ async function testBinanceWebSocket(): Promise<void> {
 }
 
 // Initialize WebSocket on import (only if not in test mode)
-if (process.argv[1]?.includes('ws-BinancePriceTracker')) {
-  console.log('[Binance WS] Test mode detected, calling testBinanceWebSocket...');
-  // Don't call connect() here, let testBinanceWebSocket do it
+
   testBinanceWebSocket().catch(console.error);
-} else {
-  console.log('[Binance WS] Production mode, connecting to WebSocket...');
-  connect();
-}
+
 
 export {
   connect,

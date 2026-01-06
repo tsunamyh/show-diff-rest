@@ -383,13 +383,13 @@ async function testWallexWebSocket(): Promise<void> {
 }
 
 // Initialize WebSocket on import (only if in test mode)
-if (process.argv[1]?.includes('ws-WallexPriceTracker')) {
-  console.log('[Wallex WS] Test mode detected, calling testWallexWebSocket...');
+// if (process.argv[1]?.includes('ws-WallexPriceTracker')) {
+//   console.log('[Wallex WS] Test mode detected, calling testWallexWebSocket...');
   testWallexWebSocket().catch(console.error);
-} else {
-  console.log('[Wallex WS] Production mode, connecting to WebSocket...');
-  connect();
-}
+// } else {
+//   console.log('[Wallex WS] Production mode, connecting to WebSocket...');
+//   connect();
+// }
 
 export {
   connect,
