@@ -84,8 +84,10 @@ function subscribeToDepth(symbol: string, type: 'buyDepth' | 'sellDepth'): void 
 
 // Subscribe to all symbols
 function subscribeToAllSymbols(): void {
+  subscribeToDepth('USDTTMN', 'buyDepth');
   const { tmnPairs, usdtPairs } = getSymbolsToSubscribe();
-  
+  // Subscribe to USDTTMN conversion rate pair
+  console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
   console.log(`[Wallex WS] Subscribing to ${tmnPairs.length} TMN pairs (bid+ask)...`);
   tmnPairs.forEach(symbol => {
     subscribeToDepth(symbol, 'buyDepth');  // Ask (seller side)
@@ -100,7 +102,6 @@ function subscribeToAllSymbols(): void {
 
   // Subscribe to USDTTMN conversion rate pair
   console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
-  subscribeToDepth('USDTTMN', 'buyDepth');
   // subscribeToDepth('USDTTMN', 'sellDepth');
 }
 
@@ -289,103 +290,104 @@ function offPriceUpdate(callback: (data: { symbol: string }) => void): void {
 }
 
 // Test function
-async function testWallexWebSocket(): Promise<void> {
-  console.log('\n========== WALLEX WEBSOCKET TEST ==========\n');
-  console.log('[TEST] Starting test...');
+// async function testWallexWebSocket(): Promise<void> {
+//   console.log('\n========== WALLEX WEBSOCKET TEST ==========\n');
+//   console.log('[TEST] Starting test...');
   
-  // Call connect explicitly
-  console.log('[TEST] Calling connect()...');
-  connect();
+//   // Call connect explicitly
+//   console.log('[TEST] Calling connect()...');
+//   connect();
   
-  let updateCount = 0;
-  let connectedFlag = false;
+//   let updateCount = 0;
+//   let connectedFlag = false;
 
-  // Setup connection event listeners
-  priceUpdateEmitter.on('ready', () => {
-    connectedFlag = true;
-    console.log('[TEST] ✓ WebSocket ready and subscribed to symbols');
-  });
+//   // Setup connection event listeners
+//   priceUpdateEmitter.on('ready', () => {
+//     connectedFlag = true;
+//     console.log('[TEST] ✓ WebSocket ready and subscribed to symbols');
+//   });
 
-  priceUpdateEmitter.on('error', (error) => {
-    console.error('[TEST] WebSocket error:', error.message);
-  });
+//   priceUpdateEmitter.on('error', (error) => {
+//     console.error('[TEST] WebSocket error:', error.message);
+//   });
 
-  priceUpdateEmitter.on('disconnected', () => {
-    console.log('[TEST] WebSocket disconnected');
-  });
+//   priceUpdateEmitter.on('disconnected', () => {
+//     console.log('[TEST] WebSocket disconnected');
+//   });
 
-  // Setup price update listener
-  const priceListener = (data: { symbol: string }) => {
-    updateCount++;
-    const orderbooks = getWallexOrderbooks();
-    const tmnData = orderbooks.tmnPairs[data.symbol];
-    const usdtData = orderbooks.usdtPairs[data.symbol];
+//   // Setup price update listener
+//   // const priceListener = (data: { symbol: string }) => {
+//   //   updateCount++;
+//   //   const orderbooks = getWallexOrderbooks();
+//   //   const tmnData = orderbooks.tmnPairs[data.symbol];
+//   //   const usdtData = orderbooks.usdtPairs[data.symbol];
+//   //   // console.log("tmndata:",tmnData,"usdtdataaaaaaaaaaaaaaaaaa:",usdtData);
     
-    if (tmnData && (tmnData.bid.length > 0 || tmnData.ask.length > 0)) {
-      const bidPrice = tmnData.bid[0] || '0';
-      const askPrice = tmnData.ask[0] || '0';
-      console.log(`[UPDATE #${updateCount}] ${data.symbol} (TMN): BID=${bidPrice} ASK=${askPrice}`);
-    } else if (usdtData && (usdtData.bid.length > 0 || usdtData.ask.length > 0)) {
-      const bidTmnPrice = usdtData.bid[WallexUsdtPairIndex.TMN_PRICE] || '0';
-      const bidVolume = usdtData.bid[WallexUsdtPairIndex.VOLUME_CURRENCY] || '0';
-      const bidUsdtPrice = usdtData.bid[WallexUsdtPairIndex.USDT_PRICE] || '0';
-      const askTmnPrice = usdtData.ask[WallexUsdtPairIndex.TMN_PRICE] || '0';
-      const askVolume = usdtData.ask[WallexUsdtPairIndex.VOLUME_CURRENCY] || '0';
-      const askUsdtPrice = usdtData.ask[WallexUsdtPairIndex.USDT_PRICE] || '0';
-      console.log(`[UPDATE #${updateCount}] ${data.symbol} (USDT): BID=[${bidTmnPrice},${bidVolume},${bidUsdtPrice}] ASK=[${askTmnPrice},${askVolume},${askUsdtPrice}]`);
-    }
-  };
+//   //   if (tmnData && (tmnData.bid.length > 0 || tmnData.ask.length > 0)) {
+//   //     const bidPrice = tmnData.bid[WallexTmnPairIndex.PRICE] || '0';
+//   //     const askPrice = tmnData.ask[WallexTmnPairIndex.PRICE] || '0';
+//   //     // console.log(`[UPDATE wallex #${updateCount}] ${data.symbol} (TMN): BID=${bidPrice} ASK=${askPrice}`);
+//   //   } else if (usdtData && (usdtData.bid.length > 0 || usdtData.ask.length > 0)) {
+//   //     const bidTmnPrice = usdtData.bid[WallexUsdtPairIndex.TMN_PRICE] || '0';
+//   //     const bidVolume = usdtData.bid[WallexUsdtPairIndex.VOLUME_CURRENCY] || '0';
+//   //     const bidUsdtPrice = usdtData.bid[WallexUsdtPairIndex.USDT_PRICE] || '0';
+//   //     const askTmnPrice = usdtData.ask[WallexUsdtPairIndex.TMN_PRICE] || '0';
+//   //     const askVolume = usdtData.ask[WallexUsdtPairIndex.VOLUME_CURRENCY] || '0';
+//   //     const askUsdtPrice = usdtData.ask[WallexUsdtPairIndex.USDT_PRICE] || '0';
+//   //     console.log(`[UPDATE #${updateCount}] ${data.symbol} (USDT): BID=[${bidTmnPrice},${bidVolume},${bidUsdtPrice}] ASK=[${askTmnPrice},${askVolume},${askUsdtPrice}]`);
+//   //   }
+//   // };
 
-  onPriceUpdate(priceListener);
+//   // onPriceUpdate(priceListener);
 
-  // Test timeout - run for 25 seconds
-  await new Promise<void>((resolve) => {
-    const testTimeout = setTimeout(() => {
-      const orderbooks = getWallexOrderbooks();
+//   // Test timeout - run for 25 seconds
+//   // await new Promise<void>((resolve) => {
+//   //   const testTimeout = setTimeout(() => {
+//   //     const orderbooks = getWallexOrderbooks();
       
-      console.log('\n========== TEST SUMMARY ==========');
-      console.log(`Connected: ${connectedFlag}`);
-      console.log(`Total price updates received: ${updateCount}`);
-      console.log(`TMN pairs cached: ${Object.keys(orderbooks.tmnPairs).length}`);
-      console.log(`USDT pairs cached: ${Object.keys(orderbooks.usdtPairs).length}`);
+//   //     console.log('\n========== TEST SUMMARY ==========');
+//   //     console.log(`Connected: ${connectedFlag}`);
+//   //     console.log(`Total price updates received: ${updateCount}`);
+//   //     console.log(`TMN pairs cached: ${Object.keys(orderbooks.tmnPairs).length}`);
+//   //     console.log(`USDT pairs cached: ${Object.keys(orderbooks.usdtPairs).length}`);
       
-      if (Object.keys(orderbooks.tmnPairs).length > 0) {
-        const tmnSamples = Object.entries(orderbooks.tmnPairs).slice(0, 3);
-        console.log('\nSample TMN pairs:');
-        tmnSamples.forEach(([symbol, data]) => {
-          const bidPrice = data.bid[0] || '-';
-          const askPrice = data.ask[0] || '-';
-          console.log(`  ${symbol}: BID=${bidPrice} ASK=${askPrice}`);
-        });
-      }
+//   //     if (Object.keys(orderbooks.tmnPairs).length > 0) {
+//   //       const tmnSamples = Object.entries(orderbooks.tmnPairs).slice(0, 3);
+//   //       console.log('\nSample TMN pairs:');
+//   //       tmnSamples.forEach(([symbol, data]) => {
+//   //         const bidPrice = data.bid[0] || '-';
+//   //         const askPrice = data.ask[0] || '-';
+//   //         console.log(`  ${symbol}: BID=${bidPrice} ASK=${askPrice}`);
+//   //       });
+//   //     }
 
-      if (Object.keys(orderbooks.usdtPairs).length > 0) {
-        const usdtSamples = Object.entries(orderbooks.usdtPairs).slice(0, 3);
-        console.log('\nSample USDT pairs:');
-        usdtSamples.forEach(([symbol, data]) => {
-          const bidTmnPrice = data.bid[WallexUsdtPairIndex.TMN_PRICE] || '-';
-          const bidVolume = data.bid[WallexUsdtPairIndex.VOLUME_CURRENCY] || '-';
-          const bidUsdtPrice = data.bid[WallexUsdtPairIndex.USDT_PRICE] || '-';
-          const askTmnPrice = data.ask[WallexUsdtPairIndex.TMN_PRICE] || '-';
-          const askVolume = data.ask[WallexUsdtPairIndex.VOLUME_CURRENCY] || '-';
-          const askUsdtPrice = data.ask[WallexUsdtPairIndex.USDT_PRICE] || '-';
-          console.log(`  ${symbol} BID: [${bidTmnPrice}, ${bidVolume}, ${bidUsdtPrice}]`);
-          console.log(`  ${symbol} ASK: [${askTmnPrice}, ${askVolume}, ${askUsdtPrice}]`);
-        });
-      }
+//   //     if (Object.keys(orderbooks.usdtPairs).length > 0) {
+//   //       const usdtSamples = Object.entries(orderbooks.usdtPairs).slice(0, 3);
+//   //       console.log('\nSample USDT pairs:');
+//   //       usdtSamples.forEach(([symbol, data]) => {
+//   //         const bidTmnPrice = data.bid[WallexUsdtPairIndex.TMN_PRICE] || '-';
+//   //         const bidVolume = data.bid[WallexUsdtPairIndex.VOLUME_CURRENCY] || '-';
+//   //         const bidUsdtPrice = data.bid[WallexUsdtPairIndex.USDT_PRICE] || '-';
+//   //         const askTmnPrice = data.ask[WallexUsdtPairIndex.TMN_PRICE] || '-';
+//   //         const askVolume = data.ask[WallexUsdtPairIndex.VOLUME_CURRENCY] || '-';
+//   //         const askUsdtPrice = data.ask[WallexUsdtPairIndex.USDT_PRICE] || '-';
+//   //         console.log(`  ${symbol} BID: [${bidTmnPrice}, ${bidVolume}, ${bidUsdtPrice}]`);
+//   //         console.log(`  ${symbol} ASK: [${askTmnPrice}, ${askVolume}, ${askUsdtPrice}]`);
+//   //       });
+//   //     }
 
-      console.log('\n[TEST] Disconnecting...\n');
-      offPriceUpdate(priceListener);
-      disconnect();
-      resolve();
-    }, 25000);
-  });
-}
+//   //     console.log('\n[TEST] Disconnecting...\n');
+//   //     offPriceUpdate(priceListener);
+//   //     disconnect();
+//   //     resolve();
+//   //   }, 25000);
+//   // });
+// }
 
 // Initialize WebSocket on import (only if in test mode)
 // if (process.argv[1]?.includes('ws-WallexPriceTracker')) {
 //   console.log('[Wallex WS] Test mode detected, calling testWallexWebSocket...');
-  testWallexWebSocket().catch(console.error);
+// testWallexWebSocket().catch(console.error);
 // } else {
 //   console.log('[Wallex WS] Production mode, connecting to WebSocket...');
 //   connect();
@@ -401,5 +403,4 @@ export {
   offPriceUpdate,
   priceUpdateEmitter,
   getUsdtToTmnRate,
-  testWallexWebSocket
 };
