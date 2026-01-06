@@ -34,7 +34,7 @@ const RECONNECT_DELAY = 3000; // 3 seconds
 const BINANCE_WS_URL = 'wss://data-stream.binance.vision/ws';
 
 // Store latest prices
-let binancePrices: BinancePriceData = {"usdt": {}};
+let binanceOrderBooks: BinancePriceData = {"usdt": {}};
 
 // Event emitter for price updates
 const priceUpdateEmitter = new EventEmitter();
@@ -72,7 +72,7 @@ function handleBookTicker(message: BookTicker): void {
   const bidTmn = (bid * rate).toString();
   const askTmn = (ask * rate).toString();
 
-  binancePrices[symbol.toUpperCase()] = {
+  binanceOrderBooks[symbol.toUpperCase()] = {
     bid: [bidPrice, bidTmn],
     ask: [askPrice, askTmn]
   };
@@ -175,15 +175,15 @@ function disconnect(): void {
   reconnectAttempts = 0;
 }
 
-// Get latest binance prices
-function getBinancePrices(): BinancePriceData {
-  return { ...binancePrices };
+// Get latest binance orderbooks
+function getBinanceOrderBooks(): BinancePriceData {
+  return { ...binanceOrderBooks };
 }
 
 // Get price for specific symbol
 function getSymbolPrice(symbol: string): { bid: [string, string]; ask: [string, string] } | null {
   const upperSymbol = symbol.toUpperCase();
-  return binancePrices[upperSymbol] || null;
+  return binanceOrderBooks[upperSymbol] || null;
 }
 
 // Get connection status
@@ -247,7 +247,7 @@ async function testBinanceWebSocket(): Promise<void> {
       console.log('\n========== TEST SUMMARY ==========');
       console.log(`Connected: ${connectedFlag}`);
       console.log(`Total price updates received: ${updateCount}`);
-      const allPrices = getBinancePrices();
+      const allPrices = getBinanceOrderBooks();
       const symbolCount = Object.keys(allPrices).filter(k => k !== 'usdt').length;
       console.log(`Total symbols cached: ${symbolCount}`);
       
@@ -278,7 +278,7 @@ export {
   connect,
   disconnect,
   isConnected,
-  getBinancePrices,
+  getBinanceOrderBooks as getBinancePrices,
   getSymbolPrice,
   onReady,
   onPriceUpdate,
