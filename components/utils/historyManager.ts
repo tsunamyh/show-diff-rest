@@ -49,7 +49,7 @@ function getTop10Currencies(currencies: CurrencyDiffTracker[]): CurrencyDiffTrac
         }));
 }
 
-export function saveHistoryToFile(exchange: 'wallex' | 'okex', tracker: Map<string, CurrencyDiffTracker>) {
+export function saveHistoryToFile(exchange: 'wallex' | 'okex' | 'nobitex', tracker: Map<string, CurrencyDiffTracker>) {
     ensureHistoryDir();
     const filePath = path.join(HISTORY_DIR, `${exchange}_history.json`);
     
@@ -111,7 +111,7 @@ export function saveHistoryToFile(exchange: 'wallex' | 'okex', tracker: Map<stri
     }
 }
 
-export function loadHistoryFromFile(exchange: 'wallex' | 'okex'): Map<string, CurrencyDiffTracker> {
+export function loadHistoryFromFile(exchange: 'wallex' | 'okex' | 'nobitex'): Map<string, CurrencyDiffTracker> {
     ensureHistoryDir();
     const filePath = path.join(HISTORY_DIR, `${exchange}_history.json`);
     
@@ -144,7 +144,7 @@ export function loadHistoryFromFile(exchange: 'wallex' | 'okex'): Map<string, Cu
     return new Map();
 }
 
-export function getDataByPeriod(exchange: 'wallex' | 'okex'): HistoryFile {
+export function getDataByPeriod(exchange: 'wallex' | 'okex' | 'nobitex'): HistoryFile {
     ensureHistoryDir();
     const filePath = path.join(HISTORY_DIR, `${exchange}_history.json`);
     

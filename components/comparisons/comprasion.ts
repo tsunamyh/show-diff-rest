@@ -1,23 +1,27 @@
 import { EventEmitter } from "stream";
 import { getAllexchangesOrderBooks } from "../controller";
-import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks } from "../types/types";
+import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks, NobitexOrderbooks } from "../types/types";
 import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "./exchanges-vs-binance/wallex-binance";
 import { okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "./exchanges-vs-binance/okex-binance";
+import { nobitex_priceComp, initializeTrackerWithHistory as initNobitexHistory } from "./exchanges-vs-binance/nobitex-binance";
 import { getDataByPeriod } from "../utils/historyManager";
 
 const eventEmmiter = new EventEmitter();
-eventEmmiter.setMaxListeners(6);
+eventEmmiter.setMaxListeners(9);
 
 // Initialize history on startup
 initWallexHistory();
 initOkexHistory();
+initNobitexHistory();
 
 async function intervalFunc(): Promise<NodeJS.Timeout> {
     return setInterval(async function () {
         try {
             const [binanceOrderbooksPromise, exchangesOrderbooksPromise] = await getAllexchangesOrderBooks();
             let binanceOrderbooks: BinanceOrderbooks;
-            let wallexOrderbooks: WallexOrderbooks, okexOrderbooks: OkexOrderbooks;
+            let wallexOrderbooks: WallexOrderbooks;
+            let okexOrderbooks: OkexOrderbooks;
+            let nobitexOrderbooks: NobitexOrderbooks;
 
             if (binanceOrderbooksPromise.status === "rejected") {
                 console.error('Error fetching order books:', {
@@ -36,11 +40,12 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
                 const wallexTopRowsInfo = await wallex_priceComp(binanceOrderbooks, wallexOrderbooks);
                 okexOrderbooks = exchangesOrderbooksPromise.value.okexOrderbooks;
                 const okexTopRowsInfo = await okex_priceComp(binanceOrderbooks, okexOrderbooks);
-                // console.log("okexTopRowsInfo:", okexTopRowsInfo);
+                nobitexOrderbooks = exchangesOrderbooksPromise.value.nobitexOrderbooks;
+                const nobitexTopRowsInfo = await nobitex_priceComp(binanceOrderbooks, nobitexOrderbooks);
                 
-                const combinedTopRowsInfo = [...wallexTopRowsInfo, ...okexTopRowsInfo];
+                const combinedTopRowsInfo = [...wallexTopRowsInfo, ...okexTopRowsInfo, ...nobitexTopRowsInfo];
                 combinedTopRowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent)
-                const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 12);
+                const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 22);
 
                 eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));
                 const wallexTopFives = getDataByPeriod('wallex');
@@ -52,6 +57,11 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
                 eventEmmiter.emit("diff", JSON.stringify({
                     status: "maxDiff",
                     maxDiff: okexTopFives
+                }));
+                const nobitexTopFives = getDataByPeriod('nobitex');
+                eventEmmiter.emit("diff", JSON.stringify({
+                    status: "maxDiff",
+                    maxDiff: nobitexTopFives
                 }));
             }
         } catch (error) {

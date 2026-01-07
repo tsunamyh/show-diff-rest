@@ -23,7 +23,7 @@ interface NobitexDepthResponse {
 }
 
 interface NobitexOrderbooks {
-  exchangeName: string;
+  exchangeName: "Nobitex";
   irtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
   usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
 }
@@ -57,7 +57,7 @@ async function fetchNobitexPrices(): Promise<NobitexOrderbooks | undefined> {
     }
 
     const nobitexOrderbooks : NobitexOrderbooks = {
-      exchangeName: "nobitex",
+      exchangeName: "Nobitex",
       irtPairs: {},
       usdtPairs: {}
     };
