@@ -26,7 +26,18 @@ interface WallexOrderbooks {
 }
 
 const WALLEX_API_URL = 'https://api.wallex.ir/v2/depth/all';
-let globalUsdtToTmnRate = 1;
+let wallexGlobalUsdtToTmnRate = 1;
+
+async function fetchWallexUsdtToTmn(){
+  try {
+    const response = await axios.get("https://api.wallex.ir/v1/depth",{
+      params:{symbol : "USDTTMN"},
+    })
+    wallexGlobalUsdtToTmnRate = parseFloat(response.data.result?.bid?.[0]?.price || "1");
+  } catch (error) {
+    console.error('Error fetching USDT/TMN rate:', error);
+  }
+}
 
 async function fetchWallexPrices(): Promise<WallexOrderbooks | undefined> {
   try {
@@ -48,7 +59,7 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | undefined> {
       const usdtTmn = depthData[usdtTmnKey];
       if (usdtTmn.bid && usdtTmn.bid.length > 0) {
         usdtToTmnRate = parseFloat(usdtTmn.bid[0].price);
-        globalUsdtToTmnRate = usdtToTmnRate;
+        wallexGlobalUsdtToTmnRate = usdtToTmnRate;
         // console.log(`[${new Date().toISOString()}] USDT/TMN Rate: ${usdtToTmnRate}`);
       }
     }
@@ -115,12 +126,13 @@ async function fetchWallexPrices(): Promise<WallexOrderbooks | undefined> {
 }
 
 function getUsdtToTmnRate(): number {
-  return globalUsdtToTmnRate;
+  return wallexGlobalUsdtToTmnRate;
 }
 
 // Initial fetch
 export {
   fetchWallexPrices,
+  fetchWallexUsdtToTmn,
   getUsdtToTmnRate
 };
 

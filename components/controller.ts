@@ -1,5 +1,5 @@
 import { fetchBinanceOrderBooks } from "./binance-controller";
-import { fetchWallexOnce, getExchangesOrderBooks } from "./exchanges-controller";
+import { fetchNobitexOnce, fetchWallexOnce, getExchangesOrderBooks } from "./exchanges-controller";
 
 async function getAllexchangesOrderBooks() {
     const binanceOrderbooks = fetchBinanceOrderBooks();
@@ -14,6 +14,7 @@ async function getAllexchangesOrderBooks() {
 async function fetchExchangesOnce() {
     return {
         fetchWallexOnce,
+        fetchNobitexOnce,
     }
 }
 

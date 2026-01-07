@@ -1,13 +1,13 @@
 import { fetchNobitexPrices } from "./exchanges/tracker/nobitexPriceTracker";
 import { fetchOkexPrices } from "./exchanges/tracker/okexPriceTracker";
-import { fetchWallexPrices } from "./exchanges/tracker/wallexPriceTracker";
+import { fetchWallexPrices, fetchWallexUsdtToTmn } from "./exchanges/tracker/wallexPriceTracker";
 
 let wallexFetched = false;
 let nobitexFetched = false;
 
 async function fetchWallexOnce() {
   if (!wallexFetched) {
-    await fetchWallexPrices();
+    await fetchWallexUsdtToTmn();
     wallexFetched = true;
   }
 }
@@ -36,4 +36,5 @@ async function getExchangesOrderBooks() {
 export {
   getExchangesOrderBooks,
   fetchWallexOnce,
+  fetchNobitexOnce,
 };
