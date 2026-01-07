@@ -40,16 +40,25 @@ import test from 'node:test';
 //   });
 
 //   // Setup price update listener
+  const uniqueSymbols = new Set<string>();
+  let updateCount = 0;
+  
   const priceListener = (data: { symbol: string }) => {
-    // updateCount++;
+    updateCount++;
+    uniqueSymbols.add(data.symbol);
     const orderbooks = getWallexOrderbooks();
     const tmnData = orderbooks.tmnPairs[data.symbol];
     const usdtData = orderbooks.usdtPairs[data.symbol];
-    if(data.symbol == "METTMN"){
-      console.log(data.symbol,tmnData);
+    
+    // Log every 100 updates with unique count
+    if (updateCount % 100 === 0) {
+      console.log(`\n📊 Updates: ${updateCount} | Unique Symbols: ${uniqueSymbols.size}`);
+      console.log(`Active Symbols: ${Array.from(uniqueSymbols).sort().join(', ')}\n`);
     }
-    if(data.symbol.endsWith("USDT")){
-      console.log(data.symbol,usdtData);
+    
+    // Log METTMN specifically
+    if(data.symbol === "METTMN"){
+      console.log("✅ METTMN RECEIVED:", tmnData);
     }  
     // console.log(data.symbol,"tmndata:"/* ,tmnData */,"usdtdataaaaaaaaaaaaaaaaaa:",usdtData,getUsdtToTmnRate());
     

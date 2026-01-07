@@ -48,20 +48,29 @@ let pendingSubscriptions = new Map<string, 'tmnBid' | 'tmnAsk' | 'usdtBid' | 'us
 const priceUpdateEmitter = new EventEmitter();
 priceUpdateEmitter.setMaxListeners(10);
 
-// Get symbols from common symbols
-function getSymbolsToSubscribe(): { tmnPairs: string[]; usdtPairs: string[] } {
+// Split USDT pairs into batches of 15 for multiple WebSocket connections
+function splitIntoBatches<T>(array: T[], batchSize: number): T[][] {
+  const batches: T[][] = [];
+  for (let i = 0; i < array.length; i += batchSize) {
+    batches.push(array.slice(i, i + batchSize));
+  }
+  return batches;
+}
+
+// Get symbols from common symbols - return all TMN pairs
+function getSymbolBatches(): { tmnBatch: string[]; usdtBatches: string[][] } {
+  // Get all TMN pairs from common symbols
   try {
     const commonSymbols = binance_wallex_common_symbols?.symbols?.wallex_symbol as any || {};
-    const tmnKeys = Object.keys(commonSymbols?.tmnPairs || {});
-    const usdtKeys = Object.keys(commonSymbols?.usdtPairs || {});
+    const allTmnPairs = Object.keys(commonSymbols?.tmnPairs || {});
     
     return {
-      tmnPairs: tmnKeys,
-      usdtPairs: usdtKeys
+      tmnBatch: allTmnPairs,
+      usdtBatches: []
     };
   } catch (error) {
     console.error('[Wallex WS] Failed to get symbols:', error);
-    return { tmnPairs: [], usdtPairs: [] };
+    return { tmnBatch: [], usdtBatches: [] };
   }
 }
 
@@ -85,26 +94,15 @@ function subscribeToDepth(symbol: string, type: 'buyDepth' | 'sellDepth'): void 
 
 // Subscribe to all symbols
 function subscribeToAllSymbols(): void {
-  subscribeToDepth('USDTTMN', 'sellDepth');
-  const { tmnPairs, usdtPairs } = getSymbolsToSubscribe();
-  // Subscribe to USDTTMN conversion rate pair
-  console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
-  console.log(`[Wallex WS] Subscribing to ${tmnPairs.length} TMN pairs (bid+ask)...`);
-  tmnPairs.forEach(symbol => {
+  const { tmnBatch, usdtBatches } = getSymbolBatches();
+  
+  console.log(`[Wallex WS] Subscribing to ${tmnBatch.length} TMN pairs (bid+ask)...`);
+  tmnBatch.forEach(symbol => {
     subscribeToDepth(symbol, 'buyDepth');  // Ask (seller side)
     subscribeToDepth(symbol, 'sellDepth'); // Bid (buyer side)
   });
 
-  // console.log(`[Wallex WS] Subscribing to ${usdtPairs.length} USDT pairs (bid+ask)...`);
-  
-  // usdtPairs.forEach(symbol => {
-  //   subscribeToDepth(symbol, 'buyDepth');  // Ask
-  //   subscribeToDepth(symbol, 'sellDepth'); // Bid
-  // });
-
-  // Subscribe to USDTTMN conversion rate pair
-  console.log(`[Wallex WS] Subscribing to USDTTMN rate pair...`);
-  // subscribeToDepth('USDTTMN', 'sellDepth');
+  console.log(`[Wallex WS] Will subscribe to ${usdtBatches.length} batches of USDT pairs using separate connections...`);
 }
 
 // Handle depth update message
@@ -128,10 +126,15 @@ function handleDepthUpdate(message: any): void {
 
   const symbol = match[1].toUpperCase();
   const depthType = match[2];
+  
+  // Handle USDTTMN rate conversion
   if(symbol === "USDTTMN" && depthType === "sellDepth"){
     usdtToTmnRate = parseFloat(data[0].price.toString());
+    // Still emit for symbol updates
+    priceUpdateEmitter.emit('priceUpdate', { symbol });
     return;
   }
+  
   // Determine if it's TMN or USDT pair
   const isTmn = symbol.endsWith('TMN');
   const isUsdt = symbol.endsWith('USDT');
