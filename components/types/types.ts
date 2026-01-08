@@ -15,6 +15,6 @@ export interface OkexOrderbooks {
 
 export interface NobitexOrderbooks {
   exchangeName : "Nobitex";
-  irtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
+  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };
   usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
 }

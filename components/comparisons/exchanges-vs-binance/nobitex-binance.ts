@@ -31,18 +31,18 @@ import { validateAndExecuteTrade } from "../../exchanges/purchasing/tradeValidat
 
 const nobitexBinanceCommonSymbols = nobitex_binance_common_symbols.symbols;
 
-// مثال: [irtPrice, volumeCurrency, usdtPrice]
+// مثال USDT: [irtPrice (calc), quantity, usdtPrice (original)]
 enum NobitexUsdtPairIndex {
-  USDT_PRICE = 0,          // "3600.50"
+  IRT_PRICE = 0,           // calculated from USDT price * rate
   VOLUME_CURRENCY = 1,     // "0.008676"
-  IRT_PRICE = 2            // "151500000"
+  USDT_PRICE = 2           // "3600.50" (original USDT price)
 }
 
-// مثال: [irtPrice, volumeCurrency]
+// مثال IRT: [irtPrice, quantity]
 enum NobitexIrtPairIndex {
   IRT_PRICE = 0,           // "151500000"
   VOLUME_CURRENCY = 1,     // "0.008717" quantity
-  IRT_AMOUNT = 2           // IRT_PRICE * VOLUME_CURRENCY
+  IRT_AMOUNT = 2           // will be calculated: IRT_PRICE * VOLUME_CURRENCY
 }
 
 // مثال: [usdtPrice, irtPrice]
@@ -172,18 +172,25 @@ async function nobitex_priceComp(binanceOrderbooks: BinanceOrderbooks, nobitexOr
   try {
     const rowsInfo: RowInfo[] = [];
 
+    // Check if nobitex orderbooks exist
+    if (!nobitexOrderbooks || (!nobitexOrderbooks?.tmnPairs && !nobitexOrderbooks?.usdtPairs)) {
+      console.warn('⚠️ Nobitex orderbooks not available');
+      return [];
+    }
+
     for (const symbol of nobitexBinanceCommonSymbols["binance_symbol"]) {
       let rowInfo: RowInfo | null = null;
       const binanceData = binanceOrderbooks?.usdt?.[symbol];
-      const nobitexDataIrt = nobitexOrderbooks?.irtPairs?.[symbol.replace("USDT", "IRT").toLowerCase()];
+      const nobitexDataIrt = nobitexOrderbooks?.tmnPairs?.[symbol.replace("USDT", "IRT").toLowerCase()];
 
       if (!binanceData || !nobitexDataIrt) continue;
 
       rowInfo = getRowTableUsdtVsIrt(binanceData, nobitexDataIrt, symbol, nobitexOrderbooks.exchangeName);
-
+      
       if (rowInfo) rowsInfo.push(rowInfo);
+      
       const nobitexDataUsdt = nobitexOrderbooks?.usdtPairs?.[symbol.toLowerCase()];
-
+      
       if (!binanceData || !nobitexDataUsdt) continue;
       rowInfo = getRowTableUsdtVsUsdt(binanceData, nobitexDataUsdt, symbol, nobitexOrderbooks.exchangeName);
       if (rowInfo && rowInfo?.rowData.value > 500000) rowsInfo.push(rowInfo);
@@ -191,8 +198,12 @@ async function nobitex_priceComp(binanceOrderbooks: BinanceOrderbooks, nobitexOr
     }
 
     rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
+    console.log(rowsInfo.length,"llllllllllllllllll",rowsInfo[rowsInfo.length -1]);
+    
     const topRowsInfo = rowsInfo.slice(0, 10);
     latestRowsInfo = topRowsInfo;
+    // console.log(`✅ Nobitex priceComp found ${rowsInfo.length} opportunities, top ${topRowsInfo.length}:`, topRowsInfo.map(r => `${r.rowData.symbol}: ${r.rowData.percent}%`));
+    
 
     // Update currency tracker with top 10 rows
     updateCurrencyDiffTracker(rowsInfo)
@@ -200,7 +211,8 @@ async function nobitex_priceComp(binanceOrderbooks: BinanceOrderbooks, nobitexOr
     return latestRowsInfo;
 
   } catch (error) {
-    console.error('Error in priceComp try-catch:', error);
+    console.error('Error in nobitex_priceComp try-catch:', error);
+    return [];
   }
 }
 console.log("mypercent:", myPercent);
@@ -210,9 +222,11 @@ function getRowTableUsdtVsIrt(binanceOrderbook: any, nobitexOrderbook: any, symb
   const symbol = symbolusdt.replace("USDT", "IRT")
   const nobitex_irt_ask = parseFloat(nobitexOrderbook.ask[NobitexIrtPairIndex.IRT_PRICE]);
   const binance_irt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.IRT_PRICE]);
-
+  
   if (nobitex_irt_ask < binance_irt_ask) {
+    console.log(symbol,nobitex_irt_ask,binance_irt_ask);
     const [difference_percent, currencyAmount, amountIrt] = calcPercentAndAmounts(binanceOrderbook.ask, nobitexOrderbook.ask);
+    // console.log(difference_percent,currencyAmount,amountIrt,"nnnnnnnnnnnnnnnn");
     // اختلاف درصد بین ask و bid نوبیتکس
     const askBidDifferencePercentInNobitex = calculatePercentageDifference(
       parseFloat(nobitexOrderbook.ask[NobitexIrtPairIndex.IRT_PRICE]),
@@ -257,7 +271,7 @@ function getRowTableUsdtVsIrt(binanceOrderbook: any, nobitexOrderbook: any, symb
       // }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
 
     }
-    return createRowTable(nobitexOrderbook.ask, binanceOrderbook.bid, difference_percent, currencyAmount, amountIrt, symbol, "UsdtVsIrt", exchangeName);
+    return createRowTable(nobitexOrderbook.ask, binanceOrderbook.bid, difference_percent, currencyAmount, amountIrt, symbol, "UsdtVsTmn", exchangeName);
   }
 
   return null;
@@ -269,6 +283,8 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, nobitexOrderbook: any, sym
   const binance_usdt_bid = parseFloat(binanceOrderbook.bid[BinanceIndex.USDT_PRICE]);
   if (nobitex_usdt_ask < binance_usdt_bid) {
     const [difference_percent, amount_currency, amount_irt] = calcPercentAndAmounts(binanceOrderbook.bid, nobitexOrderbook.ask);
+    // console.log(difference_percent,amount_currency,amount_irt);
+    
     if (difference_percent >= +myPercent && amount_irt > 500000) {
       console.log(`\n📊(UsdtVsUsdt) Arbitrage Opportunity Found!`);
       console.log(`Symbol: ${symbol} | Nobitex Ask USDT: ${nobitex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
@@ -288,14 +304,16 @@ function exsistAskBid(binanceOrderbook, nobitexOrderbook): boolean {
 }
 
 function calcPercentAndAmounts(binanceBidOrder: any, nobitexAskOrder: any): [number, number, number] {
-  // binanceBidOrder[BinanceIndex.IRT_PRICE] = IRT Price
-  // nobitexAskOrder[NobitexIrtPairIndex.IRT_PRICE] = IRT Price
-  const percent = calculatePercentageDifference(
-    +binanceBidOrder[BinanceIndex.IRT_PRICE],
-    +nobitexAskOrder[NobitexIrtPairIndex.IRT_PRICE]
-  );
+  // binanceBidOrder[BinanceIndex.IRT_PRICE] = IRT Price in Binance
+  // nobitexAskOrder[NobitexIrtPairIndex.IRT_PRICE] = IRT Price in Nobitex
+  
+  const nobitexPrice = +nobitexAskOrder[NobitexIrtPairIndex.IRT_PRICE];
+  const binancePrice = +binanceBidOrder[BinanceIndex.IRT_PRICE];
+  
+  const percent = calculatePercentageDifference(binancePrice, nobitexPrice);
   const currencyAmount = +nobitexAskOrder[NobitexIrtPairIndex.VOLUME_CURRENCY];
-  const amountIrt = +nobitexAskOrder[NobitexIrtPairIndex.IRT_AMOUNT];
+  const amountIrt = nobitexPrice * currencyAmount; // Calculate amount
+  
   return [percent, currencyAmount, amountIrt];
 }
 
@@ -315,7 +333,7 @@ function createRowTable(
   statusCompare: string,
   exchangeName: string
 ) {
-  if (statusCompare === "UsdtVsIrt") {
+  if (statusCompare === "UsdtVsTmn") {
     const rowData: RowData = {
       symbol: symbol.replace("USDT", "IRT"),
       percent: difference_percent,

@@ -6,9 +6,9 @@ interface OrderBook {
   sum: string;
 }
 
-interface DepthData {
-  ask: [string, string][];
-  bid: [string, string][];
+enum DepthDataIndex {
+  PRICE = 0,
+  QUANTITY = 1,
 }
 
 interface NobitexDepthResponse {
@@ -24,7 +24,7 @@ interface NobitexDepthResponse {
 
 interface NobitexOrderbooks {
   exchangeName: "Nobitex";
-  irtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
+  tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };
   usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
 }
 
@@ -50,15 +50,15 @@ async function fetchNobitexPrices(): Promise<NobitexOrderbooks | undefined> {
     if (usdtIrtKey && typeof depthData[usdtIrtKey] === 'object' && depthData[usdtIrtKey] !== null && 'bids' in depthData[usdtIrtKey]) {
       const usdtIrt = depthData[usdtIrtKey] as any;
       if (usdtIrt.bids && usdtIrt.bids.length > 0) {
-        usdtToIrtRate = parseFloat(usdtIrt.bids[0][0]);
-        globalUsdtToIrtRate = usdtToIrtRate;
-        console.log(`[${new Date().toISOString()}] USDT/IRT Rate: ${usdtToIrtRate}`);
+        usdtToIrtRate = parseFloat(usdtIrt.bids[0][DepthDataIndex.PRICE]) / 10;
+        globalUsdtToIrtRate = Math.floor(usdtToIrtRate); 
+        console.log(`[${new Date().toISOString()}] USDT/IRT Rate: ${globalUsdtToIrtRate}`);
       }
     }
 
     const nobitexOrderbooks : NobitexOrderbooks = {
       exchangeName: "Nobitex",
-      irtPairs: {},
+      tmnPairs: {},
       usdtPairs: {}
     };
 
@@ -89,21 +89,33 @@ async function fetchNobitexPrices(): Promise<NobitexOrderbooks | undefined> {
       if (!bestBid || !bestAsk) return;
 
       if (pairType === 'USDT') {
-        const bidPriceIrt = (parseFloat(bestBid[0]) * usdtToIrtRate).toString();
-        const askPriceIrt = (parseFloat(bestAsk[0]) * usdtToIrtRate).toString();
+        const bidPriceIrt = (parseFloat(bestBid[DepthDataIndex.PRICE]) * globalUsdtToIrtRate).toString();
+        const askPriceIrt = (parseFloat(bestAsk[DepthDataIndex.PRICE]) * globalUsdtToIrtRate).toString();
         nobitexOrderbooks.usdtPairs[lowerPair] = {
-          bid: [bidPriceIrt, bestBid[1], bestBid[0]],
-          ask: [askPriceIrt, bestAsk[1], bestAsk[0]]
+          bid: [bidPriceIrt, bestBid[DepthDataIndex.QUANTITY], bestBid[DepthDataIndex.PRICE]],
+          ask: [askPriceIrt, bestAsk[DepthDataIndex.QUANTITY], bestAsk[DepthDataIndex.PRICE]]
         };
       } else if (pairType === 'IRT') {
-        nobitexOrderbooks.irtPairs[lowerPair] = {
-          bid: [bestBid[0], bestBid[1]],
-          ask: [bestAsk[0], bestAsk[1]]
+        const bestBidToTmn = (parseFloat(bestBid[DepthDataIndex.PRICE]) / 10).toString();
+        const bestAskToTmn = (parseFloat(bestAsk[DepthDataIndex.PRICE]) / 10).toString();
+        const bidAmountIrt = +bestBidToTmn * +bestBid[DepthDataIndex.QUANTITY];
+        const askAmountIrt = +bestAskToTmn * +bestAsk[DepthDataIndex.QUANTITY];
+        nobitexOrderbooks.tmnPairs[lowerPair] = {
+          bid: [
+            bestBidToTmn, 
+            bestBid[DepthDataIndex.QUANTITY], 
+            bidAmountIrt.toString(),
+          ],
+          ask: [
+            bestAskToTmn,
+            bestAsk[DepthDataIndex.QUANTITY], 
+            askAmountIrt.toString(),
+          ]
         };
       }
     });
 
-    console.log(`[${new Date().toISOString()}] IRT Pairs Count: ${Object.keys(nobitexOrderbooks.irtPairs).length}`);
+    console.log(`[${new Date().toISOString()}] IRT Pairs Count: ${Object.keys(nobitexOrderbooks.tmnPairs).length}`);
     console.log(`[${new Date().toISOString()}] USDT Pairs Count: ${Object.keys(nobitexOrderbooks.usdtPairs).length}`);
 
     return nobitexOrderbooks;

@@ -24,7 +24,9 @@ async function getExchangesOrderBooks() {
   const wallexOrderbooks = await fetchWallexPrices();
   const nobitexOrderbooks = await fetchNobitexPrices();
   const okexOrderbooks = await fetchOkexPrices();
-  // console.log("okexorderbooks:",okexOrderbooks);
+  console.log("nobitexorderbooks :", nobitexOrderbooks.tmnPairs["dogeirt"]);
+  console.log("wallexOrderbokks: ", wallexOrderbooks.tmnPairs["dogetmn"]);
+  
   
   return {
     wallexOrderbooks,

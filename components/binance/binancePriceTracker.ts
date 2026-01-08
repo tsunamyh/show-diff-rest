@@ -33,7 +33,7 @@ interface WallexData {
 
 const BINANCE_API_URL = 'https://data-api.binance.vision/api/v3/ticker/bookTicker';
 
-async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
+async function fetchBinancePrices(): Promise<BinanceOrderbooks | undefined> {
   try {
     // console.log(`[${new Date().toISOString()}] Fetching prices from Binance API...`);
     
@@ -78,6 +78,7 @@ async function fetchBinancePrices(): Promise<BinanceOrderbooks | void> {
     } else {
       console.error(`[${new Date().toISOString()}] Error:`, error);
     }
+    return undefined;
   }
 }
 
