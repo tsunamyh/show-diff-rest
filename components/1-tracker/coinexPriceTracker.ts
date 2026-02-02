@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 // import { HttpsProxyAgent } from "https-proxy-agent";
-import symbols from '../../../commonSymbols/okex_binance_common_symbols';
+import symbols from '../../commonSymbols/okex_binance_common_symbols';
 // import {
 //   MarketDataCoinex,
 //   OrderBook,

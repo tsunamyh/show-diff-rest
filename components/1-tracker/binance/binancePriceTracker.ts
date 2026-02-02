@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
-import { getUsdtToTmnRate } from '../exchanges/tracker/wallexPriceTracker';
+import { getUsdtToTmnRate } from '../wallexPriceTracker';
 
 interface BinancePrice {
   symbol: string;
