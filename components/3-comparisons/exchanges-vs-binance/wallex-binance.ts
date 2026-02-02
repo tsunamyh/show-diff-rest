@@ -6,8 +6,8 @@ import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controlle
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
-import { validateAndExecuteTrade } from "../../exchanges/purchasing/tradeValidator";
-import { wallexCancelOrderById, wallexGetBalances } from "../../exchanges/purchasing/parchasing-controller";
+import { validateAndExecuteTrade } from "../purchasing/tradeValidator";
+import { wallexCancelOrderById, wallexGetBalances } from "../purchasing/parchasing-controller";
 
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
 async function getAvailableBalance(symbol: string,price: number): Promise<number> {
