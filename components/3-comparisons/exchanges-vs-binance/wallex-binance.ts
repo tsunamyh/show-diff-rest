@@ -2,7 +2,7 @@
 // import type { BinanceOrderbooks } from "../binance_prices";
 // import { EventEmitter } from "stream";
 import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance_common_symbols";
-import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller";
+import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";

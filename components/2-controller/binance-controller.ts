@@ -1,4 +1,4 @@
-import { fetchBinancePrices } from "./1-tracker/binance/binancePriceTracker";
+import { fetchBinancePrices } from "../1-tracker/binance/binancePriceTracker";
 
 async function fetchBinanceOrderBooks() {
   try {

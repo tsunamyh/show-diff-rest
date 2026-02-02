@@ -1,6 +1,6 @@
-import { fetchNobitexPrices } from "./1-tracker/nobitexPriceTracker";
-import { fetchOkexPrices } from "./1-tracker/okexPriceTracker";
-import { fetchWallexPrices, fetchWallexUsdtToTmn } from "./1-tracker/wallexPriceTracker";
+import { fetchNobitexPrices } from "../1-tracker/nobitexPriceTracker";
+import { fetchOkexPrices } from "../1-tracker/okexPriceTracker";
+import { fetchWallexPrices, fetchWallexUsdtToTmn } from "../1-tracker/wallexPriceTracker";
 
 let wallexFetched = false;
 let nobitexFetched = false;

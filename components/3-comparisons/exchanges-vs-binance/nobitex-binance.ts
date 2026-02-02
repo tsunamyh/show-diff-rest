@@ -1,5 +1,5 @@
 import nobitex_binance_common_symbols from "../../../commonSymbols/nobitex_binance_common_symbols";
-import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../controller";
+import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { NobitexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
