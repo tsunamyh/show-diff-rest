@@ -3,7 +3,7 @@ import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controlle
 import { BinanceOrderbooks } from "../../types/types";
 import { NobitexOrderbooks } from "../../types/types";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
-import { validateAndExecuteTrade } from "../purchasing/tradeValidator";
+import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 // import { nobitexCancelOrderById, nobitexGetBalances } from "../../exchanges/purchasing/parchasing-controller";
 
 // تابع چک موجودی از API نوبیتکس و برگرداندن مقدار واقعی

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { server } from "../server";
-import { intervalFunc } from '../components/3-comparisons/comprasion';
+import { intervalFunc } from '../components/3-comparisons/3-compare/comprasion';
 
 const port: number = Number(process.env.PORT) || 3000;
 

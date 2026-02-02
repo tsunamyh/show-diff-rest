@@ -1,10 +1,10 @@
 import { EventEmitter } from "stream";
-import { getAllexchangesOrderBooks } from "../2-controller/controller";
-import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks, NobitexOrderbooks } from "../types/types";
-import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "./exchanges-vs-binance/wallex-binance";
-import { okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "./exchanges-vs-binance/okex-binance";
-import { nobitex_priceComp, initializeTrackerWithHistory as initNobitexHistory } from "./exchanges-vs-binance/nobitex-binance";
-import { getDataByPeriod } from "../utils/historyManager";
+import { getAllexchangesOrderBooks } from "../../2-controller/controller";
+import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks, NobitexOrderbooks } from "../../types/types";
+import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "../2-exchanges-vs-binance/wallex-binance";
+import { okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "../2-exchanges-vs-binance/okex-binance";
+import { nobitex_priceComp, initializeTrackerWithHistory as initNobitexHistory } from "../2-exchanges-vs-binance/nobitex-binance";
+import { getDataByPeriod } from "../../utils/historyManager";
 
 const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(9);

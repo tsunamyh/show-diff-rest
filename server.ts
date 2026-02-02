@@ -1,7 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import http, { IncomingMessage, Server, ServerResponse } from "http";
 import { app } from "./app";
-import { eventEmmiter } from "./components/3-comparisons/comprasion";
+import { eventEmmiter } from "./components/3-comparisons/3-compare/comprasion";
 
 const server: Server = http.createServer(app);
 
