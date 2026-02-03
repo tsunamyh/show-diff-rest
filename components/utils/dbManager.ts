@@ -178,7 +178,7 @@ async function insertMaxDiffRecord(
         volume,
         amountIrt,
         statusCompare,
-        recordTime || new Date()
+        recordTime || new Date(getTehranTime())
       ]
     );
     
@@ -189,12 +189,46 @@ async function insertMaxDiffRecord(
   }
 }
 
+function getTehranTime(): string {
+  const now = new Date();
+  const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
 
+  return tehranTime;
+}
+
+// /**
+//  * تاریخچه را از دیتابیس دریافت کنید (جایگزین loadHistoryFromFile)
+//  * @param {string} exchangeName - نام صرافی
+//  * @returns {Promise<Map<string, any>>} Map که کلید آن symbol و مقدار بالاترین تفاوت
+//  */
+// async function loadHistoryFromDatabase(exchangeName: string): Promise<Map<string, any>> {
+//   try {
+//     const result = await pool.query(
+//       `SELECT * FROM maxdiff_history 
+//        WHERE exchange_name = $1 
+//        ORDER BY record_time DESC;`,
+//       [exchangeName]
+//     );
+    
+//     const resultMap = new Map<string, any>();
+//     for (const row of result.rows) {
+//       const existing = resultMap.get(row.symbol);
+//       if (!existing || row.percent_difference > existing.percent_difference) {
+//         resultMap.set(row.symbol, row);
+//       }
+//     }
+//     return resultMap;
+//   } catch (error) {
+//     console.error(`❌ Error loading history for ${exchangeName}:`, error);
+//     return new Map();
+//   }
+// }
 
 export {
   pool,
   ensureDatabase,
   initializeDatabase,
   registerExchange,
-  insertMaxDiffRecord
+  insertMaxDiffRecord,
+  // loadHistoryFromDatabase
 };

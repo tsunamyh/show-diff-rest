@@ -89,15 +89,15 @@ interface CurrencyDiffTracker {
 }
 
 let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
-let sortedCurrencies: CurrencyDiffTracker[] = [];
+// let sortedCurrencies: CurrencyDiffTracker[] = [];
 
 // Initialize tracker with history on startup
 function initializeTrackerWithHistory() {
   const historyMap = loadHistoryFromFile('nobitex');
   currencyDiffTracker = historyMap;
-  sortedCurrencies = Array.from(currencyDiffTracker.values())
-    .sort((a, b) => b.maxDifference - a.maxDifference)
-    .slice(0, 5);
+  // sortedCurrencies = Array.from(currencyDiffTracker.values())
+  //   .sort((a, b) => b.maxDifference - a.maxDifference)
+  //   .slice(0, 5);
 }
 
 function getLatestRowsInfo() {
@@ -159,13 +159,8 @@ function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     }
   })
 
-  sortedCurrencies = Array.from(currencyDiffTracker.values())
-    .sort((a, b) => b.maxDifference - a.maxDifference)
-
   // Save to file after update
   saveHistoryToFile('nobitex', currencyDiffTracker);
-
-  return sortedCurrencies;
 }
 
 async function nobitex_priceComp(binanceOrderbooks: BinanceOrderbooks, nobitexOrderbooks: NobitexOrderbooks) {

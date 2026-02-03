@@ -92,15 +92,15 @@ interface CurrencyDiffTracker {
 }
 
 let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
-let sortedCurrencies: CurrencyDiffTracker[] = [];
+// let sortedCurrencies: CurrencyDiffTracker[] = [];
 
 // Initialize tracker with history on startup
 function initializeTrackerWithHistory() {
   const historyMap = loadHistoryFromFile('wallex');
   currencyDiffTracker = historyMap;
-  sortedCurrencies = Array.from(currencyDiffTracker.values())
-    .sort((a, b) => b.maxDifference - a.maxDifference)
-    .slice(0, 5);
+  // sortedCurrencies = Array.from(currencyDiffTracker.values())
+  //   .sort((a, b) => b.maxDifference - a.maxDifference)
+  //   .slice(0, 5);
 }
 
 function getLatestRowsInfo() {
@@ -164,13 +164,8 @@ function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     }
   })
 
-  sortedCurrencies = Array.from(currencyDiffTracker.values())
-    .sort((a, b) => b.maxDifference - a.maxDifference)
-
   // Save to file after update
   saveHistoryToFile('wallex', currencyDiffTracker);
-
-  return sortedCurrencies;
 }
 
 // function wallex_getTopFiveCurrenciesWithDifferences() {
