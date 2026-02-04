@@ -178,7 +178,7 @@ async function insertMaxDiffRecord(
         volume,
         amountIrt,
         statusCompare,
-        recordTime || new Date(getTehranTime())
+        recordTime || getTehranTimeAsDate()
       ]
     );
     
@@ -189,11 +189,23 @@ async function insertMaxDiffRecord(
   }
 }
 
-function getTehranTime(): string {
-  const now = new Date();
-  const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
+// function getTehranTime(): string {
+//   const now = new Date();
+//   const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
 
-  return tehranTime;
+//   return tehranTime;
+// }
+
+/**
+ * وقت تهران را به صورت Date object برگردانید
+ * @returns {Date} تاریخ و ساعت تهران
+ */
+function getTehranTimeAsDate(): Date {
+  const now = new Date();
+  // تهران UTC+3:30 است
+  const tehranOffset = 3.5 * 60 * 60 * 1000;
+  const utcOffset = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() + utcOffset + tehranOffset);
 }
 
 /**
@@ -228,7 +240,7 @@ async function getDataByPeriod(exchangeName: string): Promise<any> {
     );
 
     return {
-      timestamp: new Date(getTehranTime()),
+      timestamp: getTehranTimeAsDate(),
       exchangeName: exchangeName,
       last24h: last24hResult.rows,
       lastWeek: lastWeekResult.rows,
