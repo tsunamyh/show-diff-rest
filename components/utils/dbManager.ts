@@ -196,33 +196,55 @@ function getTehranTime(): string {
   return tehranTime;
 }
 
-// /**
-//  * تاریخچه را از دیتابیس دریافت کنید (جایگزین loadHistoryFromFile)
-//  * @param {string} exchangeName - نام صرافی
-//  * @returns {Promise<Map<string, any>>} Map که کلید آن symbol و مقدار بالاترین تفاوت
-//  */
-// async function loadHistoryFromDatabase(exchangeName: string): Promise<Map<string, any>> {
-//   try {
-//     const result = await pool.query(
-//       `SELECT * FROM maxdiff_history 
-//        WHERE exchange_name = $1 
-//        ORDER BY record_time DESC;`,
-//       [exchangeName]
-//     );
-    
-//     const resultMap = new Map<string, any>();
-//     for (const row of result.rows) {
-//       const existing = resultMap.get(row.symbol);
-//       if (!existing || row.percent_difference > existing.percent_difference) {
-//         resultMap.set(row.symbol, row);
-//       }
-//     }
-//     return resultMap;
-//   } catch (error) {
-//     console.error(`❌ Error loading history for ${exchangeName}:`, error);
-//     return new Map();
-//   }
-// }
+/**
+ * داده‌ها را برای دوره‌های مختلف دریافت کنید
+ * @param {string} exchangeName - نام صرافی
+ * @returns {Promise<object>} شامل timestamp، exchangeName، last24h، lastWeek، allTime
+ */
+async function getDataByPeriod(exchangeName: string): Promise<any> {
+  try {
+    // دریافت داده 24 ساعت گذشته
+    const last24hResult = await pool.query(
+      `SELECT * FROM maxdiff_history 
+       WHERE exchange_name = $1 AND record_time > NOW() - INTERVAL '24 hours'
+       ORDER BY record_time DESC;`,
+      [exchangeName]
+    );
+
+    // دریافت داده هفت روز گذشته
+    const lastWeekResult = await pool.query(
+      `SELECT * FROM maxdiff_history 
+       WHERE exchange_name = $1 AND record_time > NOW() - INTERVAL '7 days'
+       ORDER BY record_time DESC;`,
+      [exchangeName]
+    );
+
+    // دریافت تمام داده‌ها
+    const allTimeResult = await pool.query(
+      `SELECT * FROM maxdiff_history 
+       WHERE exchange_name = $1
+       ORDER BY record_time DESC;`,
+      [exchangeName]
+    );
+
+    return {
+      timestamp: new Date(getTehranTime()),
+      exchangeName: exchangeName,
+      last24h: last24hResult.rows,
+      lastWeek: lastWeekResult.rows,
+      allTime: allTimeResult.rows
+    };
+  } catch (error) {
+    console.error(`❌ Error fetching data by period for ${exchangeName}:`, error);
+    return {
+      timestamp: null,
+      exchangeName: exchangeName || null,
+      last24h: null,
+      lastWeek: null,
+      allTime: null
+    };
+  }
+}
 
 export {
   pool,
@@ -230,5 +252,5 @@ export {
   initializeDatabase,
   registerExchange,
   insertMaxDiffRecord,
-  // loadHistoryFromDatabase
+  getDataByPeriod
 };
