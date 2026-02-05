@@ -1,5 +1,20 @@
 import { Pool } from 'pg';
 
+interface PercentageRecord {
+    time: string;
+    value: number;
+    exchangeBuyPrice?: number;
+    binanceSellPrice?: number;
+    buyVolume?: number;
+}
+
+interface CurrencyDiffTracker {
+    symbol: string;
+    statusCompare: string;
+    maxDifference: number;
+    percentages: PercentageRecord[];
+}
+
 // یک Pool برای postgres بیس (برای ساخت دیتابیس)
 const adminPool = new Pool({
   user: process.env.DB_USER || 'postgres',
@@ -258,11 +273,53 @@ async function getDataByPeriod(exchangeName: string): Promise<any> {
   }
 }
 
+/**
+ * Tracker Map را به دیتابیس ذخیره کنید - تمام percentages برای هر symbol
+ * @param {string} exchange - نام صرافی (wallex, okex, nobitex)
+ * @param {Map} tracker - Map<symbol, CurrencyDiffTracker>
+ * @returns {Promise<boolean>} true اگر موفق باشد
+ */
+async function saveTrackerToDatabase(
+  exchange: 'wallex' | 'okex' | 'nobitex',
+  tracker: Map<string, CurrencyDiffTracker>
+): Promise<boolean> {
+  try {
+    let savedCount = 0;
+
+    for (const [symbol, currencyData] of tracker.entries()) {
+      if (currencyData.percentages && currencyData.percentages.length > 0) {
+        // تمام percentage records را ذخیره کن
+        for (const record of currencyData.percentages) {
+          await insertMaxDiffRecord(
+            exchange,
+            symbol,
+            record.value, // percent_difference
+            record.exchangeBuyPrice || 0, // exchange_price
+            record.binanceSellPrice || 0, // binance_price
+            record.buyVolume || 0, // volume
+            (record.exchangeBuyPrice || 0) * (record.buyVolume || 1), // amount_irt
+            currencyData.statusCompare,
+            new Date(record.time)
+          );
+          savedCount++;
+        }
+      }
+    }
+
+    console.log(`✅ Saved ${savedCount} records for ${exchange} to database`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error saving tracker for ${exchange}:`, error);
+    return false;
+  }
+}
+
 export {
   pool,
   ensureDatabase,
   initializeDatabase,
   registerExchange,
   insertMaxDiffRecord,
+  saveTrackerToDatabase,
   getDataByPeriod
 };
