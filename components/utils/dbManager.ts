@@ -56,16 +56,15 @@ async function ensureDatabase(): Promise<void> {
 }
 
 /**
- * دیتابیس را شروع کنید - جداول و indexها ایجاد کنید
+ * دیتابیس را شروع کنید - جداول جدید برای snapshot pattern
  * @returns {Promise<void>}
  * @throws {Error} اگر ایجاد جدول ناموفق باشد
  */
-// Initialize database - create single arbitrage_history table
 async function initializeDatabase(): Promise<void> {
   try {
     console.log('📦 Initializing database...');
 
-    // Step 1: Create exchanges table (لیست صرافی‌ها)
+    // Step 1: Create exchanges table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exchanges (
         name VARCHAR(50) PRIMARY KEY,
@@ -73,59 +72,81 @@ async function initializeDatabase(): Promise<void> {
       );
     `);
 
-    // Step 2: Create maxdiff_history table with Foreign Key
+    // Step 2: Create price_snapshots table (ذخیره snapshot‌های دوره‌ای)
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS maxdiff_history (
+      CREATE TABLE IF NOT EXISTS price_snapshots (
         id BIGSERIAL PRIMARY KEY,
         exchange_name VARCHAR(50) NOT NULL,
-        symbol VARCHAR(20) NOT NULL,
-        percent_difference DECIMAL(10, 2),
-        exchange_price DECIMAL(20, 2),
-        binance_price DECIMAL(20, 2),
-        volume DECIMAL(20, 8),
-        amount_irt DECIMAL(20, 2),
-        status_compare VARCHAR(20),
-        record_time TIMESTAMP NOT NULL,
+        period_type VARCHAR(20) NOT NULL,    -- 'last24h', 'lastWeek', 'allTime'
+        snapshot_time TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT fk_exchange_name 
+        
+        CONSTRAINT fk_snapshot_exchange 
           FOREIGN KEY (exchange_name) 
           REFERENCES exchanges(name) 
+          ON DELETE CASCADE,
+        
+        UNIQUE(exchange_name, period_type, snapshot_time)
+      );
+    `);
+
+    // Step 3: Create price_symbols table (سمبل‌های هر snapshot)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS price_symbols (
+        id BIGSERIAL PRIMARY KEY,
+        snapshot_id BIGINT NOT NULL,
+        symbol VARCHAR(20) NOT NULL,
+        status_compare VARCHAR(20) NOT NULL,
+        max_difference DECIMAL(10, 2),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        CONSTRAINT fk_symbol_snapshot 
+          FOREIGN KEY (snapshot_id) 
+          REFERENCES price_snapshots(id) 
           ON DELETE CASCADE
       );
     `);
 
-    // Create indexes for fast queries
+    // Step 4: Create price_percentages table (percentages بدون محدودیت)
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_exchange_time 
-      ON maxdiff_history(exchange_name, record_time DESC);
+      CREATE TABLE IF NOT EXISTS price_percentages (
+        id BIGSERIAL PRIMARY KEY,
+        symbol_id BIGINT NOT NULL,
+        
+        record_time TIMESTAMP NOT NULL,
+        value DECIMAL(10, 2),
+        exchange_buy_price DECIMAL(20, 2),
+        binance_sell_price DECIMAL(20, 2),
+        buy_volume DECIMAL(20, 8),
+        
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        CONSTRAINT fk_percentage_symbol 
+          FOREIGN KEY (symbol_id) 
+          REFERENCES price_symbols(id) 
+          ON DELETE CASCADE
+      );
+    `);
+
+    // Create indexes
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_snapshot_exchange_period 
+      ON price_snapshots(exchange_name, period_type);
     `);
 
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_symbol_time 
-      ON maxdiff_history(symbol, record_time DESC);
+      CREATE INDEX IF NOT EXISTS idx_symbol_snapshot 
+      ON price_symbols(snapshot_id, symbol);
     `);
 
-    // Index برای پیدا کردن بهترین فرصت‌ها
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_exchange_percent 
-      ON maxdiff_history(exchange_name, percent_difference DESC);
-    `);
-
-    // Index برای حذف داده‌های قدیم
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_created_at 
-      ON maxdiff_history(created_at DESC);
-    `);
-
-    // Index برای جستجو بر اساس exchange و symbol
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_exchange_symbol 
-      ON maxdiff_history(exchange_name, symbol);
+      CREATE INDEX IF NOT EXISTS idx_percentage_symbol_time 
+      ON price_percentages(symbol_id, record_time DESC);
     `);
 
     console.log('✅ Database initialized successfully');
-    console.log('📊 Tables created: exchanges, maxdiff_history');
-    console.log('⚠️ Exchanges will be registered by each service');
+    console.log('📊 Tables created: price_snapshots, price_symbols, price_percentages');
+    console.log('⚠️ Percentages can grow unlimited, new 5 records will be added properly');
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     throw error;
@@ -274,42 +295,70 @@ async function getDataByPeriod(exchangeName: string): Promise<any> {
 }
 
 /**
- * Tracker Map را به دیتابیس ذخیره کنید - تمام percentages برای هر symbol
+ * Tracker Map را به دیتابیس ذخیره کنید - snapshot format
  * @param {string} exchange - نام صرافی (wallex, okex, nobitex)
  * @param {Map} tracker - Map<symbol, CurrencyDiffTracker>
+ * @param {string} periodType - نوع دوره ('last24h', 'lastWeek', 'allTime')
+ * @param {number} symbolLimit - حداکثر تعداد سمبل (10 یا 50)
  * @returns {Promise<boolean>} true اگر موفق باشد
  */
 async function saveTrackerToDatabase(
   exchange: 'wallex' | 'okex' | 'nobitex',
-  tracker: Map<string, CurrencyDiffTracker>
+  tracker: Map<string, CurrencyDiffTracker>,
+  periodType: 'last24h' | 'lastWeek' | 'allTime' = 'last24h',
+  symbolLimit: number = 10
 ): Promise<boolean> {
   try {
-    let savedCount = 0;
+    // ۱. Snapshot ایجاد کن
+    const snapshotResult = await pool.query(
+      `INSERT INTO price_snapshots (exchange_name, period_type, snapshot_time)
+       VALUES ($1, $2, NOW())
+       RETURNING id;`,
+      [exchange, periodType]
+    );
 
-    for (const [symbol, currencyData] of tracker.entries()) {
+    const snapshotId = snapshotResult.rows[0].id;
+
+    // ۲. تمام symbols را sort کن و top N تا بگیر
+    const sortedSymbols = Array.from(tracker.entries())
+      .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
+      .slice(0, symbolLimit);
+
+    // ۳. هر symbol را insert کن
+    for (const [symbol, currencyData] of sortedSymbols) {
+      const symbolResult = await pool.query(
+        `INSERT INTO price_symbols (snapshot_id, symbol, status_compare, max_difference)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id;`,
+        [snapshotId, symbol, currencyData.statusCompare, currencyData.maxDifference]
+      );
+
+      const symbolId = symbolResult.rows[0].id;
+
+      // ۴. تمام percentages را insert کن (بدون محدودیت)
       if (currencyData.percentages && currencyData.percentages.length > 0) {
-        // تمام percentage records را ذخیره کن
         for (const record of currencyData.percentages) {
-          await insertMaxDiffRecord(
-            exchange,
-            symbol,
-            record.value, // percent_difference
-            record.exchangeBuyPrice || 0, // exchange_price
-            record.binanceSellPrice || 0, // binance_price
-            record.buyVolume || 0, // volume
-            (record.exchangeBuyPrice || 0) * (record.buyVolume || 1), // amount_irt
-            currencyData.statusCompare,
-            new Date(record.time)
+          await pool.query(
+            `INSERT INTO price_percentages 
+             (symbol_id, record_time, value, exchange_buy_price, binance_sell_price, buy_volume)
+             VALUES ($1, $2, $3, $4, $5, $6);`,
+            [
+              symbolId,
+              new Date(record.time),
+              record.value,
+              record.exchangeBuyPrice || 0,
+              record.binanceSellPrice || 0,
+              record.buyVolume || 0
+            ]
           );
-          savedCount++;
         }
       }
     }
 
-    console.log(`✅ Saved ${savedCount} records for ${exchange} to database`);
+    console.log(`✅ Saved snapshot for ${exchange} (${periodType}) with ${sortedSymbols.length} symbols`);
     return true;
   } catch (error) {
-    console.error(`❌ Error saving tracker for ${exchange}:`, error);
+    console.error(`❌ Error saving tracker snapshot for ${exchange}:`, error);
     return false;
   }
 }
