@@ -1,398 +1,286 @@
 {
-  "timestamp": "2026-02-06T19:40:34.244Z",
+  "timestamp": "2026-02-07T14:08:32.478Z",
   "exchangeName": "wallex",
   "last24h": [
     {
-      "symbol": "KITETMN",
+      "symbol": "SNXTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.69,
+      "maxDifference": 0.57,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.69,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24662.3306,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:10:20 PM",
-          "value": 0.63,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24646.2,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.62,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24645.899999999998,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:10:16 PM",
-          "value": 0.62,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24645.75,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:10:24 PM",
-          "value": 0.62,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24645.899999999998,
-          "buyVolume": 1431267.2
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.57,
+          "exchangeBuyPrice": 47223,
+          "binanceSellPrice": 47333.187,
+          "buyVolume": 561009.24
         }
       ]
     },
     {
-      "symbol": "MDTTMN",
+      "symbol": "RENDERTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.39,
+      "maxDifference": 0.41,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.39,
-          "exchangeBuyPrice": 1837.825,
-          "binanceSellPrice": 1841.87026,
-          "buyVolume": 77188.65
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.41,
+          "exchangeBuyPrice": 215843,
+          "binanceSellPrice": 216585.18899999998,
+          "buyVolume": 5978851.1
         }
       ]
     },
     {
-      "symbol": "LRCTMN",
+      "symbol": "EGLDTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.35,
+      "maxDifference": 0.32,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.35,
-          "exchangeBuyPrice": 6434.5,
-          "binanceSellPrice": 6440.7952,
-          "buyVolume": 38282315.13
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.32,
+          "exchangeBuyPrice": 719632,
+          "binanceSellPrice": 720356.9199999999,
+          "buyVolume": 20545450.42208
         }
       ]
     },
     {
-      "symbol": "SEITMN",
+      "symbol": "LINKTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.35,
+      "maxDifference": 0.3,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.35,
-          "exchangeBuyPrice": 12951,
-          "binanceSellPrice": 12980.174,
-          "buyVolume": 57830488.83
-        },
-        {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.22,
-          "exchangeBuyPrice": 12951,
-          "binanceSellPrice": 12963.7434,
-          "buyVolume": 57830488.83
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.3,
+          "exchangeBuyPrice": 1396574,
+          "binanceSellPrice": 1399277.38,
+          "buyVolume": 1424505.48
         }
       ]
     },
     {
-      "symbol": "ICPTMN",
+      "symbol": "RUNETMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.31,
+      "maxDifference": 0.27,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.31,
-          "exchangeBuyPrice": 409810,
-          "binanceSellPrice": 410929.306,
-          "buyVolume": 49587010
-        },
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.27,
+          "exchangeBuyPrice": 66117,
+          "binanceSellPrice": 66138.965,
+          "buyVolume": 462157.83
+        }
+      ]
+    },
+    {
+      "symbol": "APETMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.27,
+      "percentages": [
         {
-          "time": "2/6/2026, 11:09:34 PM",
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.27,
+          "exchangeBuyPrice": 20948,
+          "binanceSellPrice": 20989.1607,
+          "buyVolume": 65567.24
+        }
+      ]
+    },
+    {
+      "symbol": "AIXBTTMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.25,
+      "percentages": [
+        {
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.25,
+          "exchangeBuyPrice": 3386,
+          "binanceSellPrice": 3378.6652,
+          "buyVolume": 42684356.18
+        }
+      ]
+    },
+    {
+      "symbol": "CVXTMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.23,
+      "percentages": [
+        {
+          "time": "2/7/2026, 5:38:32 PM",
           "value": 0.23,
-          "exchangeBuyPrice": 409810,
-          "binanceSellPrice": 410600.694,
-          "buyVolume": 49587010
+          "exchangeBuyPrice": 277941,
+          "binanceSellPrice": 277943.024,
+          "buyVolume": 81122639.67
         }
       ]
     },
     {
-      "symbol": "SKYTMN",
+      "symbol": "TONTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.22,
+      "maxDifference": 0.23,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.22,
-          "exchangeBuyPrice": 10305,
-          "binanceSellPrice": 10326.6321,
-          "buyVolume": 121599
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.23,
+          "exchangeBuyPrice": 223386,
+          "binanceSellPrice": 223756.884,
+          "buyVolume": 893544
         }
       ]
     },
     {
-      "symbol": "CHZTMN",
+      "symbol": "PUMPTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.21,
+      "maxDifference": 0.23,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.21,
-          "exchangeBuyPrice": 6788,
-          "binanceSellPrice": 6800.6253400000005,
-          "buyVolume": 85400506.8
-        },
-        {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.16,
-          "exchangeBuyPrice": 6788,
-          "binanceSellPrice": 6797.33922,
-          "buyVolume": 47154878.4
-        }
-      ]
-    },
-    {
-      "symbol": "SYRUPTMN",
-      "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.21,
-      "percentages": [
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.21,
-          "exchangeBuyPrice": 45285,
-          "binanceSellPrice": 45364.886600000005,
-          "buyVolume": 3070775.85
-        },
-        {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.17,
-          "exchangeBuyPrice": 45285,
-          "binanceSellPrice": 45348.456000000006,
-          "buyVolume": 3070775.85
-        }
-      ]
-    },
-    {
-      "symbol": "NMRTMN",
-      "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.19,
-      "percentages": [
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.19,
-          "exchangeBuyPrice": 1479132,
-          "binanceSellPrice": 1480397.06,
-          "buyVolume": 116851.428
-        }
-      ]
-    },
-    {
-      "symbol": "PEPETMN",
-      "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.19,
-      "percentages": [
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.19,
-          "exchangeBuyPrice": 0.6379,
-          "binanceSellPrice": 0.63750728,
-          "buyVolume": 782341.6107
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.23,
+          "exchangeBuyPrice": 325,
+          "binanceSellPrice": 325.59495300000003,
+          "buyVolume": 170559122.5
         }
       ]
     }
   ],
   "lastWeek": [
     {
-      "symbol": "KITETMN",
+      "symbol": "SNXTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.69,
+      "maxDifference": 0.57,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.69,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24662.3306,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:10:20 PM",
-          "value": 0.63,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24646.2,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.62,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24645.899999999998,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:10:16 PM",
-          "value": 0.62,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24645.75,
-          "buyVolume": 1431267.2
-        },
-        {
-          "time": "2/6/2026, 11:10:24 PM",
-          "value": 0.62,
-          "exchangeBuyPrice": 24508,
-          "binanceSellPrice": 24645.899999999998,
-          "buyVolume": 1431267.2
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.57,
+          "exchangeBuyPrice": 47223,
+          "binanceSellPrice": 47333.187,
+          "buyVolume": 561009.24
         }
       ]
     },
     {
-      "symbol": "MDTTMN",
+      "symbol": "RENDERTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.39,
+      "maxDifference": 0.41,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.39,
-          "exchangeBuyPrice": 1837.825,
-          "binanceSellPrice": 1841.87026,
-          "buyVolume": 77188.65
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.41,
+          "exchangeBuyPrice": 215843,
+          "binanceSellPrice": 216585.18899999998,
+          "buyVolume": 5978851.1
         }
       ]
     },
     {
-      "symbol": "LRCTMN",
+      "symbol": "EGLDTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.35,
+      "maxDifference": 0.32,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.35,
-          "exchangeBuyPrice": 6434.5,
-          "binanceSellPrice": 6440.7952,
-          "buyVolume": 38282315.13
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.32,
+          "exchangeBuyPrice": 719632,
+          "binanceSellPrice": 720356.9199999999,
+          "buyVolume": 20545450.42208
         }
       ]
     },
     {
-      "symbol": "SEITMN",
+      "symbol": "LINKTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.35,
+      "maxDifference": 0.3,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.35,
-          "exchangeBuyPrice": 12951,
-          "binanceSellPrice": 12980.174,
-          "buyVolume": 57830488.83
-        },
-        {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.22,
-          "exchangeBuyPrice": 12951,
-          "binanceSellPrice": 12963.7434,
-          "buyVolume": 57830488.83
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.3,
+          "exchangeBuyPrice": 1396574,
+          "binanceSellPrice": 1399277.38,
+          "buyVolume": 1424505.48
         }
       ]
     },
     {
-      "symbol": "ICPTMN",
+      "symbol": "RUNETMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.31,
+      "maxDifference": 0.27,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.31,
-          "exchangeBuyPrice": 409810,
-          "binanceSellPrice": 410929.306,
-          "buyVolume": 49587010
-        },
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.27,
+          "exchangeBuyPrice": 66117,
+          "binanceSellPrice": 66138.965,
+          "buyVolume": 462157.83
+        }
+      ]
+    },
+    {
+      "symbol": "APETMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.27,
+      "percentages": [
         {
-          "time": "2/6/2026, 11:09:34 PM",
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.27,
+          "exchangeBuyPrice": 20948,
+          "binanceSellPrice": 20989.1607,
+          "buyVolume": 65567.24
+        }
+      ]
+    },
+    {
+      "symbol": "AIXBTTMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.25,
+      "percentages": [
+        {
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.25,
+          "exchangeBuyPrice": 3386,
+          "binanceSellPrice": 3378.6652,
+          "buyVolume": 42684356.18
+        }
+      ]
+    },
+    {
+      "symbol": "CVXTMN",
+      "statusCompare": "UsdtVsTmn",
+      "maxDifference": 0.23,
+      "percentages": [
+        {
+          "time": "2/7/2026, 5:38:32 PM",
           "value": 0.23,
-          "exchangeBuyPrice": 409810,
-          "binanceSellPrice": 410600.694,
-          "buyVolume": 49587010
+          "exchangeBuyPrice": 277941,
+          "binanceSellPrice": 277943.024,
+          "buyVolume": 81122639.67
         }
       ]
     },
     {
-      "symbol": "SKYTMN",
+      "symbol": "TONTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.22,
+      "maxDifference": 0.23,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.22,
-          "exchangeBuyPrice": 10305,
-          "binanceSellPrice": 10326.6321,
-          "buyVolume": 121599
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.23,
+          "exchangeBuyPrice": 223386,
+          "binanceSellPrice": 223756.884,
+          "buyVolume": 893544
         }
       ]
     },
     {
-      "symbol": "CHZTMN",
+      "symbol": "PUMPTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.21,
+      "maxDifference": 0.23,
       "percentages": [
         {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.21,
-          "exchangeBuyPrice": 6788,
-          "binanceSellPrice": 6800.6253400000005,
-          "buyVolume": 85400506.8
-        },
-        {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.16,
-          "exchangeBuyPrice": 6788,
-          "binanceSellPrice": 6797.33922,
-          "buyVolume": 47154878.4
-        }
-      ]
-    },
-    {
-      "symbol": "SYRUPTMN",
-      "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.21,
-      "percentages": [
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.21,
-          "exchangeBuyPrice": 45285,
-          "binanceSellPrice": 45364.886600000005,
-          "buyVolume": 3070775.85
-        },
-        {
-          "time": "2/6/2026, 11:09:34 PM",
-          "value": 0.17,
-          "exchangeBuyPrice": 45285,
-          "binanceSellPrice": 45348.456000000006,
-          "buyVolume": 3070775.85
-        }
-      ]
-    },
-    {
-      "symbol": "NMRTMN",
-      "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.19,
-      "percentages": [
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.19,
-          "exchangeBuyPrice": 1479132,
-          "binanceSellPrice": 1480397.06,
-          "buyVolume": 116851.428
-        }
-      ]
-    },
-    {
-      "symbol": "PEPETMN",
-      "statusCompare": "UsdtVsTmn",
-      "maxDifference": 0.19,
-      "percentages": [
-        {
-          "time": "2/6/2026, 11:09:28 PM",
-          "value": 0.19,
-          "exchangeBuyPrice": 0.6379,
-          "binanceSellPrice": 0.63750728,
-          "buyVolume": 782341.6107
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.23,
+          "exchangeBuyPrice": 325,
+          "binanceSellPrice": 325.59495300000003,
+          "buyVolume": 170559122.5
         }
       ]
     }
@@ -756,44 +644,16 @@
       ]
     },
     {
-      "symbol": "BOMETMN",
+      "symbol": "SNXTMN",
       "statusCompare": "UsdtVsTmn",
-      "maxDifference": 1.73,
+      "maxDifference": 0.57,
       "percentages": [
         {
-          "time": "1/3/2026, 2:46:21 AM",
-          "value": 1.73,
-          "exchangeBuyPrice": 89,
-          "binanceSellPrice": 90.40711999999999,
-          "buyVolume": 1044890.26
-        },
-        {
-          "time": "1/3/2026, 2:46:36 AM",
-          "value": 0.6,
-          "exchangeBuyPrice": 90,
-          "binanceSellPrice": 90.40711999999999,
-          "buyVolume": 7484512.5
-        },
-        {
-          "time": "1/3/2026, 2:46:41 AM",
-          "value": 0.6,
-          "exchangeBuyPrice": 90,
-          "binanceSellPrice": 90.40711999999999,
-          "buyVolume": 7484512.5
-        },
-        {
-          "time": "1/3/2026, 2:46:52 AM",
-          "value": 0.6,
-          "exchangeBuyPrice": 90,
-          "binanceSellPrice": 90.40711999999999,
-          "buyVolume": 7484512.5
-        },
-        {
-          "time": "1/3/2026, 2:47:07 AM",
-          "value": 0.6,
-          "exchangeBuyPrice": 90,
-          "binanceSellPrice": 90.40711999999999,
-          "buyVolume": 7484512.5
+          "time": "2/7/2026, 5:38:32 PM",
+          "value": 0.57,
+          "exchangeBuyPrice": 47223,
+          "binanceSellPrice": 47333.187,
+          "buyVolume": 561009.24
         }
       ]
     }
