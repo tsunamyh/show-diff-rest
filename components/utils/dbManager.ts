@@ -247,59 +247,86 @@ function getTehranTimeAsDate(): Date {
 /**
  * داده‌ها را برای دوره‌های مختلف دریافت کنید
  * @param {string} exchangeName - نام صرافی
- * @returns {Promise<object>} شامل timestamp، exchangeName، last24h، lastWeek، allTime
+ * @returns {Promise<object>} شامل last24h، lastWeek، allTime
  */
-async function getDataByPeriod(exchangeName: string): Promise<any> {
-  try {
-    // دریافت داده 24 ساعت گذشته
-    const last24hResult = await pool.query(
-      `SELECT * FROM maxdiff_history 
-       WHERE exchange_name = $1 AND record_time > NOW() - INTERVAL '24 hours'
-       ORDER BY record_time DESC;`,
-      [exchangeName]
+async function loadAllDataByExchangeName(
+  exchange: 'wallex' | 'okex' | 'nobitex'
+): Promise<{
+  last24h: Map<string, CurrencyDiffTracker>;
+  lastWeek: Map<string, CurrencyDiffTracker>;
+  allTime: Map<string, CurrencyDiffTracker>;
+}> {
+  const result = {
+    last24h: new Map<string, CurrencyDiffTracker>(),
+    lastWeek: new Map<string, CurrencyDiffTracker>(),
+    allTime: new Map<string, CurrencyDiffTracker>()
+  };
+
+  const config = {
+    last24h: 10,
+    lastWeek: 10,
+    allTime: 50
+  } as const;
+  
+  for (const periodType of Object.keys(config) as Array<keyof typeof config>) {
+    const limit = config[periodType];
+
+    const rows = await pool.query(
+      `
+      SELECT
+        s.id AS symbol_id,
+        s.symbol,
+        s.status_compare,
+        s.max_difference,
+        p.record_time,
+        p.value,
+        p.exchange_buy_price,
+        p.binance_sell_price,
+        p.buy_volume
+      FROM price_symbols s
+      LEFT JOIN price_percentages p ON p.symbol_id = s.id
+      WHERE s.exchange_name = $1
+        AND s.period_type = $2
+      ORDER BY s.max_difference DESC, p.record_time ASC
+      LIMIT $3;
+      `,
+      [exchange, periodType, limit]
     );
 
-    // دریافت داده هفت روز گذشته
-    const lastWeekResult = await pool.query(
-      `SELECT * FROM maxdiff_history 
-       WHERE exchange_name = $1 AND record_time > NOW() - INTERVAL '7 days'
-       ORDER BY record_time DESC;`,
-      [exchangeName]
-    );
+    const map = new Map<string, CurrencyDiffTracker>();
 
-    // دریافت تمام داده‌ها
-    const allTimeResult = await pool.query(
-      `SELECT * FROM maxdiff_history 
-       WHERE exchange_name = $1
-       ORDER BY record_time DESC;`,
-      [exchangeName]
-    );
+    for (const row of rows.rows) {
+      if (!map.has(row.symbol)) {
+        map.set(row.symbol, {
+          symbol: row.symbol,
+          statusCompare: row.status_compare,
+          maxDifference: Number(row.max_difference),
+          percentages: []
+        });
+      }
 
-    return {
-      timestamp: getTehranTimeAsDate(),
-      exchangeName: exchangeName,
-      last24h: last24hResult.rows,
-      lastWeek: lastWeekResult.rows,
-      allTime: allTimeResult.rows
-    };
-  } catch (error) {
-    console.error(`❌ Error fetching data by period for ${exchangeName}:`, error);
-    return {
-      timestamp: null,
-      exchangeName: exchangeName || null,
-      last24h: null,
-      lastWeek: null,
-      allTime: null
-    };
+      if (row.record_time) {
+        map.get(row.symbol)!.percentages.push({
+          time: row.record_time,
+          value: Number(row.value),
+          exchangeBuyPrice: Number(row.exchange_buy_price),
+          binanceSellPrice: Number(row.binance_sell_price),
+          buyVolume: row.buy_volume !== null ? Number(row.buy_volume) : null
+        });
+      }
+    }
+
+    result[periodType] = map;
   }
+
+  return result;
 }
+
 
 /**
  * Tracker Map را به دیتابیس ذخیره کنید - snapshot format
  * @param {string} exchange - نام صرافی (wallex, okex, nobitex)
- * @param {Map} tracker - Map<symbol, CurrencyDiffTracker>
- * @param {string} periodType - نوع دوره ('last24h', 'lastWeek', 'allTime')
- * @param {number} symbolLimit - حداکثر تعداد سمبل (10 یا 50)
+ * @param {object} trackerByPeriod - شامل last24h-lastWeek-allTime
  * @returns {Promise<boolean>} true اگر موفق باشد
  */
 async function saveTrackerToDatabase(
@@ -396,5 +423,5 @@ export {
   registerExchange,
   // insertMaxDiffRecord,
   saveTrackerToDatabase,
-  getDataByPeriod
+  loadAllDataByExchangeName
 };

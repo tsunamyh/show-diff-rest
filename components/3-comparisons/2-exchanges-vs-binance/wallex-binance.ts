@@ -5,7 +5,7 @@ import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
-import { saveTrackerToDatabase, registerExchange } from "../../utils/dbManager";
+import { saveTrackerToDatabase,loadAllDataByExchangeName, registerExchange } from "../../utils/dbManager";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
@@ -96,18 +96,19 @@ let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
 // let sortedCurrencies: CurrencyDiffTracker[] = [];
 
 // Initialize tracker with history on startup
-function initializeTrackerWithHistory() {
-  const historyMap = loadHistoryFromFile('wallex');
-  currencyDiffTracker = historyMap;
-  // sortedCurrencies = Array.from(currencyDiffTracker.values())
-  //   .sort((a, b) => b.maxDifference - a.maxDifference)
-  //   .slice(0, 5);
-}
-// async function initializeTrackerWithHistory() {
-//   await registerExchange('wallex');
-//   // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
-//   console.log('✅ Wallex exchange initialized');
+// function initializeTrackerWithHistory() {
+//   const historyMap = loadHistoryFromFile('wallex');
+//   currencyDiffTracker = historyMap;
+//   // sortedCurrencies = Array.from(currencyDiffTracker.values())
+//   //   .sort((a, b) => b.maxDifference - a.maxDifference)
+//   //   .slice(0, 5);
 // }
+async function initializeTrackerWithHistory() {
+  await registerExchange('wallex');
+  // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
+  
+  console.log('✅ Wallex exchange initialized');
+}
 
 function getLatestRowsInfo() {
   return latestRowsInfo;
