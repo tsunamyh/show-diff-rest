@@ -5,6 +5,7 @@ import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
+import { saveTrackerToDatabase, registerExchange } from "../../utils/dbManager";
 import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
@@ -102,6 +103,11 @@ function initializeTrackerWithHistory() {
   //   .sort((a, b) => b.maxDifference - a.maxDifference)
   //   .slice(0, 5);
 }
+// async function initializeTrackerWithHistory() {
+//   await registerExchange('wallex');
+//   // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
+//   console.log('✅ Wallex exchange initialized');
+// }
 
 function getLatestRowsInfo() {
   return latestRowsInfo;
@@ -129,7 +135,7 @@ function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue:
   return timeDifferenceSeconds >= minIntervalSeconds;
 }
 
-function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
+async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
   // console.log("currencyDiffTracker:", currencyDiffTracker);
 
   rowsInfo.forEach(row => {
@@ -164,7 +170,10 @@ function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     }
   })
 
-  // Save to file after update
+  // Save to database - 3 periods
+  // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'last24h');
+  // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'lastWeek', 10);
+  // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'allTime', 50);
   saveHistoryToFile('wallex', currencyDiffTracker);
 }
 

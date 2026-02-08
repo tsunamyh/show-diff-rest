@@ -309,6 +309,8 @@ async function saveTrackerToDatabase(
   symbolLimit: number = 10
 ): Promise<boolean> {
   try {
+    // 1. periodType = last24h , symbolLimit = 10
+    
     // ۱. Snapshot ایجاد کن
     const snapshotResult = await pool.query(
       `INSERT INTO price_snapshots (exchange_name, period_type, snapshot_time)
