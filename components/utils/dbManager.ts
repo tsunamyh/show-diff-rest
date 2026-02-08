@@ -188,42 +188,42 @@ async function registerExchange(exchangeName: string): Promise<boolean> {
  * @returns {Promise<any>} رکورد inserted یا null اگر خطا باشد
  */
 // Insert maxdiff record into history
-async function insertMaxDiffRecord(
-  exchangeName: string,
-  symbol: string,
-  percentDifference: number,
-  exchangePrice: number,
-  binancePrice: number,
-  volume: number,
-  amountIrt: number,
-  statusCompare: string,
-  recordTime?: Date
-): Promise<any> {
-  try {
-    const result = await pool.query(
-      `INSERT INTO maxdiff_history 
-        (exchange_name, symbol, percent_difference, exchange_price, binance_price, volume, amount_irt, status_compare, record_time)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING *;`,
-      [
-        exchangeName,
-        symbol,
-        percentDifference,
-        exchangePrice,
-        binancePrice,
-        volume,
-        amountIrt,
-        statusCompare,
-        recordTime || getTehranTimeAsDate()
-      ]
-    );
+// async function insertMaxDiffRecord(
+//   exchangeName: string,
+//   symbol: string,
+//   percentDifference: number,
+//   exchangePrice: number,
+//   binancePrice: number,
+//   volume: number,
+//   amountIrt: number,
+//   statusCompare: string,
+//   recordTime?: Date
+// ): Promise<any> {
+//   try {
+//     const result = await pool.query(
+//       `INSERT INTO maxdiff_history 
+//         (exchange_name, symbol, percent_difference, exchange_price, binance_price, volume, amount_irt, status_compare, record_time)
+//        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+//        RETURNING *;`,
+//       [
+//         exchangeName,
+//         symbol,
+//         percentDifference,
+//         exchangePrice,
+//         binancePrice,
+//         volume,
+//         amountIrt,
+//         statusCompare,
+//         recordTime || getTehranTimeAsDate()
+//       ]
+//     );
     
-    return result.rows[0];
-  } catch (error) {
-    console.error(`❌ Error inserting maxdiff record for ${symbol}:`, error);
-    return null;
-  }
-}
+//     return result.rows[0];
+//   } catch (error) {
+//     console.error(`❌ Error inserting maxdiff record for ${symbol}:`, error);
+//     return null;
+//   }
+// }
 
 // function getTehranTime(): string {
 //   const now = new Date();
@@ -304,73 +304,97 @@ async function getDataByPeriod(exchangeName: string): Promise<any> {
  */
 async function saveTrackerToDatabase(
   exchange: 'wallex' | 'okex' | 'nobitex',
-  tracker: Map<string, CurrencyDiffTracker>,
-  periodType: 'last24h' | 'lastWeek' | 'allTime' = 'last24h',
-  symbolLimit: number = 10
+  trackerByPeriod: {
+    last24h?: Map<string, CurrencyDiffTracker>;
+    lastWeek?: Map<string, CurrencyDiffTracker>;
+    allTime?: Map<string, CurrencyDiffTracker>;
+  }
 ): Promise<boolean> {
   try {
-    // 1. periodType = last24h , symbolLimit = 10
-    
-    // ۱. Snapshot ایجاد کن
-    const snapshotResult = await pool.query(
-      `INSERT INTO price_snapshots (exchange_name, period_type, snapshot_time)
-       VALUES ($1, $2, NOW())
-       RETURNING id;`,
-      [exchange, periodType]
-    );
+    const periodConfigs: {
+      periodType: 'last24h' | 'lastWeek' | 'allTime';
+      symbolLimit: number;
+    }[] = [
+      { periodType: 'last24h', symbolLimit: 10 },
+      { periodType: 'lastWeek', symbolLimit: 10 },
+      { periodType: 'allTime', symbolLimit: 50 }
+    ];
 
-    const snapshotId = snapshotResult.rows[0].id;
+    for (const { periodType, symbolLimit } of periodConfigs) {
+      const tracker = trackerByPeriod[periodType];
+      if (!tracker || tracker.size === 0) continue;
 
-    // ۲. تمام symbols را sort کن و top N تا بگیر
-    const sortedSymbols = Array.from(tracker.entries())
-      .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
-      .slice(0, symbolLimit);
-
-    // ۳. هر symbol را insert کن
-    for (const [symbol, currencyData] of sortedSymbols) {
-      const symbolResult = await pool.query(
-        `INSERT INTO price_symbols (snapshot_id, symbol, status_compare, max_difference)
-         VALUES ($1, $2, $3, $4)
+      // 1️⃣ Snapshot
+      const snapshotResult = await pool.query(
+        `INSERT INTO price_snapshots (exchange_name, period_type, snapshot_time)
+         VALUES ($1, $2, NOW())
          RETURNING id;`,
-        [snapshotId, symbol, currencyData.statusCompare, currencyData.maxDifference]
+        [exchange, periodType]
       );
 
-      const symbolId = symbolResult.rows[0].id;
+      const snapshotId = snapshotResult.rows[0].id;
 
-      // ۴. تمام percentages را insert کن (بدون محدودیت)
-      if (currencyData.percentages && currencyData.percentages.length > 0) {
-        for (const record of currencyData.percentages) {
-          await pool.query(
-            `INSERT INTO price_percentages 
-             (symbol_id, record_time, value, exchange_buy_price, binance_sell_price, buy_volume)
-             VALUES ($1, $2, $3, $4, $5, $6);`,
-            [
-              symbolId,
-              new Date(record.time),
-              record.value,
-              record.exchangeBuyPrice || 0,
-              record.binanceSellPrice || 0,
-              record.buyVolume || 0
-            ]
-          );
+      // 2️⃣ sort + limit symbols
+      const sortedSymbols = Array.from(tracker.entries())
+        .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
+        .slice(0, symbolLimit);
+
+      // 3️⃣ insert symbols + percentages
+      for (const [symbol, currencyData] of sortedSymbols) {
+        const symbolResult = await pool.query(
+          `INSERT INTO price_symbols
+           (snapshot_id, symbol, status_compare, max_difference)
+           VALUES ($1, $2, $3, $4)
+           RETURNING id;`,
+          [
+            snapshotId,
+            symbol,
+            currencyData.statusCompare,
+            currencyData.maxDifference
+          ]
+        );
+
+        const symbolId = symbolResult.rows[0].id;
+
+        if (currencyData.percentages?.length) {
+          for (const record of currencyData.percentages) {
+            await pool.query(
+              `INSERT INTO price_percentages
+               (symbol_id, record_time, value,
+                exchange_buy_price, binance_sell_price, buy_volume)
+               VALUES ($1, $2, $3, $4, $5, $6);`,
+              [
+                symbolId,
+                new Date(record.time),
+                record.value,
+                record.exchangeBuyPrice ?? 0,
+                record.binanceSellPrice ?? 0,
+                record.buyVolume ?? 0
+              ]
+            );
+          }
         }
       }
+
+      console.log(
+        `✅ Saved snapshot for ${exchange} (${periodType}) with ${sortedSymbols.length} symbols`
+      );
     }
 
-    console.log(`✅ Saved snapshot for ${exchange} (${periodType}) with ${sortedSymbols.length} symbols`);
     return true;
   } catch (error) {
-    console.error(`❌ Error saving tracker snapshot for ${exchange}:`, error);
+    console.error(`❌ Error saving tracker for ${exchange}:`, error);
     return false;
   }
 }
+
 
 export {
   pool,
   ensureDatabase,
   initializeDatabase,
   registerExchange,
-  insertMaxDiffRecord,
+  // insertMaxDiffRecord,
   saveTrackerToDatabase,
   getDataByPeriod
 };
