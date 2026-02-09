@@ -23,15 +23,25 @@ interface NobitexDepthResponse {
 }
 
 interface NobitexOrderbooks {
-  exchangeName: "Nobitex";
+  exchangeName: "nobitex";
   tmnPairs: { [pair: string]: { bid: string[]; ask: string[] } };
   usdtPairs: { [pair: string]: { bid: string[]; ask: string[] } };
 }
 
 const NOBITEX_API_URL = 'https://apiv2.nobitex.ir/v3/orderbook/all';
 let globalUsdtToIrtRate = 1;
+const nobitex_tracker_ison = process.env.NOBITEX_TRACKER_ISON === "true";
 
 async function fetchNobitexPrices(): Promise<NobitexOrderbooks | undefined> {
+
+  if (!nobitex_tracker_ison) {
+    console.log("nobitex_tracker_isoff");    
+    return {
+      exchangeName: "nobitex",
+      tmnPairs:{},
+      usdtPairs: {}
+    }
+  }
   try {
     console.log(`[${new Date().toISOString()}] Fetching prices from Nobitex API...`);
     
@@ -57,7 +67,7 @@ async function fetchNobitexPrices(): Promise<NobitexOrderbooks | undefined> {
     }
 
     const nobitexOrderbooks : NobitexOrderbooks = {
-      exchangeName: "Nobitex",
+      exchangeName: "nobitex",
       tmnPairs: {},
       usdtPairs: {}
     };

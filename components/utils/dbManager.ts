@@ -74,7 +74,7 @@ async function ensureDatabase(): Promise<void> {
 }
 
 /**
- * دیتابیس را شروع کنید - فقط جداول جدید (snapshot pattern)
+ * دیتابیس را شروع کنید - فقط 2 جدول اصلی
  * @returns {Promise<void>}
  * @throws {Error} اگر ایجاد جدول ناموفق باشد
  */
@@ -82,50 +82,23 @@ async function initializeDatabase(): Promise<void> {
   try {
     console.log('📦 Initializing database...');
 
-    // Step 1: Create exchanges table
-    await getPool().query(`
-      CREATE TABLE IF NOT EXISTS exchanges (
-        name VARCHAR(50) PRIMARY KEY,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Step 2: Create price_snapshots table
-    await getPool().query(`
-      CREATE TABLE IF NOT EXISTS price_snapshots (
-        id BIGSERIAL PRIMARY KEY,
-        exchange_name VARCHAR(50) NOT NULL,
-        period_type VARCHAR(20) NOT NULL,
-        snapshot_time TIMESTAMP NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        CONSTRAINT fk_snapshot_exchange 
-          FOREIGN KEY (exchange_name) 
-          REFERENCES exchanges(name) 
-          ON DELETE CASCADE,
-        
-        UNIQUE(exchange_name, period_type, snapshot_time)
-      );
-    `);
-
-    // Step 3: Create price_symbols table
+    // Step 1: Create price_symbols table (جدول اصلی)
     await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_symbols (
         id BIGSERIAL PRIMARY KEY,
-        snapshot_id BIGINT NOT NULL,
+        exchange_name VARCHAR(50) NOT NULL,
+        period_type VARCHAR(20) NOT NULL,
         symbol VARCHAR(20) NOT NULL,
         status_compare VARCHAR(20) NOT NULL,
         max_difference DECIMAL(10, 2),
+        snapshot_time TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
-        CONSTRAINT fk_symbol_snapshot 
-          FOREIGN KEY (snapshot_id) 
-          REFERENCES price_snapshots(id) 
-          ON DELETE CASCADE
+        UNIQUE(exchange_name, period_type, symbol, snapshot_time)
       );
     `);
 
-    // Step 4: Create price_percentages table
+    // Step 2: Create price_percentages table
     await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_percentages (
         id BIGSERIAL PRIMARY KEY,
@@ -148,13 +121,13 @@ async function initializeDatabase(): Promise<void> {
 
     // Create indexes
     await getPool().query(`
-      CREATE INDEX IF NOT EXISTS idx_snapshot_exchange_period 
-      ON price_snapshots(exchange_name, period_type);
+      CREATE INDEX IF NOT EXISTS idx_symbol_exchange_period_time 
+      ON price_symbols(exchange_name, period_type, snapshot_time DESC);
     `);
 
     await getPool().query(`
-      CREATE INDEX IF NOT EXISTS idx_symbol_snapshot 
-      ON price_symbols(snapshot_id, symbol);
+      CREATE INDEX IF NOT EXISTS idx_symbol_lookup
+      ON price_symbols(exchange_name, period_type, symbol);
     `);
 
     await getPool().query(`
@@ -163,7 +136,7 @@ async function initializeDatabase(): Promise<void> {
     `);
 
     console.log('✅ Database initialized successfully');
-    console.log('📊 Tables: exchanges, price_snapshots, price_symbols, price_percentages');
+    console.log('📊 Tables: price_symbols, price_percentages');
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     throw error;
@@ -175,14 +148,8 @@ async function initializeDatabase(): Promise<void> {
  * @param {string} exchangeName - نام صرافی (wallex, okex, nobitex)
  * @returns {Promise<boolean>} true اگر ثبت موفق باشد
  */
-// Register exchange (هر صرافی خود را ثبت میکند)
 async function registerExchange(exchangeName: string): Promise<boolean> {
   try {
-    await getPool().query(
-      `INSERT INTO exchanges (name) VALUES ($1) 
-       ON CONFLICT (name) DO NOTHING;`,
-      [exchangeName]
-    );
     console.log(`✅ Exchange registered: ${exchangeName}`);
     return true;
   } catch (error) {
@@ -300,11 +267,10 @@ async function loadAllDataByExchangeName(
         p.exchange_buy_price,
         p.binance_sell_price,
         p.buy_volume
-      FROM price_snapshots ps
-      JOIN price_symbols s ON s.snapshot_id = ps.id
+      FROM price_symbols s
       LEFT JOIN price_percentages p ON p.symbol_id = s.id
-      WHERE ps.exchange_name = $1
-        AND ps.period_type = $2
+      WHERE s.exchange_name = $1
+        AND s.period_type = $2
       ORDER BY s.max_difference DESC, p.record_time ASC
       LIMIT $3;
       `,
@@ -369,33 +335,27 @@ async function saveTrackerToDatabase(
       const tracker = trackerByPeriod[periodType];
       if (!tracker || tracker.size === 0) continue;
 
-      // 1️⃣ Snapshot
-      const snapshotResult = await getPool().query(
-        `INSERT INTO price_snapshots (exchange_name, period_type, snapshot_time)
-         VALUES ($1, $2, NOW())
-         RETURNING id;`,
-        [exchange, periodType]
-      );
+      const snapshotTime = new Date();
 
-      const snapshotId = snapshotResult.rows[0].id;
-
-      // 2️⃣ sort + limit symbols
+      // 1️⃣ Sort + limit symbols
       const sortedSymbols = Array.from(tracker.entries())
         .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
         .slice(0, symbolLimit);
 
-      // 3️⃣ insert symbols + percentages
+      // 2️⃣ Insert symbols + percentages
       for (const [symbol, currencyData] of sortedSymbols) {
         const symbolResult = await getPool().query(
           `INSERT INTO price_symbols
-           (snapshot_id, symbol, status_compare, max_difference)
-           VALUES ($1, $2, $3, $4)
+           (exchange_name, period_type, symbol, status_compare, max_difference, snapshot_time)
+           VALUES ($1, $2, $3, $4, $5, $6)
            RETURNING id;`,
           [
-            snapshotId,
+            exchange,
+            periodType,
             symbol,
             currencyData.statusCompare,
-            currencyData.maxDifference
+            currencyData.maxDifference,
+            snapshotTime
           ]
         );
 
@@ -422,7 +382,7 @@ async function saveTrackerToDatabase(
       }
 
       console.log(
-        `✅ Saved snapshot for ${exchange} (${periodType}) with ${sortedSymbols.length} symbols`
+        `✅ Saved ${exchange} (${periodType}) with ${sortedSymbols.length} symbols`
       );
     }
 

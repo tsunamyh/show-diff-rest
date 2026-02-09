@@ -102,12 +102,16 @@ async function getOkexOrderBookForSymbol(symbol: string) {
   }
 }
 
-const okex_tracker_ison = process.env.OKEX_TRACKER_ISON || false
+const okex_tracker_ison = process.env.OKEX_TRACKER_ISON === "true";
 // تابع اصلی برای دریافت تمام orderbooks
 async function fetchOkexPrices(): Promise<OkExOrderbooks | undefined> {
-  if (!okex_tracker_ison) return {
-    exchangeName: "okex",
-    usdtPairs: {}
+  if (!okex_tracker_ison) {
+    console.log("okex_tracker_isoff");
+    
+    return {
+      exchangeName: "okex",
+      usdtPairs: {}
+    }
   }
 
   try {
