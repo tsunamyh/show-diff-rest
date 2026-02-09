@@ -11,20 +11,20 @@ interface OkExOrderbooks {
 const OKEX_API_URL = 'https://sapi.ok-ex.io/api/v1/spot/public/books';
 
 const axiosInstance = axios.create({
-    method: 'get',
-    baseURL: OKEX_API_URL,
-    params: {
-        limit: 5
-    },
-    timeout: 10000,
-    maxRedirects: 0
+  method: 'get',
+  baseURL: OKEX_API_URL,
+  params: {
+    limit: 5
+  },
+  timeout: 10000,
+  maxRedirects: 0
 });
 
 // تابع جداگانه برای دریافت نرخ USDT-IRT
 async function getUsdtToIrtRate(): Promise<number> {
   try {
     const response = await axiosInstance<any>({
-      params: { 
+      params: {
         symbol: 'USDT-IRT'
       }
     });
@@ -39,7 +39,7 @@ async function getUsdtToIrtRate(): Promise<number> {
       console.error('USDT-IRT fetch error Okex:', error);
     }
   }
-  
+
   return 1;
 }
 
@@ -53,7 +53,7 @@ function sortOrderBook(
 ): { bid: string[]; ask: string[] } {
   const bidPriceTmn = (bidPrice * usdtToTmnRate).toString();
   const askPriceTmn = (askPrice * usdtToTmnRate).toString();
-  
+
   return {
     bid: [bidPriceTmn, bidQty.toString(), bidPrice.toString()],
     ask: [askPriceTmn, askQty.toString(), askPrice.toString()]
@@ -64,7 +64,7 @@ function sortOrderBook(
 async function getOkexOrderBookForSymbol(symbol: string) {
   try {
     const response = await axiosInstance<any>({
-      params: { 
+      params: {
         symbol: symbol
       }
     });
@@ -102,15 +102,21 @@ async function getOkexOrderBookForSymbol(symbol: string) {
   }
 }
 
+const okex_tracker_ison = process.env.OKEX_TRACKER_ISON || false
 // تابع اصلی برای دریافت تمام orderbooks
 async function fetchOkexPrices(): Promise<OkExOrderbooks | undefined> {
+  if (!okex_tracker_ison) return {
+    exchangeName: "okex",
+    usdtPairs: {}
+  }
+
   try {
     // console.log(`[${new Date().toISOString()}] Fetching prices from ok-ex.io API...`);
-    
+
     const okexSymbols = binance_okex_common_symbols.symbols.okex_symbol;
-    
+
     const usdtToTmnRate = await getUsdtToIrtRate();
-    
+
     const okExOrderbooks: OkExOrderbooks = {
       exchangeName: "okex",
       usdtPairs: {}
@@ -118,12 +124,12 @@ async function fetchOkexPrices(): Promise<OkExOrderbooks | undefined> {
 
     // Batching mode برای جلوگیری از overload API
     const BATCH_SIZE = 60;
-    
+
     for (let i = 0; i < okexSymbols.length; i += BATCH_SIZE) {
       const batch = okexSymbols.slice(i, i + BATCH_SIZE);
       const requests = batch.map(symbol => getOkexOrderBookForSymbol(symbol));
       const results = await Promise.allSettled(requests);
-      
+
       results.forEach((result) => {
         if (result.status === 'fulfilled' && result.value) {
           const orderBook = result.value;
@@ -148,7 +154,7 @@ const okexOrderbooks: OkExOrderbooks = ${JSON.stringify(okExOrderbooks, null, 2)
 
 export default okexOrderbooks;
 `;
-    
+
     const filePath = path.join(process.cwd(), './fswritefiles/okex_prices.ts');
     fs.writeFileSync(filePath, tsOutput, 'utf-8');
     // console.log(`[${new Date().toISOString()}] okex_prices.ts updated.`);

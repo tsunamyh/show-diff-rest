@@ -90,7 +90,7 @@ export class WallexPurchasingService {
       baseURL: 'https://api.wallex.ir/v1/account/',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': process.env.WALLEX_X_API_Key || ''
+        'X-API-Key': process.env.WALLEX_MOKHTARI_API_Key || ''
       }
     });
   }

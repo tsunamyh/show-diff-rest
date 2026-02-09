@@ -6,7 +6,7 @@ import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controlle
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { saveTrackerToDatabase,loadAllDataByExchangeName, registerExchange } from "../../utils/dbManager";
-import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
+// import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
 

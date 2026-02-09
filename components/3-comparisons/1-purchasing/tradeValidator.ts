@@ -285,7 +285,7 @@ export async function validateAndExecuteTrade(
           reason: `SELL Order placed successfully`
         };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ Error placing SELL order:`, error);
       return {
         success: false,
