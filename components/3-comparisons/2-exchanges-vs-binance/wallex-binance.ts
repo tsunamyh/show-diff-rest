@@ -93,6 +93,11 @@ interface CurrencyDiffTracker {
 }
 
 let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
+let currancyDiffTrackerByPeriod = {
+  last24h: new Map<string, CurrencyDiffTracker>(),
+  lastWeek: new Map<string, CurrencyDiffTracker>(),
+  allTime: new Map<string, CurrencyDiffTracker>()
+};
 // let sortedCurrencies: CurrencyDiffTracker[] = [];
 
 // Initialize tracker with history on startup
@@ -104,9 +109,14 @@ let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
 //   //   .slice(0, 5);
 // }
 async function initializeTrackerWithHistory() {
-  await registerExchange('wallex');
-  // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
-  
+  try {
+    await registerExchange('wallex');
+    // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
+    currancyDiffTrackerByPeriod = await loadAllDataByExchangeName('wallex');   
+  } catch (error) {
+    console.log("can Not load Data Or Register Exchange: ",error);
+    
+  }
   console.log('✅ Wallex exchange initialized');
 }
 
@@ -119,6 +129,25 @@ function getTehranTime(): string {
   const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
 
   return tehranTime;
+}
+
+function isWithinPeriod(time: string, periodType: 'last24h' | 'lastWeek' | 'allTime') {
+  if (periodType === 'allTime') return true;
+
+  const now = Date.now();
+  const recordTime = new Date(time).getTime();
+
+  const diffMs = now - recordTime;
+
+  if (periodType === 'last24h') {
+    return diffMs <= 24 * 60 * 60 * 1000;
+  }
+
+  if (periodType === 'lastWeek') {
+    return diffMs <= 7 * 24 * 60 * 60 * 1000;
+  }
+
+  return false;
 }
 
 function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue: number, minIntervalSeconds: number = 120): boolean {
@@ -135,6 +164,47 @@ function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue:
   // اگر فاصله زمانی بیشتر از حد تعیین شده است، اضافه کن
   return timeDifferenceSeconds >= minIntervalSeconds;
 }
+
+function combineTrackerMaps(
+  targetMap: Map<string, CurrencyDiffTracker>,
+  incomingMap: Map<string, CurrencyDiffTracker>,
+  periodType: 'last24h' | 'lastWeek' | 'allTime'
+) {
+  const limit = periodType === 'allTime' ? 50 : 10;
+
+  for (const [symbol, incoming] of incomingMap.entries()) {
+    if (!targetMap.has(symbol)) {
+      targetMap.set(symbol, {
+        ...incoming,
+        percentages: [...incoming.percentages]
+      });
+    } else {
+      const existing = targetMap.get(symbol)!;
+      existing.percentages.push(...incoming.percentages);
+    }
+  }
+
+  // فیلتر زمانی + مرتب‌سازی percentages
+  for (const tracker of targetMap.values()) {
+    tracker.percentages = tracker.percentages
+      .filter(p => isWithinPeriod(p.time, periodType))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10); // max 10 percentage per symbol
+  }
+
+  // مرتب‌سازی symbol ها بر اساس maxDifference
+  const sortedSymbols = [...targetMap.entries()]
+    .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
+    .slice(0, limit);
+
+  // بازسازی Map
+
+  currancyDiffTrackerByPeriod[periodType].clear();
+  for (const [symbol, tracker] of sortedSymbols) {
+    currancyDiffTrackerByPeriod[periodType].set(symbol, tracker);
+  }
+}
+
 
 async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
   // console.log("currencyDiffTracker:", currencyDiffTracker);
@@ -170,12 +240,17 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
       }
     }
   })
-
+  
+  combineTrackerMaps(currancyDiffTrackerByPeriod.last24h,currencyDiffTracker,"last24h")
+  combineTrackerMaps(currancyDiffTrackerByPeriod.lastWeek,currencyDiffTracker,"lastWeek")
+  combineTrackerMaps(currancyDiffTrackerByPeriod.allTime,currencyDiffTracker,"allTime")
+  
+  saveTrackerToDatabase("wallex",currancyDiffTrackerByPeriod)
   // Save to database - 3 periods
   // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'last24h');
   // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'lastWeek', 10);
   // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'allTime', 50);
-  saveHistoryToFile('wallex', currencyDiffTracker);
+  // saveHistoryToFile('wallex', currencyDiffTracker);
 }
 
 // function wallex_getTopFiveCurrenciesWithDifferences() {
