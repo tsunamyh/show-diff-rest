@@ -10,11 +10,11 @@ const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(9);
 
 // Initialize history on startup
-initWallexHistory();
 initOkexHistory();
 initNobitexHistory();
 
 async function intervalFunc(): Promise<NodeJS.Timeout> {
+  initWallexHistory();
   return setInterval(async function () {
     try {
       const [binanceOrderbooksPromise, exchangesOrderbooksPromise] = await getAllexchangesOrderBooks();

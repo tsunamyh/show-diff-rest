@@ -1,18 +1,18 @@
 import { Pool } from 'pg';
 
 interface PercentageRecord {
-    time: string;
-    value: number;
-    exchangeBuyPrice?: number;
-    binanceSellPrice?: number;
-    buyVolume?: number;
+  time: string;
+  value: number;
+  exchangeBuyPrice?: number;
+  binanceSellPrice?: number;
+  buyVolume?: number;
 }
 
 interface CurrencyDiffTracker {
-    symbol: string;
-    statusCompare: string;
-    maxDifference: number;
-    percentages: PercentageRecord[];
+  symbol: string;
+  statusCompare: string;
+  maxDifference: number;
+  percentages: PercentageRecord[];
 }
 
 // یک Pool برای postgres بیس (برای ساخت دیتابیس)
@@ -24,14 +24,28 @@ const adminPool = new Pool({
   port: parseInt(process.env.DB_PORT || '5432'),
 });
 
-// Pool اصلی برای اتصال به دیتابیس ما
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'maxdiff_db',
-  password: process.env.DB_PASSWORD || '123456',
-  port: parseInt(process.env.DB_PORT || '5432'),
-});
+// Pool اصلی برای اتصال به دیتابیس ما - بطور تنبل اولیه سازی می شود
+let pool: Pool | null = null;
+
+function initializePool(): Pool {
+  if (!pool) {
+    pool = new Pool({
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'maxdiff_db',
+      password: process.env.DB_PASSWORD || '123456',
+      port: parseInt(process.env.DB_PORT || '5432'),
+    });
+  }
+  return pool;
+}
+
+function getPool(): Pool {
+  if (!pool) {
+    throw new Error('Database pool not initialized. Call initializeDatabase first.');
+  }
+  return pool;
+}
 
 /**
  * دیتابیس را ایجاد کنید اگر موجود نباشد
@@ -48,15 +62,19 @@ async function ensureDatabase(): Promise<void> {
     if (error.code === '42P04') {
       console.log(`✅ Database "${dbName}" already exists`);
     } else {
+      console.log("throw error =>", error)
       throw error;
     }
   } finally {
     await adminPool.end();
   }
+  
+  // بعد از ایجاد دیتابیس، pool را اولیه سازی کنید
+  initializePool();
 }
 
 /**
- * دیتابیس را شروع کنید - جداول جدید برای snapshot pattern
+ * دیتابیس را شروع کنید - فقط جداول جدید (snapshot pattern)
  * @returns {Promise<void>}
  * @throws {Error} اگر ایجاد جدول ناموفق باشد
  */
@@ -65,19 +83,19 @@ async function initializeDatabase(): Promise<void> {
     console.log('📦 Initializing database...');
 
     // Step 1: Create exchanges table
-    await pool.query(`
+    await getPool().query(`
       CREATE TABLE IF NOT EXISTS exchanges (
         name VARCHAR(50) PRIMARY KEY,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    // Step 2: Create price_snapshots table (ذخیره snapshot‌های دوره‌ای)
-    await pool.query(`
+    // Step 2: Create price_snapshots table
+    await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_snapshots (
         id BIGSERIAL PRIMARY KEY,
         exchange_name VARCHAR(50) NOT NULL,
-        period_type VARCHAR(20) NOT NULL,    -- 'last24h', 'lastWeek', 'allTime'
+        period_type VARCHAR(20) NOT NULL,
         snapshot_time TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
@@ -90,8 +108,8 @@ async function initializeDatabase(): Promise<void> {
       );
     `);
 
-    // Step 3: Create price_symbols table (سمبل‌های هر snapshot)
-    await pool.query(`
+    // Step 3: Create price_symbols table
+    await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_symbols (
         id BIGSERIAL PRIMARY KEY,
         snapshot_id BIGINT NOT NULL,
@@ -107,8 +125,8 @@ async function initializeDatabase(): Promise<void> {
       );
     `);
 
-    // Step 4: Create price_percentages table (percentages بدون محدودیت)
-    await pool.query(`
+    // Step 4: Create price_percentages table
+    await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_percentages (
         id BIGSERIAL PRIMARY KEY,
         symbol_id BIGINT NOT NULL,
@@ -129,24 +147,23 @@ async function initializeDatabase(): Promise<void> {
     `);
 
     // Create indexes
-    await pool.query(`
+    await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_snapshot_exchange_period 
       ON price_snapshots(exchange_name, period_type);
     `);
 
-    await pool.query(`
+    await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_symbol_snapshot 
       ON price_symbols(snapshot_id, symbol);
     `);
 
-    await pool.query(`
+    await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_percentage_symbol_time 
       ON price_percentages(symbol_id, record_time DESC);
     `);
 
     console.log('✅ Database initialized successfully');
-    console.log('📊 Tables created: price_snapshots, price_symbols, price_percentages');
-    console.log('⚠️ Percentages can grow unlimited, new 5 records will be added properly');
+    console.log('📊 Tables: exchanges, price_snapshots, price_symbols, price_percentages');
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     throw error;
@@ -161,7 +178,7 @@ async function initializeDatabase(): Promise<void> {
 // Register exchange (هر صرافی خود را ثبت میکند)
 async function registerExchange(exchangeName: string): Promise<boolean> {
   try {
-    await pool.query(
+    await getPool().query(
       `INSERT INTO exchanges (name) VALUES ($1) 
        ON CONFLICT (name) DO NOTHING;`,
       [exchangeName]
@@ -217,7 +234,7 @@ async function registerExchange(exchangeName: string): Promise<boolean> {
 //         recordTime || getTehranTimeAsDate()
 //       ]
 //     );
-    
+
 //     return result.rows[0];
 //   } catch (error) {
 //     console.error(`❌ Error inserting maxdiff record for ${symbol}:`, error);
@@ -246,7 +263,7 @@ function getTehranTimeAsDate(): Date {
 
 /**
  * داده‌ها را برای دوره‌های مختلف دریافت کنید
- * @param {string} exchangeName - نام صرافی
+ * @param {string} exchange - نام صرافی
  * @returns {Promise<object>} شامل last24h، lastWeek، allTime
  */
 async function loadAllDataByExchangeName(
@@ -267,11 +284,11 @@ async function loadAllDataByExchangeName(
     lastWeek: 10,
     allTime: 50
   } as const;
-  
+
   for (const periodType of Object.keys(config) as Array<keyof typeof config>) {
     const limit = config[periodType];
 
-    const rows = await pool.query(
+    const rows = await getPool().query(
       `
       SELECT
         s.id AS symbol_id,
@@ -283,10 +300,11 @@ async function loadAllDataByExchangeName(
         p.exchange_buy_price,
         p.binance_sell_price,
         p.buy_volume
-      FROM price_symbols s
+      FROM price_snapshots ps
+      JOIN price_symbols s ON s.snapshot_id = ps.id
       LEFT JOIN price_percentages p ON p.symbol_id = s.id
-      WHERE s.exchange_name = $1
-        AND s.period_type = $2
+      WHERE ps.exchange_name = $1
+        AND ps.period_type = $2
       ORDER BY s.max_difference DESC, p.record_time ASC
       LIMIT $3;
       `,
@@ -342,17 +360,17 @@ async function saveTrackerToDatabase(
       periodType: 'last24h' | 'lastWeek' | 'allTime';
       symbolLimit: number;
     }[] = [
-      { periodType: 'last24h', symbolLimit: 10 },
-      { periodType: 'lastWeek', symbolLimit: 10 },
-      { periodType: 'allTime', symbolLimit: 50 }
-    ];
+        { periodType: 'last24h', symbolLimit: 10 },
+        { periodType: 'lastWeek', symbolLimit: 10 },
+        { periodType: 'allTime', symbolLimit: 50 }
+      ];
 
     for (const { periodType, symbolLimit } of periodConfigs) {
       const tracker = trackerByPeriod[periodType];
       if (!tracker || tracker.size === 0) continue;
 
       // 1️⃣ Snapshot
-      const snapshotResult = await pool.query(
+      const snapshotResult = await getPool().query(
         `INSERT INTO price_snapshots (exchange_name, period_type, snapshot_time)
          VALUES ($1, $2, NOW())
          RETURNING id;`,
@@ -368,7 +386,7 @@ async function saveTrackerToDatabase(
 
       // 3️⃣ insert symbols + percentages
       for (const [symbol, currencyData] of sortedSymbols) {
-        const symbolResult = await pool.query(
+        const symbolResult = await getPool().query(
           `INSERT INTO price_symbols
            (snapshot_id, symbol, status_compare, max_difference)
            VALUES ($1, $2, $3, $4)
@@ -385,7 +403,7 @@ async function saveTrackerToDatabase(
 
         if (currencyData.percentages?.length) {
           for (const record of currencyData.percentages) {
-            await pool.query(
+            await getPool().query(
               `INSERT INTO price_percentages
                (symbol_id, record_time, value,
                 exchange_buy_price, binance_sell_price, buy_volume)
@@ -417,11 +435,10 @@ async function saveTrackerToDatabase(
 
 
 export {
-  pool,
+  getPool,
   ensureDatabase,
   initializeDatabase,
   registerExchange,
-  // insertMaxDiffRecord,
   saveTrackerToDatabase,
   loadAllDataByExchangeName
 };
