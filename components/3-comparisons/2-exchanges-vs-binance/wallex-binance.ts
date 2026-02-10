@@ -5,7 +5,7 @@ import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
-import { saveTrackerToDatabase,loadAllDataByExchangeName, registerExchange } from "../../utils/dbManager";
+import { saveTrackerToDatabase, loadAllDataByExchangeName } from "../../utils/dbManager";
 // import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
@@ -110,11 +110,11 @@ let currancyDiffTrackerByPeriod = {
 // }
 async function initializeTrackerWithHistory() {
   try {
-    await registerExchange('wallex');
     // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
-    currancyDiffTrackerByPeriod = await loadAllDataByExchangeName('wallex');   
+    currancyDiffTrackerByPeriod = await loadAllDataByExchangeName('wallex');
+    console.log(currancyDiffTrackerByPeriod.allTime)  
   } catch (error) {
-    console.log("can Not load Data Or Register Exchange: ",error);
+    console.log("can Not load Data Or Register Data: ",error);
     
   }
   console.log('✅ Wallex exchange initialized');

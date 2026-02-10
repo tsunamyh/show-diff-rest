@@ -193,7 +193,6 @@ async function nobitex_priceComp(binanceOrderbooks: BinanceOrderbooks, nobitexOr
     }
 
     rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
-    console.log(rowsInfo.length,"llllllllllllllllll",rowsInfo[rowsInfo.length -1]);
     
     const topRowsInfo = rowsInfo.slice(0, 10);
     latestRowsInfo = topRowsInfo;

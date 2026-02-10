@@ -143,34 +143,6 @@ async function initializeDatabase(): Promise<void> {
   }
 }
 
-/**
- * صرافی جدید ثبت کنید
- * @param {string} exchangeName - نام صرافی (wallex, okex, nobitex)
- * @returns {Promise<boolean>} true اگر ثبت موفق باشد
- */
-async function registerExchange(exchangeName: string): Promise<boolean> {
-  try {
-    console.log(`✅ Exchange registered: ${exchangeName}`);
-    return true;
-  } catch (error) {
-    console.error(`❌ Error registering exchange ${exchangeName}:`, error);
-    return false;
-  }
-}
-
-/**
- * رکورد maxdiff جدید در دیتابیس درج کنید
- * @param {string} exchangeName - نام صرافی
- * @param {string} symbol - نماد (مثال: BTCIRT)
- * @param {number} percentDifference - درصد تفاوت قیمت
- * @param {number} exchangePrice - قیمت در صرافی
- * @param {number} binancePrice - قیمت در بایننس
- * @param {number} volume - حجم معاملات
- * @param {number} amountIrt - مقدار به IRT
- * @param {string} statusCompare - نوع مقایسه (UsdtVsIrt, UsdtVsUsdt)
- * @param {Date} [recordTime] - زمان رکورد (پیش‌فرض: الآن)
- * @returns {Promise<any>} رکورد inserted یا null اگر خطا باشد
- */
 // Insert maxdiff record into history
 // async function insertMaxDiffRecord(
 //   exchangeName: string,
@@ -278,7 +250,8 @@ async function loadAllDataByExchangeName(
     );
 
     const map = new Map<string, CurrencyDiffTracker>();
-
+    // console.log("rows : ",rows.rows);
+    
     for (const row of rows.rows) {
       if (!map.has(row.symbol)) {
         map.set(row.symbol, {
@@ -341,7 +314,8 @@ async function saveTrackerToDatabase(
       const sortedSymbols = Array.from(tracker.entries())
         .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
         .slice(0, symbolLimit);
-
+      console.log("sort:   ",sortedSymbols);
+      
       // 2️⃣ Insert symbols + percentages
       for (const [symbol, currencyData] of sortedSymbols) {
         const symbolResult = await getPool().query(
@@ -398,7 +372,6 @@ export {
   getPool,
   ensureDatabase,
   initializeDatabase,
-  registerExchange,
   saveTrackerToDatabase,
   loadAllDataByExchangeName
 };
