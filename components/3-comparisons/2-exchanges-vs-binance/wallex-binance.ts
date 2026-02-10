@@ -112,7 +112,7 @@ async function initializeTrackerWithHistory() {
   try {
     // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
     currancyDiffTrackerByPeriod = await loadAllDataByExchangeName('wallex');
-    console.log(currancyDiffTrackerByPeriod.allTime)  
+    // console.log(currancyDiffTrackerByPeriod.allTime)  
   } catch (error) {
     console.log("can Not load Data Or Register Data: ",error);
     
@@ -172,6 +172,7 @@ function combineTrackerMaps(
 ) {
   const limit = periodType === 'allTime' ? 50 : 10;
 
+  // 1️⃣ merge incoming data into target
   for (const [symbol, incoming] of incomingMap.entries()) {
     if (!targetMap.has(symbol)) {
       targetMap.set(symbol, {
@@ -184,21 +185,32 @@ function combineTrackerMaps(
     }
   }
 
-  // فیلتر زمانی + مرتب‌سازی percentages
+  // 2️⃣ فیلتر زمانی + مرتب‌سازی percentages + به‌روز رسانی maxDifference
   for (const tracker of targetMap.values()) {
     tracker.percentages = tracker.percentages
       .filter(p => isWithinPeriod(p.time, periodType))
       .sort((a, b) => b.value - a.value)
       .slice(0, 10); // max 10 percentage per symbol
+
+    // به‌روز رسانی maxDifference براساس percentages های باقی‌مانده
+    if (tracker.percentages.length > 0) {
+      tracker.maxDifference = Math.max(...tracker.percentages.map(p => p.value));
+    }
   }
 
-  // مرتب‌سازی symbol ها بر اساس maxDifference
+  // 3️⃣ حذف سمبل‌هایی که هیچ percentage معتبری ندارند
+  for (const [symbol, tracker] of targetMap.entries()) {
+    if (tracker.percentages.length === 0) {
+      targetMap.delete(symbol);
+    }
+  }
+
+  // 4️⃣ مرتب‌سازی symbol ها بر اساس maxDifference
   const sortedSymbols = [...targetMap.entries()]
     .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
     .slice(0, limit);
 
-  // بازسازی Map
-
+  // 5️⃣ بازسازی Map
   currancyDiffTrackerByPeriod[periodType].clear();
   for (const [symbol, tracker] of sortedSymbols) {
     currancyDiffTrackerByPeriod[periodType].set(symbol, tracker);
@@ -236,7 +248,7 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
       // فقط اگر condition رو pass کنه، اضافه کن
       if (shouldAddPercentage(lastRecord, percent)) {
         tracker.percentages.push(percentRecord);
-        tracker.percentages = tracker.percentages.sort((a, b) => b.value - a.value).slice(0, 5);
+        tracker.percentages = tracker.percentages.sort((a, b) => b.value - a.value).slice(0, 10);
       }
     }
   })

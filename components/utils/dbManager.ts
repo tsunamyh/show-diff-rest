@@ -218,63 +218,56 @@ async function loadAllDataByExchangeName(
     allTime: new Map<string, CurrencyDiffTracker>()
   };
 
-  const config = {
-    last24h: 10,
-    lastWeek: 10,
-    allTime: 50
-  } as const;
+  // دریافت تمام داده‌ها بدون LIMIT
+  const rows = await getPool().query(
+    `
+    SELECT
+      s.id AS symbol_id,
+      s.symbol,
+      s.status_compare,
+      s.max_difference,
+      s.period_type,
+      p.record_time,
+      p.value,
+      p.exchange_buy_price,
+      p.binance_sell_price,
+      p.buy_volume
+    FROM price_symbols s
+    LEFT JOIN price_percentages p ON p.symbol_id = s.id
+    WHERE s.exchange_name = $1
+    ORDER BY s.period_type, s.max_difference DESC, p.record_time ASC;
+    `,
+    [exchange]
+  );
 
-  for (const periodType of Object.keys(config) as Array<keyof typeof config>) {
-    const limit = config[periodType];
+  // console.log("rows : ", rows.rows);
 
-    const rows = await getPool().query(
-      `
-      SELECT
-        s.id AS symbol_id,
-        s.symbol,
-        s.status_compare,
-        s.max_difference,
-        p.record_time,
-        p.value,
-        p.exchange_buy_price,
-        p.binance_sell_price,
-        p.buy_volume
-      FROM price_symbols s
-      LEFT JOIN price_percentages p ON p.symbol_id = s.id
-      WHERE s.exchange_name = $1
-        AND s.period_type = $2
-      ORDER BY s.max_difference DESC, p.record_time ASC
-      LIMIT $3;
-      `,
-      [exchange, periodType, limit]
-    );
+  // تقسیم داده‌ها براساس period_type
+  for (const row of rows.rows) {
+    const periodType = row.period_type as 'last24h' | 'lastWeek' | 'allTime';
+    const map = result[periodType];
 
-    const map = new Map<string, CurrencyDiffTracker>();
-    // console.log("rows : ",rows.rows);
-    
-    for (const row of rows.rows) {
-      if (!map.has(row.symbol)) {
-        map.set(row.symbol, {
-          symbol: row.symbol,
-          statusCompare: row.status_compare,
-          maxDifference: Number(row.max_difference),
-          percentages: []
-        });
-      }
-
-      if (row.record_time) {
-        map.get(row.symbol)!.percentages.push({
-          time: row.record_time,
-          value: Number(row.value),
-          exchangeBuyPrice: Number(row.exchange_buy_price),
-          binanceSellPrice: Number(row.binance_sell_price),
-          buyVolume: row.buy_volume !== null ? Number(row.buy_volume) : null
-        });
-      }
+    if (!map.has(row.symbol)) {
+      map.set(row.symbol, {
+        symbol: row.symbol,
+        statusCompare: row.status_compare,
+        maxDifference: Number(row.max_difference),
+        percentages: []
+      });
     }
 
-    result[periodType] = map;
+    if (row.record_time) {
+      map.get(row.symbol)!.percentages.push({
+        time: row.record_time,
+        value: Number(row.value),
+        exchangeBuyPrice: Number(row.exchange_buy_price),
+        binanceSellPrice: Number(row.binance_sell_price),
+        buyVolume: row.buy_volume !== null ? Number(row.buy_volume) : null
+      });
+    }
+    
   }
+  console.log("result['allTime']=>  ",result["allTime"]);
 
   return result;
 }
@@ -310,11 +303,18 @@ async function saveTrackerToDatabase(
 
       const snapshotTime = new Date();
 
+      // 0️⃣ حذف داده‌های قدیمی این صرافی و دوره
+      await getPool().query(
+        `DELETE FROM price_symbols 
+         WHERE exchange_name = $1 AND period_type = $2;`,
+        [exchange, periodType]
+      );
+
       // 1️⃣ Sort + limit symbols
       const sortedSymbols = Array.from(tracker.entries())
         .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
         .slice(0, symbolLimit);
-      console.log("sort:   ",sortedSymbols);
+      // console.log("sort:   ",sortedSymbols);
       
       // 2️⃣ Insert symbols + percentages
       for (const [symbol, currencyData] of sortedSymbols) {
@@ -322,7 +322,7 @@ async function saveTrackerToDatabase(
           `INSERT INTO price_symbols
            (exchange_name, period_type, symbol, status_compare, max_difference, snapshot_time)
            VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING id;`,
+           RETURNING *;`,
           [
             exchange,
             periodType,
@@ -333,6 +333,7 @@ async function saveTrackerToDatabase(
           ]
         );
 
+        // console.log("symbolResult=> ",symbolResult.rows);
         const symbolId = symbolResult.rows[0].id;
 
         if (currencyData.percentages?.length) {
