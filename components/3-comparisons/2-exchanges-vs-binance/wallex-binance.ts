@@ -5,7 +5,7 @@ import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
-import { saveTrackerToDatabase, loadAllDataByExchangeName } from "../../utils/dbManager";
+import { saveTrackerToDatabase, loadAllDataByExchangeName, CurrencyDiffTracker, PeriodType } from "../../utils/dbManager";
 // import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
@@ -75,25 +75,9 @@ const myPercent = process.env.MYPERCENT || 2.2;
 
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
-
-// Global variable to track top 5 currencies with biggest differences and their top 5 percentages
-interface PercentageRecord {
-  time: string;
-  value: number;
-  exchangeBuyPrice?: number;
-  binanceSellPrice?: number;
-  buyVolume?: number;
-}
-
-interface CurrencyDiffTracker {
-  symbol: string;
-  statusCompare: string;
-  maxDifference: number;
-  percentages: PercentageRecord[];
-}
-
-let currencyDiffTracker: Map<string, CurrencyDiffTracker> = new Map();
+// Period-based trackers for database storage
 let currancyDiffTrackerByPeriod = {
+  last1h: new Map<string, CurrencyDiffTracker>(),
   last24h: new Map<string, CurrencyDiffTracker>(),
   lastWeek: new Map<string, CurrencyDiffTracker>(),
   allTime: new Map<string, CurrencyDiffTracker>()
@@ -131,138 +115,59 @@ function getTehranTime(): string {
   return tehranTime;
 }
 
-function isWithinPeriod(time: string, periodType: 'last24h' | 'lastWeek' | 'allTime') {
-  if (periodType === 'allTime') return true;
+function isWithinPeriod(time: string, periodType: PeriodType) {
+  if (periodType === PeriodType.allTime) return true;
 
   const now = Date.now();
   const recordTime = new Date(time).getTime();
 
   const diffMs = now - recordTime;
 
-  if (periodType === 'last24h') {
+  if (periodType === PeriodType.last1h) {
+    return diffMs <= 60 * 60 * 1000;
+  }
+
+  if (periodType === PeriodType.last24h) {
     return diffMs <= 24 * 60 * 60 * 1000;
   }
 
-  if (periodType === 'lastWeek') {
+  if (periodType === PeriodType.lastWeek) {
     return diffMs <= 7 * 24 * 60 * 60 * 1000;
   }
 
   return false;
 }
 
-function shouldAddPercentage(lastRecord: PercentageRecord | undefined, newValue: number, minIntervalSeconds: number = 120): boolean {
-  if (!lastRecord) return true;
-
-  // اگر value متفاوت است، اضافه کن
-  if (lastRecord.value !== newValue) return true;
-
-  // اگر value یکسان است، فاصله زمانی رو بررسی کن
-  const lastTime = new Date(lastRecord.time).getTime();
-  const currentTime = new Date(getTehranTime()).getTime();
-  const timeDifferenceSeconds = (currentTime - lastTime) / 1000;
-
-  // اگر فاصله زمانی بیشتر از حد تعیین شده است، اضافه کن
-  return timeDifferenceSeconds >= minIntervalSeconds;
-}
-
-function combineTrackerMaps(
-  targetMap: Map<string, CurrencyDiffTracker>,
-  incomingMap: Map<string, CurrencyDiffTracker>,
-  periodType: 'last24h' | 'lastWeek' | 'allTime'
-) {
-  const limit = periodType === 'allTime' ? 50 : 10;
-
-  // 1️⃣ merge incoming data into target
-  for (const [symbol, incoming] of incomingMap.entries()) {
-    if (!targetMap.has(symbol)) {
-      targetMap.set(symbol, {
-        ...incoming,
-        percentages: [...incoming.percentages]
-      });
-    } else {
-      const existing = targetMap.get(symbol)!;
-      existing.percentages.push(...incoming.percentages);
-    }
-  }
-
-  // 2️⃣ فیلتر زمانی + مرتب‌سازی percentages + به‌روز رسانی maxDifference
-  for (const tracker of targetMap.values()) {
-    tracker.percentages = tracker.percentages
-      .filter(p => isWithinPeriod(p.time, periodType))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 10); // max 10 percentage per symbol
-
-    // به‌روز رسانی maxDifference براساس percentages های باقی‌مانده
-    if (tracker.percentages.length > 0) {
-      tracker.maxDifference = Math.max(...tracker.percentages.map(p => p.value));
-    }
-  }
-
-  // 3️⃣ حذف سمبل‌هایی که هیچ percentage معتبری ندارند
-  for (const [symbol, tracker] of targetMap.entries()) {
-    if (tracker.percentages.length === 0) {
-      targetMap.delete(symbol);
-    }
-  }
-
-  // 4️⃣ مرتب‌سازی symbol ها بر اساس maxDifference
-  const sortedSymbols = [...targetMap.entries()]
-    .sort((a, b) => b[1].maxDifference - a[1].maxDifference)
-    .slice(0, limit);
-
-  // 5️⃣ بازسازی Map
-  currancyDiffTrackerByPeriod[periodType].clear();
-  for (const [symbol, tracker] of sortedSymbols) {
-    currancyDiffTrackerByPeriod[periodType].set(symbol, tracker);
-  }
-}
-
-
+// ذخیره داده‌های جدید برای تمام periods
 async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
-  // console.log("currencyDiffTracker:", currencyDiffTracker);
+  // rowsInfo → CurrencyDiffTracker برای هر period
 
-  rowsInfo.forEach(row => {
-    const { symbol, percent, wallex, binance, value } = row.rowData;
-    const currentTime = getTehranTime();
-    const percentRecord: PercentageRecord = {
-      time: currentTime,
-      value: percent,
-      exchangeBuyPrice: parseFloat(wallex[0]),
-      binanceSellPrice: parseFloat(binance),
-      buyVolume: value
-    };
-
-    if (!currencyDiffTracker.has(symbol) /* || currencyDiffTracker.get(symbol).statusCompare !== row.rowData.statusCompare */) {
-      currencyDiffTracker.set(symbol, {
+  for (const period of Object.values(PeriodType)) {
+    const periodMap = currancyDiffTrackerByPeriod[period as keyof typeof currancyDiffTrackerByPeriod];
+    
+    rowsInfo.forEach(row => {
+      const { symbol, percent, wallex, binance, value } = row.rowData;
+      
+      const tracker: CurrencyDiffTracker = {
+        exchange_name: 'wallex',
         symbol,
-        statusCompare: row.rowData.statusCompare,
-        maxDifference: percent,
-        percentages: [percentRecord]
-      });
-    } else {
-      const tracker = currencyDiffTracker.get(symbol)!;
-      const lastRecord = tracker.percentages[0]; // آخرین record (ترتیب نزولی هست)
+        status_compare: row.rowData.statusCompare,
+        period_type: period as PeriodType,
+        difference: percent,
+        exchange_buy_price: parseFloat(wallex[0]),
+        binance_sell_price: parseFloat(binance),
+        buy_volume_tmn: value
+      };
 
-      tracker.maxDifference = Math.max(tracker.maxDifference, percent);
-
-      // فقط اگر condition رو pass کنه، اضافه کن
-      if (shouldAddPercentage(lastRecord, percent)) {
-        tracker.percentages.push(percentRecord);
-        tracker.percentages = tracker.percentages.sort((a, b) => b.value - a.value).slice(0, 10);
+      // اگر symbol نیست یا percent بیشتر است، به روز کن
+      if (!periodMap.has(symbol) || percent > periodMap.get(symbol)!.difference) {
+        periodMap.set(symbol, tracker);
       }
-    }
-  })
-  
-  combineTrackerMaps(currancyDiffTrackerByPeriod.last24h,currencyDiffTracker,"last24h")
-  combineTrackerMaps(currancyDiffTrackerByPeriod.lastWeek,currencyDiffTracker,"lastWeek")
-  combineTrackerMaps(currancyDiffTrackerByPeriod.allTime,currencyDiffTracker,"allTime")
-  
-  saveTrackerToDatabase("wallex",currancyDiffTrackerByPeriod)
-  // Save to database - 3 periods
-  // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'last24h');
-  // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'lastWeek', 10);
-  // await saveTrackerToDatabase('wallex', currencyDiffTracker, 'allTime', 50);
-  // saveHistoryToFile('wallex', currencyDiffTracker);
+    });
+  }
+
+  // ذخیره به دیتابیس
+  await saveTrackerToDatabase("wallex", currancyDiffTrackerByPeriod);
 }
 
 // function wallex_getTopFiveCurrenciesWithDifferences() {
