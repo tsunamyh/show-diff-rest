@@ -17,7 +17,6 @@ interface CurrencyDiffTracker {
   exchange_buy_price?: number;
   binance_sell_price?: number;
   buy_volume_tmn?: number;
-  record_time: string;
 }
 
 // یک Pool برای postgres بیس (برای ساخت دیتابیس)
@@ -99,17 +98,16 @@ async function initializeDatabase(): Promise<void> {
         exchange_buy_price DECIMAL(20, 2),
         binance_sell_price DECIMAL(20, 2),
         buy_volume_tmn DECIMAL(20, 8),
-        record_time TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
-        UNIQUE(exchange_name, symbol, period_type, DATE(record_time))
+        UNIQUE(exchange_name, symbol, period_type)
       );
     `);
 
     // Create indexes
     await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_price_checks_exchange_period_time 
-      ON price_checks(exchange_name, period_type, record_time DESC);
+      ON price_checks(exchange_name, period_type, created_at DESC);
     `);
 
     await getPool().query(`
@@ -207,7 +205,7 @@ async function loadAllDataByExchangeName(
     const rows = await getPool().query(
       `SELECT * FROM price_checks 
        WHERE exchange_name = $1
-       ORDER BY period_type, difference DESC, record_time DESC;`,
+       ORDER BY period_type, difference DESC, created_at DESC;`,
       [exchange]
     );
 
@@ -227,8 +225,7 @@ async function loadAllDataByExchangeName(
           difference: Number(row.difference),
           exchange_buy_price: row.exchange_buy_price ? Number(row.exchange_buy_price) : undefined,
           binance_sell_price: row.binance_sell_price ? Number(row.binance_sell_price) : undefined,
-          buy_volume_tmn: row.buy_volume_tmn ? Number(row.buy_volume_tmn) : undefined,
-          record_time: row.record_time.toISOString()
+          buy_volume_tmn: row.buy_volume_tmn ? Number(row.buy_volume_tmn) : undefined
         });
       }
     }
@@ -275,8 +272,8 @@ async function saveTrackerToDatabase(
         await getPool().query(
           `INSERT INTO price_checks 
            (exchange_name, symbol, status_compare, period_type, difference,
-            exchange_buy_price, binance_sell_price, buy_volume_tmn, record_time)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+            exchange_buy_price, binance_sell_price, buy_volume_tmn)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
           [
             exchange,
             record.symbol,
@@ -285,8 +282,7 @@ async function saveTrackerToDatabase(
             record.difference,
             record.exchange_buy_price ?? null,
             record.binance_sell_price ?? null,
-            record.buy_volume_tmn ?? null,
-            record.record_time
+            record.buy_volume_tmn ?? null
           ]
         );
       }
