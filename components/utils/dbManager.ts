@@ -1,11 +1,18 @@
 import { Pool } from 'pg';
 
+enum PeriodType {
+  last1h = 'last1h',
+  last24h = 'last24h',
+  lastWeek = 'lastWeek',
+  allTime = 'allTime'
+}
+
 interface CurrencyDiffTracker {
   id?: number;
   exchange_name: string;
   symbol: string;
   status_compare: string;
-  period_type: 'last1h' | 'last24h' | 'lastWeek' | 'allTime';
+  period_type: PeriodType;
   difference: number;
   exchange_buy_price?: number;
   binance_sell_price?: number;
@@ -178,73 +185,60 @@ function getTehranTimeAsDate(): Date {
 /**
  * داده‌ها را برای دوره‌های مختلف دریافت کنید
  * @param {string} exchange - نام صرافی
- * @returns {Promise<object>} شامل last24h، lastWeek، allTime
+ * @returns {Promise<object>} شامل last1h، last24h، lastWeek، allTime
  */
 async function loadAllDataByExchangeName(
   exchange: 'wallex' | 'okex' | 'nobitex'
 ): Promise<{
+  last1h: Map<string, CurrencyDiffTracker>;
   last24h: Map<string, CurrencyDiffTracker>;
   lastWeek: Map<string, CurrencyDiffTracker>;
   allTime: Map<string, CurrencyDiffTracker>;
 }> {
   const result = {
+    last1h: new Map<string, CurrencyDiffTracker>(),
     last24h: new Map<string, CurrencyDiffTracker>(),
     lastWeek: new Map<string, CurrencyDiffTracker>(),
     allTime: new Map<string, CurrencyDiffTracker>()
   };
 
-  // دریافت تمام داده‌ها بدون LIMIT
-  const rows = await getPool().query(
-    `
-    SELECT
-      s.id AS symbol_id,
-      s.symbol,
-      s.status_compare,
-      s.max_difference,
-      s.period_type,
-      p.record_time,
-      p.value,
-      p.exchange_buy_price,
-      p.binance_sell_price,
-      p.buy_volume
-    FROM price_symbols s
-    LEFT JOIN price_percentages p ON p.symbol_id = s.id
-    WHERE s.exchange_name = $1
-    ORDER BY s.period_type, s.max_difference DESC, p.record_time ASC;
-    `,
-    [exchange]
-  );
+  try {
+    // دریافت تمام داده‌ها از جدول price_checks
+    const rows = await getPool().query(
+      `SELECT * FROM price_checks 
+       WHERE exchange_name = $1
+       ORDER BY period_type, difference DESC, record_time DESC;`,
+      [exchange]
+    );
 
-  // console.log("rows : ", rows.rows);
+    // تقسیم داده‌ها براساس period_type
+    for (const row of rows.rows) {
+      const periodType = row.period_type as PeriodType;
+      const map = result[periodType];
 
-  // تقسیم داده‌ها براساس period_type
-  for (const row of rows.rows) {
-    const periodType = row.period_type as 'last24h' | 'lastWeek' | 'allTime';
-    const map = result[periodType];
-
-    if (!map.has(row.symbol)) {
-      map.set(row.symbol, {
-        symbol: row.symbol,
-        statusCompare: row.status_compare,
-        maxDifference: Number(row.max_difference),
-        percentages: []
-      });
+      // اگر symbol قبلاً ثبت نشده است، آن را اضافه کنید
+      if (!map.has(row.symbol)) {
+        map.set(row.symbol, {
+          id: row.id,
+          exchange_name: row.exchange_name,
+          symbol: row.symbol,
+          status_compare: row.status_compare,
+          period_type: periodType,
+          difference: Number(row.difference),
+          exchange_buy_price: row.exchange_buy_price ? Number(row.exchange_buy_price) : undefined,
+          binance_sell_price: row.binance_sell_price ? Number(row.binance_sell_price) : undefined,
+          buy_volume_tmn: row.buy_volume_tmn ? Number(row.buy_volume_tmn) : undefined,
+          record_time: row.record_time.toISOString()
+        });
+      }
     }
 
-    if (row.record_time) {
-      map.get(row.symbol)!.percentages.push({
-        time: row.record_time,
-        value: Number(row.value),
-        exchangeBuyPrice: Number(row.exchange_buy_price),
-        binanceSellPrice: Number(row.binance_sell_price),
-        buyVolume: row.buy_volume !== null ? Number(row.buy_volume) : null
-      });
-    }
-    
+    console.log(`✅ Loaded ${exchange} data from price_checks`);
+    return result;
+  } catch (error) {
+    console.error(`❌ Error loading data for ${exchange}:`, error);
+    return result;
   }
-  console.log("result['allTime']=>  ",result["allTime"]);
-
-  return result;
 }
 
 
@@ -271,10 +265,10 @@ async function saveTrackerToDatabase(
     );
 
     // ۲- ذخیره داده‌های جدید از تمام periods
-    const periods: ('last1h' | 'last24h' | 'lastWeek' | 'allTime')[] = ['last1h', 'last24h', 'lastWeek', 'allTime'];
+    const periods = Object.values(PeriodType);
     
     for (const period of periods) {
-      const trackerMap = trackerByPeriod[period];
+      const trackerMap = trackerByPeriod[period as keyof typeof trackerByPeriod];
       if (!trackerMap || trackerMap.size === 0) continue;
 
       for (const [symbol, record] of trackerMap.entries()) {
@@ -308,6 +302,8 @@ async function saveTrackerToDatabase(
 
 
 export {
+  PeriodType,
+  type CurrencyDiffTracker,
   getPool,
   ensureDatabase,
   initializeDatabase,
