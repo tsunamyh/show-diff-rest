@@ -33,6 +33,9 @@ importers:
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.1
+      '@types/pg':
+        specifier: ^8.16.0
+        version: 8.16.0
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
@@ -48,6 +51,9 @@ packages:
 
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+
+  '@types/pg@8.16.0':
+    resolution: {integrity: sha512-RmhMd/wD+CF8Dfo+cVIy3RR5cl8CyfXQ0tGgW6XBL8L4LM/UTEbNXYRbLwU6w+CgrKBNbrQWt4FUtTfaU5jSYQ==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -474,6 +480,12 @@ snapshots:
   '@types/node@24.10.1':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/pg@8.16.0':
+    dependencies:
+      '@types/node': 24.10.1
+      pg-protocol: 1.11.0
+      pg-types: 2.2.0
 
   '@types/ws@8.18.1':
     dependencies:
