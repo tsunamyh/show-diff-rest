@@ -299,7 +299,7 @@ async function saveTrackerToDatabase(
 
 export {
   PeriodType,
-  type CurrencyDiffTracker,
+  CurrencyDiffTracker,
   getPool,
   ensureDatabase,
   initializeDatabase,
