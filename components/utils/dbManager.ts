@@ -17,6 +17,7 @@ interface CurrencyDiffTracker {
   exchange_buy_price?: number;
   binance_sell_price?: number;
   buy_volume_tmn?: number;
+  last_updated?: string;
 }
 
 // یک Pool برای postgres بیس (برای ساخت دیتابیس)
@@ -98,7 +99,7 @@ async function initializeDatabase(): Promise<void> {
         exchange_buy_price DECIMAL(20, 2),
         binance_sell_price DECIMAL(20, 2),
         buy_volume_tmn DECIMAL(20, 8),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
         UNIQUE(exchange_name, symbol, period_type)
       );
@@ -107,7 +108,7 @@ async function initializeDatabase(): Promise<void> {
     // Create indexes
     await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_price_checks_exchange_period_time 
-      ON price_checks(exchange_name, period_type, created_at DESC);
+      ON price_checks(exchange_name, period_type, last_updated DESC);
     `);
 
     await getPool().query(`
@@ -181,7 +182,7 @@ function getTehranTimeAsDate(): Date {
 }
 
 /**
- * داده‌ها را برای دوره‌های مختلف دریافت کنید
+ * داده‌ها را برای دوره‌های مختلف دریافت کنید - فقط records در محدوده زمانی
  * @param {string} exchange - نام صرافی
  * @returns {Promise<object>} شامل last1h، last24h، lastWeek، allTime
  */
@@ -205,13 +206,32 @@ async function loadAllDataByExchangeName(
     const rows = await getPool().query(
       `SELECT * FROM price_checks 
        WHERE exchange_name = $1
-       ORDER BY period_type, difference DESC, created_at DESC;`,
+       ORDER BY period_type, difference DESC, last_updated DESC;`,
       [exchange]
     );
 
-    // تقسیم داده‌ها براساس period_type
+    const now = Date.now();
+
+    // تقسیم داده‌ها براساس period_type و محدوده زمانی
     for (const row of rows.rows) {
       const periodType = row.period_type as PeriodType;
+      const updatedTime = new Date(row.last_updated).getTime();
+      const diffMs = now - updatedTime;
+
+      // فیلتر کردن براساس period
+      let isValid = false;
+      if (periodType === PeriodType.last1h && diffMs <= 60 * 60 * 1000) {
+        isValid = true;
+      } else if (periodType === PeriodType.last24h && diffMs <= 24 * 60 * 60 * 1000) {
+        isValid = true;
+      } else if (periodType === PeriodType.lastWeek && diffMs <= 7 * 24 * 60 * 60 * 1000) {
+        isValid = true;
+      } else if (periodType === PeriodType.allTime) {
+        isValid = true;
+      }
+
+      if (!isValid) continue;
+
       const map = result[periodType];
 
       // اگر symbol قبلاً ثبت نشده است، آن را اضافه کنید
@@ -225,12 +245,13 @@ async function loadAllDataByExchangeName(
           difference: Number(row.difference),
           exchange_buy_price: row.exchange_buy_price ? Number(row.exchange_buy_price) : undefined,
           binance_sell_price: row.binance_sell_price ? Number(row.binance_sell_price) : undefined,
-          buy_volume_tmn: row.buy_volume_tmn ? Number(row.buy_volume_tmn) : undefined
+          buy_volume_tmn: row.buy_volume_tmn ? Number(row.buy_volume_tmn) : undefined,
+          last_updated: row.last_updated
         });
       }
     }
 
-    console.log(`✅ Loaded ${exchange} data from price_checks`);
+    console.log(`✅ Loaded ${exchange} data from price_checks (with time filtering)`);
     return result;
   } catch (error) {
     console.error(`❌ Error loading data for ${exchange}:`, error);
@@ -269,11 +290,13 @@ async function saveTrackerToDatabase(
       if (!trackerMap || trackerMap.size === 0) continue;
 
       for (const [symbol, record] of trackerMap.entries()) {
+        const lastUpdated = record.last_updated ? new Date(record.last_updated) : new Date();
+        
         await getPool().query(
           `INSERT INTO price_checks 
            (exchange_name, symbol, status_compare, period_type, difference,
-            exchange_buy_price, binance_sell_price, buy_volume_tmn)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`,
+            exchange_buy_price, binance_sell_price, buy_volume_tmn, last_updated)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
           [
             exchange,
             record.symbol,
@@ -282,7 +305,8 @@ async function saveTrackerToDatabase(
             record.difference,
             record.exchange_buy_price ?? null,
             record.binance_sell_price ?? null,
-            record.buy_volume_tmn ?? null
+            record.buy_volume_tmn ?? null,
+            lastUpdated
           ]
         );
       }

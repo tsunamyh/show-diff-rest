@@ -141,6 +141,7 @@ function isWithinPeriod(time: string, periodType: PeriodType) {
 // ذخیره داده‌های جدید برای تمام periods
 async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
   // rowsInfo → CurrencyDiffTracker برای هر period
+  const currentTime = new Date().toISOString();
 
   for (const period of Object.values(PeriodType)) {
     const periodMap = currancyDiffTrackerByPeriod[period as keyof typeof currancyDiffTrackerByPeriod];
@@ -156,7 +157,8 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
         difference: percent,
         exchange_buy_price: parseFloat(wallex[0]),
         binance_sell_price: parseFloat(binance),
-        buy_volume_tmn: value
+        buy_volume_tmn: value,
+        last_updated: currentTime
       };
 
       // اگر symbol نیست یا percent بیشتر است، به روز کن
@@ -166,8 +168,50 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     });
   }
 
+  // فیلتر کردن symbols بر اساس زمان قبل از ذخیره
+  filterTrackerByPeriodTime(currancyDiffTrackerByPeriod);
+
   // ذخیره به دیتابیس
   await saveTrackerToDatabase("wallex", currancyDiffTrackerByPeriod);
+}
+
+// فیلتر کردن symbols بر اساس زمان برای هر period
+function filterTrackerByPeriodTime(trackerByPeriod: {
+  last1h: Map<string, CurrencyDiffTracker>;
+  last24h: Map<string, CurrencyDiffTracker>;
+  lastWeek: Map<string, CurrencyDiffTracker>;
+  allTime: Map<string, CurrencyDiffTracker>;
+}) {
+  const now = Date.now();
+  
+  // last1h: حذف کن اگر قدیمی‌تر از 1 ساعت
+  trackerByPeriod.last1h.forEach((tracker, symbol) => {
+    const updatedTime = new Date(tracker.last_updated || new Date()).getTime();
+    const diffMs = now - updatedTime;
+    if (diffMs > 60 * 60 * 1000) {
+      trackerByPeriod.last1h.delete(symbol);
+    }
+  });
+
+  // last24h: حذف کن اگر قدیمی‌تر از 24 ساعت
+  trackerByPeriod.last24h.forEach((tracker, symbol) => {
+    const updatedTime = new Date(tracker.last_updated || new Date()).getTime();
+    const diffMs = now - updatedTime;
+    if (diffMs > 24 * 60 * 60 * 1000) {
+      trackerByPeriod.last24h.delete(symbol);
+    }
+  });
+
+  // lastWeek: حذف کن اگر قدیمی‌تر از 7 روز
+  trackerByPeriod.lastWeek.forEach((tracker, symbol) => {
+    const updatedTime = new Date(tracker.last_updated || new Date()).getTime();
+    const diffMs = now - updatedTime;
+    if (diffMs > 7 * 24 * 60 * 60 * 1000) {
+      trackerByPeriod.lastWeek.delete(symbol);
+    }
+  });
+
+  // allTime: همه نگه داریم (بدون فیلتر)
 }
 
 // function wallex_getTopFiveCurrenciesWithDifferences() {
