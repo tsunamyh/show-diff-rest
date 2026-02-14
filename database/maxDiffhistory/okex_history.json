@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-10T21:44:59.383Z",
+  "timestamp": "2026-02-14T14:06:49.510Z",
   "exchangeName": "okex",
   "last24h": [],
   "lastWeek": [
@@ -14,13 +14,6 @@
           "exchangeBuyPrice": 10756.9328,
           "binanceSellPrice": 10857.6616,
           "buyVolume": 41793911
-        },
-        {
-          "time": "2/6/2026, 11:10:17 PM",
-          "value": 0.54,
-          "exchangeBuyPrice": 12698.323199999999,
-          "binanceSellPrice": 12766.498500000002,
-          "buyVolume": 10071040
         }
       ]
     }

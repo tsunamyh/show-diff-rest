@@ -218,19 +218,19 @@ async function loadAllDataByExchangeName(
       const updatedTime = new Date(row.last_updated).getTime();
       const diffMs = now - updatedTime;
 
-      // فیلتر کردن براساس period
-      let isValid = false;
-      if (periodType === PeriodType.last1h && diffMs <= 60 * 60 * 1000) {
-        isValid = true;
-      } else if (periodType === PeriodType.last24h && diffMs <= 24 * 60 * 60 * 1000) {
-        isValid = true;
-      } else if (periodType === PeriodType.lastWeek && diffMs <= 7 * 24 * 60 * 60 * 1000) {
-        isValid = true;
-      } else if (periodType === PeriodType.allTime) {
-        isValid = true;
-      }
+      // // فیلتر کردن براساس period
+      // let isValid = false;
+      // if (periodType === PeriodType.last1h && diffMs <= 60 * 60 * 1000) {
+      //   isValid = true;
+      // } else if (periodType === PeriodType.last24h && diffMs <= 24 * 60 * 60 * 1000) {
+      //   isValid = true;
+      // } else if (periodType === PeriodType.lastWeek && diffMs <= 7 * 24 * 60 * 60 * 1000) {
+      //   isValid = true;
+      // } else if (periodType === PeriodType.allTime) {
+      //   isValid = true;
+      // }
 
-      if (!isValid) continue;
+      // if (!isValid) continue;
 
       const map = result[periodType];
 
@@ -282,11 +282,60 @@ async function saveTrackerToDatabase(
       [exchange]
     );
 
-    // ۲- ذخیره داده‌های جدید از تمام periods
+    // ۲- فیلتر براساس period و زمان قبل از ذخیره
+    const now = Date.now();
+    const filteredTrackerByPeriod = {
+      last1h: new Map<string, CurrencyDiffTracker>(),
+      last24h: new Map<string, CurrencyDiffTracker>(),
+      lastWeek: new Map<string, CurrencyDiffTracker>(),
+      allTime: new Map<string, CurrencyDiffTracker>()
+    };
+
+    // last1h: فقط اگر < 1 ساعت
+    if (trackerByPeriod.last1h) {
+      trackerByPeriod.last1h.forEach((record, symbol) => {
+        const updatedTime = new Date(record.last_updated || new Date()).getTime();
+        const diffMs = now - updatedTime;
+        if (diffMs <= 60 * 60 * 1000) {
+          filteredTrackerByPeriod.last1h.set(symbol, record);
+        }
+      });
+    }
+
+    // last24h: فقط اگر < 24 ساعت
+    if (trackerByPeriod.last24h) {
+      trackerByPeriod.last24h.forEach((record, symbol) => {
+        const updatedTime = new Date(record.last_updated || new Date()).getTime();
+        const diffMs = now - updatedTime;
+        if (diffMs <= 24 * 60 * 60 * 1000) {
+          filteredTrackerByPeriod.last24h.set(symbol, record);
+        }
+      });
+    }
+
+    // lastWeek: فقط اگر < 7 روز
+    if (trackerByPeriod.lastWeek) {
+      trackerByPeriod.lastWeek.forEach((record, symbol) => {
+        const updatedTime = new Date(record.last_updated || new Date()).getTime();
+        const diffMs = now - updatedTime;
+        if (diffMs <= 7 * 24 * 60 * 60 * 1000) {
+          filteredTrackerByPeriod.lastWeek.set(symbol, record);
+        }
+      });
+    }
+
+    // allTime: همه (بدون فیلتر)
+    if (trackerByPeriod.allTime) {
+      trackerByPeriod.allTime.forEach((record, symbol) => {
+        filteredTrackerByPeriod.allTime.set(symbol, record);
+      });
+    }
+
+    // ۳- ذخیره داده‌های فیلتر شده
     const periods = Object.values(PeriodType);
     
     for (const period of periods) {
-      const trackerMap = trackerByPeriod[period as keyof typeof trackerByPeriod];
+      const trackerMap = filteredTrackerByPeriod[period as keyof typeof filteredTrackerByPeriod];
       if (!trackerMap || trackerMap.size === 0) continue;
 
       for (const [symbol, record] of trackerMap.entries()) {
@@ -312,7 +361,7 @@ async function saveTrackerToDatabase(
       }
     }
 
-    console.log(`✅ Saved ${exchange} to price_checks`);
+    console.log(`✅ Saved ${exchange} to price_checks (with period filtering)`);
     return true;
   } catch (error) {
     console.error(`❌ Error saving tracker for ${exchange}:`, error);

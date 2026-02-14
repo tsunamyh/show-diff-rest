@@ -11,7 +11,7 @@ import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
 
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
-async function getAvailableBalance(symbol: string,price: number): Promise<number> {
+async function getAvailableBalance(symbol: string, price: number): Promise<number> {
   try {
     let baseCurrency = '';
     if (symbol.endsWith('TMN')) {
@@ -26,7 +26,7 @@ async function getAvailableBalance(symbol: string,price: number): Promise<number
       return currentBalance;
     } else {
       return 0;
-    }  
+    }
   } catch (error) {
     console.error(`Error fetching balance for ${symbol}:`, error);
     return 0;
@@ -94,12 +94,22 @@ let currancyDiffTrackerByPeriod = {
 // }
 async function initializeTrackerWithHistory() {
   try {
-    // Tracker شروع خالی است و هنگام wallex_priceComp پر می‌شود
-    currancyDiffTrackerByPeriod = await loadAllDataByExchangeName('wallex');
+       // Load data from database - already filtered by period time in loadAllDataByExchangeName
+    let loadedData = await loadAllDataByExchangeName('wallex');
+    
+    // فیلتر مجدد براساس period قبل از استفاده
+    for (const periodType of Object.keys(loadedData) as Array<keyof typeof loadedData>) {
+      for (let [symbol, record] of loadedData[periodType].entries()) {
+        if (isWithinPeriod(record.last_updated || new Date().toISOString(), periodType as PeriodType)) {
+          currancyDiffTrackerByPeriod[periodType].set(symbol, record);
+        }
+      }
+    }
+    console.log("2-currancyDiffTrackerByPeriod =>",currancyDiffTrackerByPeriod.last1h);
     // console.log(currancyDiffTrackerByPeriod.allTime)  
   } catch (error) {
-    console.log("can Not load Data Or Register Data: ",error);
-    
+    console.log("can Not load Data Or Register Data: ", error);
+
   }
   console.log('✅ Wallex exchange initialized');
 }
@@ -145,10 +155,10 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
 
   for (const period of Object.values(PeriodType)) {
     const periodMap = currancyDiffTrackerByPeriod[period as keyof typeof currancyDiffTrackerByPeriod];
-    
+
     rowsInfo.forEach(row => {
       const { symbol, percent, wallex, binance, value } = row.rowData;
-      
+
       const tracker: CurrencyDiffTracker = {
         exchange_name: 'wallex',
         symbol,
@@ -299,7 +309,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
       ).then((condition) => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
         if (condition.success) {
-          getAvailableBalance(symbol,wallex_tmn_ask).then(availableBalance => {
+          getAvailableBalance(symbol, wallex_tmn_ask).then(availableBalance => {
             if (availableBalance > 0) {
               // SELL in Wallex با مقدار موجود
               setTimeout(() => {
@@ -308,8 +318,8 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
                   availableBalance, // استفاده از موجودی واقعی
                   binance_tmn_ask, // کمی کمتر برای تضمین فروش
                   'SELL'
-                ).then(() => {}).
-                catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+                ).then(() => { }).
+                  catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
               }, 150);
             } else {
               setTimeout(() => {
@@ -317,8 +327,8 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
                   console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
                 });
                 console.warn(`⚠️ No balance available for SELL: ${symbol}`);
-              }, 150);  
-                
+              }, 150);
+
             }
           });
         }
