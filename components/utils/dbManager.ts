@@ -73,7 +73,7 @@ async function ensureDatabase(): Promise<void> {
   } finally {
     await adminPool.end();
   }
-  
+
   // بعد از ایجاد دیتابیس، pool را اولیه سازی کنید
   initializePool();
 }
@@ -282,65 +282,13 @@ async function saveTrackerToDatabase(
       [exchange]
     );
 
-    // ۲- فیلتر براساس period و زمان قبل از ذخیره
-    const now = Date.now();
-    const filteredTrackerByPeriod = {
-      last1h: new Map<string, CurrencyDiffTracker>(),
-      last24h: new Map<string, CurrencyDiffTracker>(),
-      lastWeek: new Map<string, CurrencyDiffTracker>(),
-      allTime: new Map<string, CurrencyDiffTracker>()
-    };
-
-    // last1h: فقط اگر < 1 ساعت
-    if (trackerByPeriod.last1h) {
-      trackerByPeriod.last1h.forEach((record, symbol) => {
-        const updatedTime = new Date(record.last_updated || new Date()).getTime();
-        const diffMs = now - updatedTime;
-        if (diffMs <= 60 * 60 * 1000) {
-          filteredTrackerByPeriod.last1h.set(symbol, record);
-        }
-      });
-    }
-
-    // last24h: فقط اگر < 24 ساعت
-    if (trackerByPeriod.last24h) {
-      trackerByPeriod.last24h.forEach((record, symbol) => {
-        const updatedTime = new Date(record.last_updated || new Date()).getTime();
-        const diffMs = now - updatedTime;
-        if (diffMs <= 24 * 60 * 60 * 1000) {
-          filteredTrackerByPeriod.last24h.set(symbol, record);
-        }
-      });
-    }
-
-    // lastWeek: فقط اگر < 7 روز
-    if (trackerByPeriod.lastWeek) {
-      trackerByPeriod.lastWeek.forEach((record, symbol) => {
-        const updatedTime = new Date(record.last_updated || new Date()).getTime();
-        const diffMs = now - updatedTime;
-        if (diffMs <= 7 * 24 * 60 * 60 * 1000) {
-          filteredTrackerByPeriod.lastWeek.set(symbol, record);
-        }
-      });
-    }
-
-    // allTime: همه (بدون فیلتر)
-    if (trackerByPeriod.allTime) {
-      trackerByPeriod.allTime.forEach((record, symbol) => {
-        filteredTrackerByPeriod.allTime.set(symbol, record);
-      });
-    }
-
-    // ۳- ذخیره داده‌های فیلتر شده
     const periods = Object.values(PeriodType);
-    
+
     for (const period of periods) {
-      const trackerMap = filteredTrackerByPeriod[period as keyof typeof filteredTrackerByPeriod];
+      const trackerMap = trackerByPeriod[period as keyof typeof trackerByPeriod];
       if (!trackerMap || trackerMap.size === 0) continue;
 
       for (const [symbol, record] of trackerMap.entries()) {
-        const lastUpdated = record.last_updated ? new Date(record.last_updated) : new Date();
-        
         await getPool().query(
           `INSERT INTO price_checks 
            (exchange_name, symbol, status_compare, period_type, difference,
@@ -355,7 +303,7 @@ async function saveTrackerToDatabase(
             record.exchange_buy_price ?? null,
             record.binance_sell_price ?? null,
             record.buy_volume_tmn ?? null,
-            lastUpdated
+            record.last_updated
           ]
         );
       }
@@ -369,6 +317,17 @@ async function saveTrackerToDatabase(
   }
 }
 
+async function getDataByExchangename(exchange: 'wallex' | 'nobitex' | 'okex') {
+  let result = await loadAllDataByExchangeName(exchange)
+
+  return {
+    exchangeName: exchange,
+    last1h: [...result.last1h.values()],
+    last24h: [...result.last24h.values()],
+    lastWeek: [...result.lastWeek.values()],
+    allTime: [...result.allTime.values()]
+  }
+}
 
 export {
   PeriodType,
@@ -377,5 +336,6 @@ export {
   ensureDatabase,
   initializeDatabase,
   saveTrackerToDatabase,
-  loadAllDataByExchangeName
+  loadAllDataByExchangeName,
+  getDataByExchangename
 };

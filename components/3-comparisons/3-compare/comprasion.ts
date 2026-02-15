@@ -5,6 +5,7 @@ import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } f
 import { okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "../2-exchanges-vs-binance/okex-binance";
 import { nobitex_priceComp, initializeTrackerWithHistory as initNobitexHistory } from "../2-exchanges-vs-binance/nobitex-binance";
 import { getDataByPeriod } from "../../utils/historyManager";
+import { getDataByExchangename } from "../../utils/dbManager";
 
 const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(9);
@@ -48,20 +49,20 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
         const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 22);
 
         eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));
-        const wallexTopFives = getDataByPeriod('wallex');
+        const wallexTopDifference = await getDataByExchangename('wallex');
         eventEmmiter.emit("diff", JSON.stringify({
           status: "maxDiff",
-          maxDiff: wallexTopFives
+          maxDiff: wallexTopDifference
         }));
-        const okexTopFives = getDataByPeriod('okex');
+        const okexTopDifference = await getDataByExchangename('okex');
         eventEmmiter.emit("diff", JSON.stringify({
           status: "maxDiff",
-          maxDiff: okexTopFives
+          maxDiff: okexTopDifference
         }));
-        const nobitexTopFives = getDataByPeriod('nobitex');
+        const nobitexTopDifference = await getDataByExchangename('nobitex');
         eventEmmiter.emit("diff", JSON.stringify({
           status: "maxDiff",
-          maxDiff: nobitexTopFives
+          maxDiff: nobitexTopDifference
         }));
       }
     } catch (error) {

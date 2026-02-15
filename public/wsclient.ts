@@ -29,22 +29,28 @@ interface RowInfo {
     statusCompare: string;
   };
 }
+enum PeriodType {
+  last1h = 'last1h',
+  last24h = 'last24h',
+  lastWeek = 'lastWeek',
+  allTime = 'allTime'
+}
 interface CurrencyDiffTracker {
+  id?: number;
+  exchange_name: string;
   symbol: string;
-  statusCompare: string;
-  maxDifference: number;
-  percentages: {
-    time: string;
-    value: number;
-    exchangeBuyPrice?: number;
-    binanceSellPrice?: number;
-    buyVolume?: number;
-  }[];
+  status_compare: string;
+  period_type: PeriodType;
+  difference: number;
+  exchange_buy_price?: number;
+  binance_sell_price?: number;
+  buy_volume_tmn?: number;
+  last_updated?: string;
 }
 
 interface HistoryFile {
-  timestamp: string;
   exchangeName: string;
+  last1h: CurrencyDiffTracker[];
   last24h: CurrencyDiffTracker[];
   lastWeek: CurrencyDiffTracker[];
   allTime: CurrencyDiffTracker[];
@@ -347,11 +353,11 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
         tr.style.background = 'white';
       });
 
-      const latestPercent = item.percentages?.[0]?.value ?? "-";
-      const latestTime = item.percentages?.[0]?.time ?? "-";
-      const exchangeBuyPrice = item.percentages?.[0]?.exchangeBuyPrice ?? "-";
-      const binanceSellPrice = item.percentages?.[0]?.binanceSellPrice ?? "-";
-      const buyVolume = item.percentages?.[0]?.buyVolume ?? "-";
+      const latestPercent = item.difference ?? "-";
+      const latestTime = item.last_updated ?? "-";
+      const exchangeBuyPrice = item.exchange_buy_price ?? "-";
+      const binanceSellPrice = item.binance_sell_price ?? "-";
+      const buyVolume = item.buy_volume_tmn ?? "-";
 
       const formattedBuyPrice = typeof exchangeBuyPrice === 'number' ? exchangeBuyPrice.toLocaleString('fa-IR', { maximumFractionDigits: 2 }) : exchangeBuyPrice;
       const formattedSellPrice = typeof binanceSellPrice === 'number' ? binanceSellPrice.toLocaleString('fa-IR', { maximumFractionDigits: 2 }) : binanceSellPrice;

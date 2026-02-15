@@ -94,9 +94,9 @@ let currancyDiffTrackerByPeriod = {
 // }
 async function initializeTrackerWithHistory() {
   try {
-       // Load data from database - already filtered by period time in loadAllDataByExchangeName
+    // Load data from database - already filtered by period time in loadAllDataByExchangeName
     let loadedData = await loadAllDataByExchangeName('wallex');
-    
+
     // فیلتر مجدد براساس period قبل از استفاده
     for (const periodType of Object.keys(loadedData) as Array<keyof typeof loadedData>) {
       for (let [symbol, record] of loadedData[periodType].entries()) {
@@ -105,7 +105,7 @@ async function initializeTrackerWithHistory() {
         }
       }
     }
-    console.log("2-currancyDiffTrackerByPeriod =>",currancyDiffTrackerByPeriod.last1h);
+    // console.log("2-currancyDiffTrackerByPeriod =>", currancyDiffTrackerByPeriod.last1h.size);
     // console.log(currancyDiffTrackerByPeriod.allTime)  
   } catch (error) {
     console.log("can Not load Data Or Register Data: ", error);
@@ -154,7 +154,7 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
   const currentTime = new Date().toISOString();
 
   for (const period of Object.values(PeriodType)) {
-    const periodMap = currancyDiffTrackerByPeriod[period as keyof typeof currancyDiffTrackerByPeriod];
+    const periodMap = currancyDiffTrackerByPeriod[period/*  as keyof typeof currancyDiffTrackerByPeriod */];
 
     rowsInfo.forEach(row => {
       const { symbol, percent, wallex, binance, value } = row.rowData;
@@ -175,11 +175,16 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
       if (!periodMap.has(symbol) || percent > periodMap.get(symbol)!.difference) {
         periodMap.set(symbol, tracker);
       }
+      console.log(periodMap.size,"|||",currancyDiffTrackerByPeriod[period].size);
+      
     });
   }
 
   // فیلتر کردن symbols بر اساس زمان قبل از ذخیره
+  console.log("1-beforefilterrrrrrrrrrrrrrrrrrrrrrrrrrrrr",currancyDiffTrackerByPeriod.last1h.size);
+  
   filterTrackerByPeriodTime(currancyDiffTrackerByPeriod);
+  console.log("2-afterfilterrrrrrrrrrrrrrrrrrrrrrrrrrrrr",currancyDiffTrackerByPeriod.last1h.size);
 
   // ذخیره به دیتابیس
   await saveTrackerToDatabase("wallex", currancyDiffTrackerByPeriod);
@@ -193,34 +198,53 @@ function filterTrackerByPeriodTime(trackerByPeriod: {
   allTime: Map<string, CurrencyDiffTracker>;
 }) {
   const now = Date.now();
-  
+
   // last1h: حذف کن اگر قدیمی‌تر از 1 ساعت
-  trackerByPeriod.last1h.forEach((tracker, symbol) => {
+  currancyDiffTrackerByPeriod.last1h.forEach((tracker, symbol) => {
     const updatedTime = new Date(tracker.last_updated || new Date()).getTime();
     const diffMs = now - updatedTime;
     if (diffMs > 60 * 60 * 1000) {
-      trackerByPeriod.last1h.delete(symbol);
+      currancyDiffTrackerByPeriod.last1h.delete(symbol);
     }
   });
+  
+  let last1h = [...currancyDiffTrackerByPeriod.last1h.entries()]
+    .sort((a, b) => b[1].difference - a[1].difference)
+    .slice(0, 20);
 
+  currancyDiffTrackerByPeriod.last1h = new Map(last1h);
   // last24h: حذف کن اگر قدیمی‌تر از 24 ساعت
-  trackerByPeriod.last24h.forEach((tracker, symbol) => {
+  currancyDiffTrackerByPeriod.last24h.forEach((tracker, symbol) => {
     const updatedTime = new Date(tracker.last_updated || new Date()).getTime();
     const diffMs = now - updatedTime;
     if (diffMs > 24 * 60 * 60 * 1000) {
-      trackerByPeriod.last24h.delete(symbol);
+      currancyDiffTrackerByPeriod.last24h.delete(symbol);
     }
   });
-
+  
+  let last24h = [...currancyDiffTrackerByPeriod.last24h.entries()]
+    .sort((a, b) => b[1].difference - a[1].difference)
+    .slice(0, 20);
+  currancyDiffTrackerByPeriod.last24h = new Map(last24h)
   // lastWeek: حذف کن اگر قدیمی‌تر از 7 روز
-  trackerByPeriod.lastWeek.forEach((tracker, symbol) => {
+  currancyDiffTrackerByPeriod.lastWeek.forEach((tracker, symbol) => {
     const updatedTime = new Date(tracker.last_updated || new Date()).getTime();
     const diffMs = now - updatedTime;
     if (diffMs > 7 * 24 * 60 * 60 * 1000) {
-      trackerByPeriod.lastWeek.delete(symbol);
+      currancyDiffTrackerByPeriod.lastWeek.delete(symbol);
     }
   });
 
+  let lastWeek = [...currancyDiffTrackerByPeriod.lastWeek.entries()]
+    .sort((a, b) => b[1].difference - a[1].difference)
+    .slice(0, 20);
+  currancyDiffTrackerByPeriod.lastWeek = new Map(lastWeek);
+
+  let allTime = [...trackerByPeriod.allTime.entries()]
+    .sort((a, b) => b[1].difference - a[1].difference)
+    .slice(0, 50);
+  
+  currancyDiffTrackerByPeriod.allTime = new Map(allTime);
   // allTime: همه نگه داریم (بدون فیلتر)
 }
 
