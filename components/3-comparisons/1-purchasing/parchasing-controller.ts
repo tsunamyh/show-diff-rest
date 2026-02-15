@@ -43,10 +43,23 @@ export async function wallexGetOpenOrders(symbol?: string): Promise<OpenOrdersRe
 /**
  * Get wallet balances from Wallex
  */
+let startBalance = "0";
 export async function wallexGetBalances(baseAsset: string): Promise<string> {
-  return await wallexService.getBalances(baseAsset);
+  const balanceResponse = await wallexService.getBalances(baseAsset);
+  if (baseAsset = 'TMN') startBalance = balanceResponse;
+  return balanceResponse;
 }
 
+wallexGetBalances('TMN')
+  .then((balance) => {
+    console.log(`Available balance for TMN: ${balance}`);
+  }).catch((e) => {
+    console.log("balance Avaliyeh gerefte Nashod");
+
+  })
+export function getStartBallance() {
+  return startBalance;
+}
 // ==================== OKEX Functions (Placeholder) ====================
 
 /**

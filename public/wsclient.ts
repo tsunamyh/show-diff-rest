@@ -113,11 +113,11 @@ function setTiltle(title) {
   }
 }
 
-function updateUsdtRate(rate) {
-  if (usdtRateDisplay) {
-    usdtRateDisplay.textContent = rate.toLocaleString('fa-IR');
-  }
-}
+// function updateUsdtRate(rate) {
+//   if (usdtRateDisplay) {
+//     usdtRateDisplay.textContent = rate.toLocaleString('fa-IR');
+//   }
+// }
 
 function updateLastUpdate() {
   if (lastUpdateDisplay) {

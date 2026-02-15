@@ -3,6 +3,7 @@ import path from "path";
 // import { getLatestRowsInfo } from "./components/comparisons/exchanges-vs-binance/wallex-binance";
 import { getUsdtToTmnRate } from "./components/1-tracker/wallexPriceTracker";
 import './components/3-comparisons/2-exchanges-vs-binance/wallex-binance'; // Start price comparison
+import { getStartBallance } from "./components/3-comparisons/1-purchasing/parchasing-controller";
 
 const app = express()
 
@@ -49,10 +50,11 @@ app.get("/", function (req, res) {
 
 app.get('/diff', function (req, res) {
   const rate = getUsdtToTmnRate();
-
+  const startBallance = getStartBallance();
   res.render("diff", {
     usdtToTmnRate: rate === 1 ? " به روز نشده" : rate,
-    date: new Date().toLocaleString()
+    startBallance: startBallance === "0" ? "در حال دریافت..." : startBallance,
+    startDate: new Date().toLocaleString()
   })
 })
 
@@ -61,5 +63,4 @@ app.use((req, res) => {
   res.status(404).send('<h1 align="center" style="color:red">404 Not Found</h1>');
 })
 
-console.log("app is running");
 export { app };
