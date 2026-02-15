@@ -12,7 +12,6 @@ function getPrecision(symbol: string): { amount: number; price: number } {
   try {
     if (symbol.endsWith('TMN')) {
       const precision = commonSymbols.symbols.wallex_symbol.tmnPairs[pair];
-      console.log(`   TMN pair - found:`, precision);
       if (precision) {
         return {
           amount: precision.amount_precision,
@@ -117,7 +116,7 @@ export async function validateAndExecuteTrade(
   if (side === 'BUY') {
     // ==================== Step 1: Check the minimum available amount(quantity) for trade ====================
     if (amountTmn !== undefined && amountTmn <= config.minTradeAmountInTMN) {
-      console.log(`📊 Step 1${symbol}: Not enough amount for trade: ${amountTmn} TMN < ${config.minTradeAmountInTMN} TMN`)
+      console.log(`📊 Step 1 :${symbol}: Not enough amount for trade: ${amountTmn} TMN < ${config.minTradeAmountInTMN} TMN`)
       return {
         success: false,
         reason: `Amount for trade is less than the minimum trade amount limit`

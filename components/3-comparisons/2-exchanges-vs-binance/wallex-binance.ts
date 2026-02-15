@@ -175,7 +175,6 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
       if (!periodMap.has(symbol) || percent > periodMap.get(symbol)!.difference) {
         periodMap.set(symbol, tracker);
       }
-      console.log(periodMap.size,"|||",currancyDiffTrackerByPeriod[period].size);
       
     });
   }
