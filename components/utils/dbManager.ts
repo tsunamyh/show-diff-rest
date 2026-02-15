@@ -101,7 +101,7 @@ async function initializeDatabase(): Promise<void> {
         buy_volume_tmn DECIMAL(20, 8),
         last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
-        UNIQUE(exchange_name, symbol, period_type)
+        UNIQUE(exchange_name, symbol, period_type, status_compare)
       );
     `);
 

@@ -129,8 +129,8 @@ function isWithinPeriod(time: string, periodType: PeriodType) {
   if (periodType === PeriodType.allTime) return true;
 
   const now = Date.now();
+  // Convert ISO string to timestamp (always UTC)
   const recordTime = new Date(time).getTime();
-
   const diffMs = now - recordTime;
 
   if (periodType === PeriodType.last1h) {
