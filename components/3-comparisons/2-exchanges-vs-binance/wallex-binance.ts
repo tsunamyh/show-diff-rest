@@ -181,11 +181,7 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
   }
 
   // فیلتر کردن symbols بر اساس زمان قبل از ذخیره
-  console.log("1-beforefilterrrrrrrrrrrrrrrrrrrrrrrrrrrrr",currancyDiffTrackerByPeriod.last1h.size);
-  
   filterTrackerByPeriodTime(currancyDiffTrackerByPeriod);
-  console.log("2-afterfilterrrrrrrrrrrrrrrrrrrrrrrrrrrrr",currancyDiffTrackerByPeriod.last1h.size);
-
   // ذخیره به دیتابیس
   await saveTrackerToDatabase("wallex", currancyDiffTrackerByPeriod);
 }
@@ -207,7 +203,7 @@ function filterTrackerByPeriodTime(trackerByPeriod: {
       currancyDiffTrackerByPeriod.last1h.delete(symbol);
     }
   });
-  
+
   let last1h = [...currancyDiffTrackerByPeriod.last1h.entries()]
     .sort((a, b) => b[1].difference - a[1].difference)
     .slice(0, 20);

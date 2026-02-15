@@ -352,9 +352,8 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
       tr.addEventListener('mouseout', () => {
         tr.style.background = 'white';
       });
-
       const latestPercent = item.difference ?? "-";
-      const latestTime = item.last_updated ?? "-";
+      const latestTime = (new Date(item.last_updated)).toLocaleString("en-US", { timeZone: "Asia/Tehran" }) ?? "-";
       const exchangeBuyPrice = item.exchange_buy_price ?? "-";
       const binanceSellPrice = item.binance_sell_price ?? "-";
       const buyVolume = item.buy_volume_tmn ?? "-";

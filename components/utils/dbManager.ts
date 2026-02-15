@@ -117,7 +117,6 @@ async function initializeDatabase(): Promise<void> {
     `);
 
     console.log('✅ Database initialized successfully');
-    console.log('📊 Table: price_checks');
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     throw error;

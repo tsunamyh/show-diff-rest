@@ -11,7 +11,6 @@ async function start() {
     console.log('🔄 Starting database initialization...');
     await ensureDatabase();
     await initializeDatabase();
-    console.log('✅ Database initialized successfully');
     server.listen(port, () => {
       console.log(`🚀 Server is listening on port ${port}`)
     });
