@@ -34,11 +34,15 @@ async function fetchWallexUsdtToTmn(){
       params:{symbol : "USDTTMN"},
     })
     wallexGlobalUsdtToTmnRate = parseFloat(response.data.result?.bid?.[0]?.price || "1");
+    return wallexGlobalUsdtToTmnRate;
   } catch (error) {
     console.error('Error fetching USDT/TMN rate:', error);
   }
 }
-
+fetchWallexUsdtToTmn().then((rate) => {
+  console.log(`[${new Date().toISOString()}] Initial USDT/TMN Rate: ${rate}`);
+  
+});
 async function fetchWallexPrices(): Promise<WallexOrderbooks | undefined> {
   try {
     // console.log(`[${new Date().toISOString()}] Fetching prices from Wallex API...`);
