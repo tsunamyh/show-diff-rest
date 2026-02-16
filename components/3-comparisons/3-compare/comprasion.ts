@@ -54,16 +54,16 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
           status: "maxDiff",
           maxDiff: wallexTopDifference
         }));
-        const okexTopDifference = await getDataByExchangename('okex');
-        eventEmmiter.emit("diff", JSON.stringify({
-          status: "maxDiff",
-          maxDiff: okexTopDifference
-        }));
-        const nobitexTopDifference = await getDataByExchangename('nobitex');
-        eventEmmiter.emit("diff", JSON.stringify({
-          status: "maxDiff",
-          maxDiff: nobitexTopDifference
-        }));
+        // const okexTopDifference = await getDataByExchangename('okex');
+        // eventEmmiter.emit("diff", JSON.stringify({
+        //   status: "maxDiff",
+        //   maxDiff: okexTopDifference
+        // }));
+        // const nobitexTopDifference = await getDataByExchangename('nobitex');
+        // eventEmmiter.emit("diff", JSON.stringify({
+        //   status: "maxDiff",
+        //   maxDiff: nobitexTopDifference
+        // }));
       }
     } catch (error) {
       console.error('Error in priceComp:', error);
