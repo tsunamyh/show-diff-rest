@@ -1,4 +1,15 @@
-import { Pool } from 'pg';
+let Pool: any = null;
+let isDbAvailable = false;
+
+// Try to load pg module - if not available, database features will be disabled
+try {
+  const pgModule = require('pg');
+  Pool = pgModule.Pool;
+  isDbAvailable = true;
+} catch (error: any) {
+  console.warn('⚠️  pg module not available - database features disabled');
+  isDbAvailable = false;
+}
 
 enum PeriodType {
   last1h = 'last1h',
@@ -20,19 +31,19 @@ interface CurrencyDiffTracker {
   last_updated?: string;
 }
 
-// یک Pool برای postgres بیس (برای ساخت دیتابیس)
-const adminPool = new Pool({
+// یک Pool برای postgres بیس (برای ساخت دیتابیس) - صرف اگر available باشد
+const adminPool = isDbAvailable ? new Pool({
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
   database: 'postgres',  // اتصال به postgres default database
   password: process.env.DB_PASSWORD || '123456',
   port: parseInt(process.env.DB_PORT || '5432'),
-});
+}) : null;
 
 // Pool اصلی برای اتصال به دیتابیس ما - بطور تنبل اولیه سازی می شود
-let pool: Pool | null = null;
+let pool: any = null;
 
-function initializePool(): Pool {
+function initializePool() {
   if (!pool) {
     pool = new Pool({
       user: process.env.DB_USER || 'postgres',
@@ -45,7 +56,7 @@ function initializePool(): Pool {
   return pool;
 }
 
-function getPool(): Pool {
+function getPool() {
   if (!pool) {
     throw new Error('Database pool not initialized. Call initializeDatabase first.');
   }
@@ -58,20 +69,38 @@ function getPool(): Pool {
  * @throws {Error} اگر ایجاد ناموفق باشد
  */
 async function ensureDatabase(): Promise<void> {
+  if (!isDbAvailable) {
+    console.warn('⚠️  Database not available (pg module not installed)');
+    return;
+  }
+
   const dbName = process.env.DB_NAME || 'maxdiff_db';
   try {
     console.log(`🔍 Checking if database "${dbName}" exists...`);
-    await adminPool.query(`CREATE DATABASE ${dbName};`);
+    await adminPool!.query(`CREATE DATABASE ${dbName};`);
     console.log(`✅ Database "${dbName}" created successfully`);
   } catch (error: any) {
-    if (error.code === '42P04') {
+    // بررسی خطاهای اتصال
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
+      console.error(`❌ Cannot connect to PostgreSQL server: ${error.message}`);
+      console.error(`   Host: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}`);
+      console.warn('⚠️  Setting database to unavailable mode');
+      isDbAvailable = false;
+      throw error; // retry will handle this
+    } else if (error.code === '42P04') {
       console.log(`✅ Database "${dbName}" already exists`);
     } else {
-      console.log("throw error =>", error)
+      console.error("❌ Unexpected database error =>", error.message);
       throw error;
     }
   } finally {
-    await adminPool.end();
+    if (adminPool) {
+      try {
+        await adminPool.end();
+      } catch (error: any) {
+        // Ignore pool end errors
+      }
+    }
   }
 
   // بعد از ایجاد دیتابیس، pool را اولیه سازی کنید
@@ -84,6 +113,11 @@ async function ensureDatabase(): Promise<void> {
  * @throws {Error} اگر ایجاد جدول ناموفق باشد
  */
 async function initializeDatabase(): Promise<void> {
+  if (!isDbAvailable) {
+    console.warn('⚠️  Database not available (pg module not installed)');
+    return;
+  }
+
   try {
     console.log('📦 Initializing database...');
 
@@ -200,6 +234,11 @@ async function loadAllDataByExchangeName(
     allTime: new Map<string, CurrencyDiffTracker>()
   };
 
+  if (!isDbAvailable) {
+    console.warn(`⚠️  Database not available - returning empty data for ${exchange}`);
+    return result;
+  }
+
   try {
     // دریافت تمام داده‌ها از جدول price_checks
     const rows = await getPool().query(
@@ -275,6 +314,18 @@ async function saveTrackerToDatabase(
   }
 ): Promise<boolean> {
   try {
+    // Check if database is available
+    if (!isDbAvailable) {
+      console.warn(`⚠️  Database not available - skipping save for ${exchange}`);
+      return false;
+    }
+
+    // Check if pool is initialized
+    if (!pool) {
+      console.warn(`⚠️  Database pool not initialized. Skipping save for ${exchange}`);
+      return false;
+    }
+
     // ۱- حذف تمام داده‌های قدیمی این صرافی
     await getPool().query(
       `DELETE FROM price_checks WHERE exchange_name = $1;`,
@@ -328,6 +379,13 @@ async function getDataByExchangename(exchange: 'wallex' | 'nobitex' | 'okex') {
   }
 }
 
+function getDbStatus() {
+  return {
+    available: isDbAvailable,
+    mode: isDbAvailable ? 'normal' : 'degraded'
+  };
+}
+
 export {
   PeriodType,
   CurrencyDiffTracker,
@@ -336,5 +394,6 @@ export {
   initializeDatabase,
   saveTrackerToDatabase,
   loadAllDataByExchangeName,
-  getDataByExchangename
+  getDataByExchangename,
+  getDbStatus
 };
