@@ -243,13 +243,6 @@ function filterTrackerByPeriodTime(trackerByPeriod: {
   // allTime: همه نگه داریم (بدون فیلتر)
 }
 
-// function wallex_getTopFiveCurrenciesWithDifferences() {
-//     return {
-//         exchangeName: "wallex",
-//         topFiveCurrencies: sortedCurrencies
-//     };
-// }
-
 async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrderbooks: WallexOrderbooks) {
   try {
     const rowsInfo: RowInfo[] = [];
@@ -268,7 +261,7 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
 
       if (!binanceData || !wallexDataUsdt) continue;
       rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol, wallexOrderbooks.exchangeName);
-      if (rowInfo && rowInfo?.rowData.value > 500000) rowsInfo.push(rowInfo);
+      if (rowInfo) rowsInfo.push(rowInfo);
 
     }
 
