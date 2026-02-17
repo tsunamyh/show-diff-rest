@@ -125,15 +125,15 @@ async function initializeDatabase(): Promise<void> {
     await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_checks (
         id BIGSERIAL PRIMARY KEY,
-        exchange_name VARCHAR(50) NOT NULL,
+        exchange_name VARCHAR(20) NOT NULL,
         period_type VARCHAR(20) NOT NULL,
         symbol VARCHAR(20) NOT NULL,
-        status_compare VARCHAR(20) NOT NULL,
-        difference DECIMAL(10, 2),
-        exchange_buy_price DECIMAL(20, 2),
-        binance_sell_price DECIMAL(20, 2),
-        buy_volume_tmn DECIMAL(20, 8),
-        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status_compare VARCHAR(15) NOT NULL,
+        difference VARCHAR(10),
+        exchange_buy_price VARCHAR(20),
+        binance_sell_price VARCHAR(20),
+        buy_volume_tmn VARCHAR(20),
+        last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
         
         UNIQUE(exchange_name, symbol, period_type, status_compare)
       );
@@ -253,9 +253,10 @@ async function loadAllDataByExchangeName(
     // تقسیم داده‌ها براساس period_type و محدوده زمانی
     for (const row of rows.rows) {
       const periodType = row.period_type as PeriodType;
-      const updatedTime = new Date(row.last_updated).getTime();
-      const diffMs = now - updatedTime;
-
+      // const updatedTime = new Date(row.last_updated).getTime();
+      // const diffMs = now - updatedTime;
+      // console.log(periodType,row.last_updated,diffMs / (1000 * 60));
+      
       // // فیلتر کردن براساس period
       // let isValid = false;
       // if (periodType === PeriodType.last1h && diffMs <= 60 * 60 * 1000) {
@@ -325,25 +326,47 @@ async function saveTrackerToDatabase(
       console.warn(`⚠️  Database pool not initialized. Skipping save for ${exchange}`);
       return false;
     }
-
-    // ۱- حذف تمام داده‌های قدیمی این صرافی
-    await getPool().query(
-      `DELETE FROM price_checks WHERE exchange_name = $1;`,
-      [exchange]
-    );
-
+    // console.log("5:>>",[...trackerByPeriod.last1h.values()][0])
     const periods = Object.values(PeriodType);
+    const periodIntervals: { [key in PeriodType]: string } = {
+      [PeriodType.last1h]: "1 hour",
+      [PeriodType.last24h]: "24 hours",
+      [PeriodType.lastWeek]: "7 days",
+      [PeriodType.allTime]: "100 years" // basically never delete allTime
+    };
 
+    // Delete old records for each period first
+    for (const period of periods) {
+      const interval = periodIntervals[period as PeriodType];
+      const rows = await getPool().query(
+        `DELETE FROM price_checks
+         WHERE exchange_name = $1
+         AND period_type = $2
+         AND last_updated < NOW() - INTERVAL '${interval}';`,
+        [exchange, period]
+      );
+      console.log("deleteee :",rows.rows);
+      
+    }
+    
+    // Then UPSERT new/updated records
     for (const period of periods) {
       const trackerMap = trackerByPeriod[period as keyof typeof trackerByPeriod];
       if (!trackerMap || trackerMap.size === 0) continue;
-
+      
       for (const [symbol, record] of trackerMap.entries()) {
-        await getPool().query(
+        let a = await getPool().query(
           `INSERT INTO price_checks 
-           (exchange_name, symbol, status_compare, period_type, difference,
-            exchange_buy_price, binance_sell_price, buy_volume_tmn, last_updated)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);`,
+          (exchange_name, symbol, status_compare, period_type, difference,
+          exchange_buy_price, binance_sell_price, buy_volume_tmn, last_updated)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          ON CONFLICT (exchange_name, symbol, period_type, status_compare)
+          DO UPDATE SET
+          difference = EXCLUDED.difference,
+          exchange_buy_price = EXCLUDED.exchange_buy_price,
+          binance_sell_price = EXCLUDED.binance_sell_price,
+          buy_volume_tmn = EXCLUDED.buy_volume_tmn,
+          last_updated = EXCLUDED.last_updated;`,
           [
             exchange,
             record.symbol,
@@ -356,10 +379,11 @@ async function saveTrackerToDatabase(
             record.last_updated
           ]
         );
+        // console.log("rows:", a.rows);
       }
     }
 
-    console.log(`✅ Saved ${exchange} to price_checks (with period filtering)`);
+    console.log(`✅ Saved ${exchange} to price_checks (old data removed, new data upserted)`);
     return true;
   } catch (error) {
     console.error(`❌ Error saving tracker for ${exchange}:`, error);

@@ -105,8 +105,7 @@ async function initializeTrackerWithHistory() {
         }
       }
     }
-    // console.log("2-currancyDiffTrackerByPeriod =>", currancyDiffTrackerByPeriod.last1h.size);
-    // console.log(currancyDiffTrackerByPeriod.allTime)  
+    // console.log("2:>>",currancyDiffTrackerByPeriod.last1h)  
   } catch (error) {
     console.log("can Not load Data Or Register Data: ", error);
 
@@ -134,6 +133,9 @@ function isWithinPeriod(time: string, periodType: PeriodType) {
   const diffMs = now - recordTime;
 
   if (periodType === PeriodType.last1h) {
+    console.log("last1h => ",diffMs/(1000 * 60));
+    // console.log(new Date(),time);
+    
     return diffMs <= 60 * 60 * 1000;
   }
 
