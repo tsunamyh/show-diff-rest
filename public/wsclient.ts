@@ -193,8 +193,9 @@ function printMaxDiff(data: RowsInfo) {
     `;
 
     const periods = [
-      { key: 'last24h', label: '📊 آخرین 24 ساعت', data: historyFile.last24h },
-      { key: 'lastWeek', label: '📈 آخرین هفته', data: historyFile.lastWeek },
+      { key: 'last1h', label: '📊 ساعت گذشته', data: historyFile.last1h },
+      { key: 'last24h', label: '📊 24 ساعت گذشته', data: historyFile.last24h },
+      { key: 'lastWeek', label: '📈 هفته گذشته', data: historyFile.lastWeek },
       { key: 'allTime', label: '📉 کل دوره', data: historyFile.allTime }
     ];
 
@@ -202,7 +203,7 @@ function printMaxDiff(data: RowsInfo) {
     contentContainer.setAttribute("data-content-container", historyFile.exchangeName);
 
     // متغیر برای ذخیره تب فعلی
-    let activeTabKey = 'last24h';
+    let activeTabKey = 'last1h';
 
     periods.forEach((period, index) => {
       const tab = document.createElement("button");
@@ -265,14 +266,15 @@ function printMaxDiff(data: RowsInfo) {
   } else {
     // اگر تب‌ها قبلا وجود دارند، فقط داده‌ها را آپدیت کن
     const periods = [
-      { key: 'last24h', label: '📊 آخرین 24 ساعت', data: historyFile.last24h },
-      { key: 'lastWeek', label: '📈 آخرین هفته', data: historyFile.lastWeek },
+      { key: 'last1h', label: '📊 ساعت گذشته', data: historyFile.last1h },
+      { key: 'last24h', label: '📊 24 ساعت گذشته', data: historyFile.last24h },
+      { key: 'lastWeek', label: '📈 هفته گذشته', data: historyFile.lastWeek },
       { key: 'allTime', label: '📉 کل دوره', data: historyFile.allTime }
     ];
 
     // یافتن تب فعلی
     const activeTab = tabsContainer.querySelector('button[style*="#667eea"]') as HTMLElement | null;
-    const activeTabKey = activeTab?.getAttribute("data-tab-key") || 'last24h';
+    const activeTabKey = activeTab?.getAttribute("data-tab-key") || 'last1h';
 
     // آپدیت محتوا برای تب فعلی
     const activePeriod = periods.find(p => p.key === activeTabKey);
