@@ -338,14 +338,14 @@ async function saveTrackerToDatabase(
     // Delete old records for each period first
     for (const period of periods) {
       const interval = periodIntervals[period as PeriodType];
-      const rows = await getPool().query(
+      await getPool().query(
         `DELETE FROM price_checks
          WHERE exchange_name = $1
          AND period_type = $2
          AND last_updated < NOW() - INTERVAL '${interval}';`,
         [exchange, period]
       );
-      console.log("deleteee :",rows.rows);
+      // console.log("deleteee :",rows.rows);
       
     }
     
@@ -355,7 +355,7 @@ async function saveTrackerToDatabase(
       if (!trackerMap || trackerMap.size === 0) continue;
       
       for (const [symbol, record] of trackerMap.entries()) {
-        let a = await getPool().query(
+        await getPool().query(
           `INSERT INTO price_checks 
           (exchange_name, symbol, status_compare, period_type, difference,
           exchange_buy_price, binance_sell_price, buy_volume_tmn, last_updated)
@@ -379,7 +379,6 @@ async function saveTrackerToDatabase(
             record.last_updated
           ]
         );
-        // console.log("rows:", a.rows);
       }
     }
 

@@ -96,7 +96,6 @@ async function initializeTrackerWithHistory() {
   try {
     // Load data from database - already filtered by period time in loadAllDataByExchangeName
     let loadedData = await loadAllDataByExchangeName('wallex');
-
     // فیلتر مجدد براساس period قبل از استفاده
     for (const periodType of Object.keys(loadedData) as Array<keyof typeof loadedData>) {
       for (let [symbol, record] of loadedData[periodType].entries()) {
@@ -133,9 +132,6 @@ function isWithinPeriod(time: string, periodType: PeriodType) {
   const diffMs = now - recordTime;
 
   if (periodType === PeriodType.last1h) {
-    console.log("last1h => ",diffMs/(1000 * 60));
-    // console.log(new Date(),time);
-    
     return diffMs <= 60 * 60 * 1000;
   }
 
