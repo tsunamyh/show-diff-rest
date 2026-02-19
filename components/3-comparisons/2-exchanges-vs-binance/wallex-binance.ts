@@ -7,7 +7,7 @@ import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { saveTrackerToDatabase, loadAllDataByExchangeName, CurrencyDiffTracker, PeriodType } from "../../utils/dbManager";
 // import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
-import { validateAndBuyTrade } from "../1-purchasing/tradeValidator";
+import { validateAndBuyTrade, validateAndSellTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
 import { lossProtectionMonitor } from "../1-purchasing/lossProtectionMonitor";
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
@@ -22,7 +22,7 @@ async function getAvailableBalance(symbol: string): Promise<number> {
     const availableBalanceStr = await wallexGetBalances(baseCurrency);
     const currentBalance = parseFloat(availableBalanceStr) || 0;
     console.log(`Available balance for ${symbol}: ${currentBalance}`);
-    
+
     return currentBalance;
   } catch (error) {
     console.error(`Error fetching balance for ${symbol}:`, error);
@@ -79,16 +79,12 @@ let currancyDiffTrackerByPeriod = {
   lastWeek: new Map<string, CurrencyDiffTracker>(),
   allTime: new Map<string, CurrencyDiffTracker>()
 };
-// let sortedCurrencies: CurrencyDiffTracker[] = [];
 
-// Initialize tracker with history on startup
-// function initializeTrackerWithHistory() {
-//   const historyMap = loadHistoryFromFile('wallex');
-//   currencyDiffTracker = historyMap;
-//   // sortedCurrencies = Array.from(currencyDiffTracker.values())
-//   //   .sort((a, b) => b.maxDifference - a.maxDifference)
-//   //   .slice(0, 5);
-// }
+interface OpenOrders {
+
+}
+let openOrdersForMonitoring = new Map<string, OpenOrders[]>()
+
 async function initializeTrackerWithHistory() {
   try {
     // Load data from database - already filtered by period time in loadAllDataByExchangeName
@@ -320,38 +316,34 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
             .then(availableBalance => {
               if (availableBalance * wallex_tmn_ask > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
                 // SELL in Wallex با مقدار موجود
-                setTimeout(() => {
-                  validateAndBuyTrade(
-                    symbol,
-                    availableBalance, // استفاده از موجودی واقعی
-                    binance_tmn_ask, // کمی کمتر برای تضمین فروش
-                    'SELL'
-                  ).then((sellResult) => {
-                    // Start loss protection monitoring
-                    if (sellResult.success && buyResult.orderId && sellResult.orderId) {
-                      const maxLossPercent = 2; // 2% max loss threshold
-                      const buyPrice = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
+                validateAndSellTrade(
+                  symbol,
+                  availableBalance, // استفاده از موجودی واقعی
+                  binance_tmn_ask, // ??کمی کمتر برای تضمین فروش
+                  'SELL'
+                ).then((sellResult) => {
+                  // Start loss protection monitoring
+                  if (sellResult.success && buyResult.orderId && sellResult.orderId) {
+                    const maxLossPercent = 2; // 2% max loss threshold
+                    const buyPrice = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
+                    lossProtectionMonitor.startMonitoring({
+                      symbol,
+                      buyOrderId: buyResult.orderId,
+                      sellOrderId: sellResult.orderId,
+                      buyPrice,
+                      quantity: availableBalance,
+                      buyedAt: new Date(),
+                      maxLossPercent
+                    });
+                  }
+                }).
+                  catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
 
-                      lossProtectionMonitor.startMonitoring({
-                        symbol,
-                        buyOrderId: buyResult.orderId,
-                        sellOrderId: sellResult.orderId,
-                        buyPrice,
-                        quantity: availableBalance,
-                        buyedAt: new Date(),
-                        maxLossPercent
-                      });
-                    }
-                  }).
-                    catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
-                }, 150);
               } else {
-                setTimeout(() => {
-                  wallexCancelOrderById(buyResult.orderId || "").then((res) => {
-                    console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
-                  });
-                  console.warn(`⚠️ No balance available for SELL: ${symbol}`);
-                }, 150);
+                wallexCancelOrderById(buyResult.orderId || "").then((res) => {
+                  console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
+                });
+                console.warn(`⚠️ No balance available for SELL: ${symbol}`);
 
               }
             });
