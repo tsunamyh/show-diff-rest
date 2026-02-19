@@ -7,11 +7,11 @@ import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
 import { saveTrackerToDatabase, loadAllDataByExchangeName, CurrencyDiffTracker, PeriodType } from "../../utils/dbManager";
 // import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
-import { validateAndExecuteTrade } from "../1-purchasing/tradeValidator";
+import { validateAndBuyTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
-
+import { lossProtectionMonitor } from "../1-purchasing/lossProtectionMonitor";
 // تابع چک موجودی از API والکس و برگرداندن مقدار واقعی
-async function getAvailableBalance(symbol: string, price: number): Promise<number> {
+async function getAvailableBalance(symbol: string): Promise<number> {
   try {
     let baseCurrency = '';
     if (symbol.endsWith('TMN')) {
@@ -22,11 +22,8 @@ async function getAvailableBalance(symbol: string, price: number): Promise<numbe
     const availableBalanceStr = await wallexGetBalances(baseCurrency);
     const currentBalance = parseFloat(availableBalanceStr) || 0;
     console.log(`Available balance for ${symbol}: ${currentBalance}`);
-    if (currentBalance * price > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
-      return currentBalance;
-    } else {
-      return 0;
-    }
+    
+    return currentBalance;
   } catch (error) {
     console.error(`Error fetching balance for ${symbol}:`, error);
     return 0;
@@ -173,7 +170,7 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
       if (!periodMap.has(symbol) || percent > periodMap.get(symbol)!.difference) {
         periodMap.set(symbol, tracker);
       }
-      
+
     });
   }
 
@@ -214,7 +211,7 @@ function filterTrackerByPeriodTime(trackerByPeriod: {
       currancyDiffTrackerByPeriod.last24h.delete(symbol);
     }
   });
-  
+
   let last24h = [...currancyDiffTrackerByPeriod.last24h.entries()]
     .sort((a, b) => b[1].difference - a[1].difference)
     .slice(0, 20);
@@ -236,7 +233,7 @@ function filterTrackerByPeriodTime(trackerByPeriod: {
   let allTime = [...trackerByPeriod.allTime.entries()]
     .sort((a, b) => b[1].difference - a[1].difference)
     .slice(0, 50);
-  
+
   currancyDiffTrackerByPeriod.allTime = new Map(allTime);
   // allTime: همه نگه داریم (بدون فیلتر)
 }
@@ -309,38 +306,55 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
 
     if (difference_percent >= +myPercent) {
       // BUY from Wallex, then SELL in Wallex
-      validateAndExecuteTrade(
+      validateAndBuyTrade(
         symbol,
         currencyAmount,
         wallex_tmn_ask,
         'BUY',
         amountTmn,
         askBidDifferencePercentInWallex
-      ).then((condition) => {
+      ).then((buyResult) => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
-        if (condition.success) {
-          getAvailableBalance(symbol, wallex_tmn_ask).then(availableBalance => {
-            if (availableBalance > 0) {
-              // SELL in Wallex با مقدار موجود
-              setTimeout(() => {
-                validateAndExecuteTrade(
-                  symbol,
-                  availableBalance, // استفاده از موجودی واقعی
-                  binance_tmn_ask, // کمی کمتر برای تضمین فروش
-                  'SELL'
-                ).then(() => { }).
-                  catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
-              }, 150);
-            } else {
-              setTimeout(() => {
-                wallexCancelOrderById(condition.orderId || "").then((res) => {
-                  console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
-                });
-                console.warn(`⚠️ No balance available for SELL: ${symbol}`);
-              }, 150);
+        if (buyResult.success) {
+          getAvailableBalance(symbol)
+            .then(availableBalance => {
+              if (availableBalance * wallex_tmn_ask > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
+                // SELL in Wallex با مقدار موجود
+                setTimeout(() => {
+                  validateAndBuyTrade(
+                    symbol,
+                    availableBalance, // استفاده از موجودی واقعی
+                    binance_tmn_ask, // کمی کمتر برای تضمین فروش
+                    'SELL'
+                  ).then((sellResult) => {
+                    // Start loss protection monitoring
+                    if (sellResult.success && buyResult.orderId && sellResult.orderId) {
+                      const maxLossPercent = 2; // 2% max loss threshold
+                      const buyPrice = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
 
-            }
-          });
+                      lossProtectionMonitor.startMonitoring({
+                        symbol,
+                        buyOrderId: buyResult.orderId,
+                        sellOrderId: sellResult.orderId,
+                        buyPrice,
+                        quantity: availableBalance,
+                        buyedAt: new Date(),
+                        maxLossPercent
+                      });
+                    }
+                  }).
+                    catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+                }, 150);
+              } else {
+                setTimeout(() => {
+                  wallexCancelOrderById(buyResult.orderId || "").then((res) => {
+                    console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
+                  });
+                  console.warn(`⚠️ No balance available for SELL: ${symbol}`);
+                }, 150);
+
+              }
+            });
         }
       }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
 

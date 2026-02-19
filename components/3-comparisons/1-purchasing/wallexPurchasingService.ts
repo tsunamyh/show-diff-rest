@@ -18,7 +18,7 @@ export interface OrderFill {
   commission: string;
 }
 
-export interface OrderResponse {
+export interface PlaceOrderResponse {
   success: boolean;
   message: string;
   result: {
@@ -110,7 +110,7 @@ export class WallexPurchasingService {
    * @param orderData - Order details {symbol, type, side, price, quantity, client_id}
    * @returns Order response with order ID and status
    */
-  async placeOrder(orderData: PlaceOrderRequest): Promise<OrderResponse> {
+  async placeOrder(orderData: PlaceOrderRequest): Promise<PlaceOrderResponse> {
     try {
       // Validate required fields
       if (!orderData.symbol || !orderData.type || !orderData.side || !orderData.quantity) {
@@ -144,7 +144,7 @@ export class WallexPurchasingService {
       console.log(`Placing ${orderData.side} order for ${orderData.symbol}:`, requestBody);
 
       // Make POST request to Wallex
-      const response = await this.client.post<OrderResponse>('/orders', requestBody);
+      const response = await this.client.post<PlaceOrderResponse>('/orders', requestBody);
 
       console.log(`Order placed successfully. Order ID: ${response.data.result?.clientOrderId}`);
 
@@ -169,7 +169,7 @@ export class WallexPurchasingService {
    * @param clientOrderId - The order ID to retrieve details for
    * @returns Order response with current order status and details
    */
-  async getOrder(clientOrderId: string): Promise<OrderResponse> {
+  async getOrder(clientOrderId: string): Promise<PlaceOrderResponse> {
     try {
       if (!clientOrderId) {
         throw new Error('clientOrderId is required');
@@ -178,7 +178,7 @@ export class WallexPurchasingService {
       console.log(`Fetching order details for: ${clientOrderId}`);
 
       // Make GET request to Wallex
-      const response = await this.client.get<OrderResponse>(`/orders/${clientOrderId}`);
+      const response = await this.client.get<PlaceOrderResponse>(`/orders/${clientOrderId}`);
 
       console.log(`Order details retrieved successfully for ${clientOrderId}`);
 

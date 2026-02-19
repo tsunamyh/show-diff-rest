@@ -74,19 +74,20 @@ const defaultWallexConfig: ValidateTradeConfig = {
   AskBidDifferencePercentInWallex: parseFloat(process.env.INTERNAL_PERCENT || '0.5'),
 };
 console.log({
-  maxTradeAmountInTmn : defaultWallexConfig.maxTradeAmountInTMN,
-  minTradeAmountInTmn : defaultWallexConfig.minTradeAmountInTMN,
-  maxBalanceUsagePercent : defaultWallexConfig.maxBalanceUsagePercent,
-  allowDuplicatePosition : defaultWallexConfig.allowDuplicatePosition,
-  AskBidDifferencePercentInWallex : defaultWallexConfig.AskBidDifferencePercentInWallex,
+  maxTradeAmountInTmn: defaultWallexConfig.maxTradeAmountInTMN,
+  minTradeAmountInTmn: defaultWallexConfig.minTradeAmountInTMN,
+  maxBalanceUsagePercent: defaultWallexConfig.maxBalanceUsagePercent,
+  allowDuplicatePosition: defaultWallexConfig.allowDuplicatePosition,
+  AskBidDifferencePercentInWallex: defaultWallexConfig.AskBidDifferencePercentInWallex,
 });
 
-export interface TradeValidationResult {
+export interface BuyTradeValidationResult {
   success: boolean;
   reason?: string;
   finalQuantity?: number;
-  executedOrderId?: string;
+  // executedOrderId?: string;
   orderId?: string;
+  stopLoss?: string | number;
 }
 
 // ==================== Trade Validator ====================
@@ -101,196 +102,203 @@ export interface TradeValidationResult {
  * @param side - BUY or SELL
  * @param amountTmn - (Optional) Custom trade amount in TMN
  * @param askBidDifferencePercentInWallex - (Optional) Custom internal percent for calculations
- * @returns TradeValidationResult indicating success or failure and details
+ * @returns BuyTradeValidationResult indicating success or failure and details
  */
-export async function validateAndExecuteTrade(
+export async function validateAndBuyTrade(
   symbol: string,
   amountCurrency: number,
   price: number,
   side: 'BUY' | 'SELL',
   amountTmn?: number,
   askBidDifferencePercentInWallex?: number,
-): Promise<TradeValidationResult> {
+): Promise<BuyTradeValidationResult> {
   // Use provided config or default config
   const config = defaultWallexConfig;
-  if (side === 'BUY') {
-    // ==================== Step 1: Check the minimum available amount(quantity) for trade ====================
-    if (amountTmn !== undefined && amountTmn <= config.minTradeAmountInTMN) {
-      console.log(`📊 Step 1 :${symbol}: Not enough amount for trade: ${amountTmn} TMN < ${config.minTradeAmountInTMN} TMN`)
-      return {
-        success: false,
-        reason: `Amount for trade is less than the minimum trade amount limit`
-      };
-    }
-    // ==================== Step 2: check Ask & Bid difference percent in Wallex ====================
-    if (askBidDifferencePercentInWallex !== undefined && askBidDifferencePercentInWallex > (config.AskBidDifferencePercentInWallex)) {
-      console.log(`📊 Step 2 :${symbol} Ask-Bid diff percent is greater than the allowed internal percent: ${askBidDifferencePercentInWallex} > ${config.AskBidDifferencePercentInWallex}`);
-      return {
-        success: false,
-        reason: `Ask-Bid difference percent is greater than the allowed internal percent`
-      };
-    }
-    // ==================== Step 3: Limit quantity by max trade amount and amountCurrency ====================
-    const maxAmountCurrency = config.maxTradeAmountInTMN / price;
-    let validAmountCurrency = Math.min(amountCurrency, maxAmountCurrency);
-    // validQuantity باید مینیمم و ماکزیمم داشته باشه
-    //  مثلا اگر 400 هزار تومان برای خرید موجود بود و موجودی کیف پول کمتر از 400 بود
-    //  و از حداقل امکان خرید بیشتر بود معامله کنسل نشه
-    const amountTmnForBuy = validAmountCurrency * price; //needed Amount مبلغ مورد نیاز برای خرید
-    if (amountTmnForBuy < config.minTradeAmountInTMN) {
-      console.log(`📊 Step 3 - Trade amount is less than minimum trade amount limit: ${amountTmnForBuy.toFixed(0)} TMN < ${config.minTradeAmountInTMN} TMN`);
-      return {
-        success: false,
-        reason: `Trade amount is less than the minimum trade amount limit`
-      };
-    }
-    // ==================== Step 4: Check for duplicate positions ====================
-    if (!config.allowDuplicatePosition && side === 'BUY') {
-      try {
-        const openOrders = await wallexGetOpenOrders(symbol);
-        const hasBuyPosition = openOrders.result.orders.length > 0;
 
-        if (hasBuyPosition) {
-          console.log(`📊 Step 4 -positions is open for ${symbol}: ${openOrders.result.orders.length}`);
-          return {
-            success: false,
-            reason: `Already have an open BUY position for ${symbol}`
-          };
-        }
-
-      } catch (positionError: any) {
-        return {
-          success: false,
-          reason: `Failed API to check open positions: ${positionError.message}`
-        };
-      }
-    }
-    // ==================== Step 5: Check balance ====================
+  // ==================== Step 1: Check the minimum available amount(quantity) for trade ====================
+  if (amountTmn !== undefined && amountTmn <= config.minTradeAmountInTMN) {
+    console.log(`📊 Step 1 :${symbol}: Not enough amount for trade: ${amountTmn} TMN < ${config.minTradeAmountInTMN} TMN`)
+    return {
+      success: false,
+      reason: `Amount for trade is less than the minimum trade amount limit`
+    };
+  }
+  // ==================== Step 2: check Ask & Bid difference percent in Wallex ====================
+  if (askBidDifferencePercentInWallex !== undefined && askBidDifferencePercentInWallex > (config.AskBidDifferencePercentInWallex)) {
+    console.log(`📊 Step 2 :${symbol} Ask-Bid diff percent is greater than the allowed internal percent: ${askBidDifferencePercentInWallex} > ${config.AskBidDifferencePercentInWallex}`);
+    return {
+      success: false,
+      reason: `Ask-Bid difference percent is greater than the allowed internal percent`
+    };
+  }
+  // ==================== Step 3: Limit quantity by max trade amount and amountCurrency ====================
+  const maxAmountCurrency = config.maxTradeAmountInTMN / price;
+  let validAmountCurrency = Math.min(amountCurrency, maxAmountCurrency);
+  // validQuantity باید مینیمم و ماکزیمم داشته باشه
+  //  مثلا اگر 400 هزار تومان برای خرید موجود بود و موجودی کیف پول کمتر از 400 بود
+  //  و از حداقل امکان خرید بیشتر بود معامله کنسل نشه
+  const amountTmnForBuy = validAmountCurrency * price; //needed Amount مبلغ مورد نیاز برای خرید
+  if (amountTmnForBuy < config.minTradeAmountInTMN) {
+    console.log(`📊 Step 3 - Trade amount is less than minimum trade amount limit: ${amountTmnForBuy.toFixed(0)} TMN < ${config.minTradeAmountInTMN} TMN`);
+    return {
+      success: false,
+      reason: `Trade amount is less than the minimum trade amount limit`
+    };
+  }
+  // ==================== Step 4: Check for duplicate positions ====================
+  if (!config.allowDuplicatePosition && side === 'BUY') {
     try {
-      // For SELL orders, determine what currency we're checking balance
-      // if (side === 'SELL') {
-      //   if (symbol.endsWith('TMN')) {
-      //     baseCurrency = symbol.replace('TMN', ''); // e.g., BTCTMN → BTC
-      //   } else if (symbol.endsWith('USDT')) {
-      //     baseCurrency = symbol.replace('USDT', ''); // e.g., BTCUSDT → BTC
-      //   }
-      // }
-      let baseCurrency = 'TMN'; // Default for BUY orders (need TMN)
+      const openOrders = await wallexGetOpenOrders(symbol);
+      const hasBuyPosition = openOrders.result.orders.length > 0;
 
-      try {
-        const availableBalance = await wallexGetBalances(baseCurrency);
-        const availableAmount = parseFloat(availableBalance);
-        const maxUsableAmount = (availableAmount * config.maxBalanceUsagePercent) / 100;
-        // if (side === 'BUY') {
-        if (amountTmnForBuy > maxUsableAmount) {
-          console.log(`📊 Step 5 - Not enough balance! Adjusting quantity: Have ${maxUsableAmount} TMN, need ${amountTmnForBuy} TMN`);
-          return {
-            success: false,
-            reason: `Not enough balance. Need ${amountTmnForBuy} TMN but only have ${maxUsableAmount} TMN`
-          };
-        }
-        // } else {
-        // SELL order
-        // if (availableAmount < validAmountCurrency) {
-        //   console.log(`   ⚠️ Not enough ${baseCurrency}! Have ${availableAmount}, need ${validAmountCurrency}`);
-        //   return {
-        //     success: false,
-        //     reason: `Not enough balance. Need ${validAmountCurrency} ${baseCurrency} but only have ${availableAmount} ${baseCurrency}`
-        //   };
-        // }
-        // }
-      } catch (balanceError: any) {
+      if (hasBuyPosition) {
+        console.log(`📊 Step 4 -positions is open for ${symbol}: ${openOrders.result.orders.length}`);
         return {
           success: false,
-          reason: `Step 4 API Failed to check balance: ${balanceError.message}`
+          reason: `Already have an open BUY position for ${symbol}`
         };
       }
 
-
-      // ==================== Step 6: Place order with final quantity ====================
-
-      try {
-        console.log(`\n✅ All validations passed!`);
-        console.log(`📤 Placing ${side} order: ${validAmountCurrency} ${symbol} @ ${price}`);
-
-        // Format quantity and price based on symbol precision
-        const { quantity: formattedQuantity, price: formattedPrice } = formatOrderData(symbol, validAmountCurrency, price);
-
-        const orderResult = await wallexPlaceOrder({
-          symbol: symbol.toUpperCase(),
-          type: 'LIMIT',
-          side,
-          price: formattedPrice,
-          quantity: formattedQuantity
-        });
-
-        if (orderResult.success) {
-          console.log(`✨ Order placed successfully!symbol: ${symbol}`);
-          return {
-            success: true,
-            finalQuantity: validAmountCurrency,
-            executedOrderId: orderResult.result?.clientOrderId,
-            orderId: orderResult.result?.clientOrderId,
-            reason: `Order placed successfully`
-          };
-        } else {
-          return {
-            success: false,
-            reason: `Failed to place order: ${orderResult.message}`
-          };
-        }
-
-      } catch (orderError: any) {
-        return {
-          success: false,
-          reason: `Error placing order: ${orderError.message}`
-        };
-      }
-
-    } catch (error: any) {
-      console.error(`❌ Trade validation error:`, error);
+    } catch (positionError: any) {
       return {
         success: false,
-        reason: `Trade validation failed: ${error.message}`
+        reason: `Failed API to check open positions: ${positionError.message}`
       };
     }
   }
-  //===========================================================================================================================
-  if (side === 'SELL') {
-    const { quantity: formattedAmountCurrency, price: formattedPrice } = formatOrderData(symbol, amountCurrency, price);
-    const amountTmnForSell = +formattedAmountCurrency * +formattedPrice; //needed Amount مبلغ مورد نیاز برای فروش
-    if (amountTmnForSell < config.minTradeAmountInTMN) {
-      console.log(`📊 SELL Step 1${symbol}: Trade amount is less than minimum trade amount limit: ${amountTmnForSell.toFixed(0)} TMN < ${config.minTradeAmountInTMN} TMN`);
+  // ==================== Step 5: Check balance ====================
+  try {
+    // For SELL orders, determine what currency we're checking balance
+    // if (side === 'SELL') {
+    //   if (symbol.endsWith('TMN')) {
+    //     baseCurrency = symbol.replace('TMN', ''); // e.g., BTCTMN → BTC
+    //   } else if (symbol.endsWith('USDT')) {
+    //     baseCurrency = symbol.replace('USDT', ''); // e.g., BTCUSDT → BTC
+    //   }
+    // }
+    let baseCurrency = 'TMN'; // Default for BUY orders (need TMN)
+
+    try {
+      const availableBalance = await wallexGetBalances(baseCurrency);
+      const availableAmount = parseFloat(availableBalance);
+      const maxUsableAmount = (availableAmount * config.maxBalanceUsagePercent) / 100;
+      // if (side === 'BUY') {
+      if (amountTmnForBuy > maxUsableAmount) {
+        console.log(`📊 Step 5 - Not enough balance! Adjusting quantity: Have ${maxUsableAmount} TMN, need ${amountTmnForBuy} TMN`);
+        return {
+          success: false,
+          reason: `Not enough balance. Need ${amountTmnForBuy} TMN but only have ${maxUsableAmount} TMN`
+        };
+      }
+    } catch (balanceError: any) {
       return {
         success: false,
-        reason: `Trade amount is less than the minimum trade amount limit`
+        reason: `Step 5 API Failed to check balance: ${balanceError.message}`
       };
     }
-    try {     
+    // ==================== Step 6: Place order with final quantity ====================
+    try {
+      console.log(`\n✅ All validations passed!`);
+      console.log(`📤 Placing ${side} order: ${validAmountCurrency} ${symbol} @ ${price}`);
+
+      // Format quantity and price based on symbol precision
+      const formatted = formatOrderData(symbol, validAmountCurrency, price);
+
       const orderResult = await wallexPlaceOrder({
         symbol: symbol.toUpperCase(),
         type: 'LIMIT',
         side,
-        price: formattedPrice,
-        quantity: formattedAmountCurrency
+        price: formatted.price,
+        quantity: formatted.quantity
       });
+
       if (orderResult.success) {
-        console.log(`✨ SELL Order placed successfully! symbol: ${symbol}`);
+        console.log(`✨ Order placed successfully!symbol: ${symbol}`);
         return {
           success: true,
-          finalQuantity: amountCurrency,
-          executedOrderId: orderResult.result?.clientOrderId,
+          finalQuantity: validAmountCurrency,
+          // executedOrderId: orderResult.result?.clientOrderId,
           orderId: orderResult.result?.clientOrderId,
-          reason: `SELL Order placed successfully`
+          reason: `Order placed successfully`
+        };
+      } else {
+        return {
+          success: false,
+          reason: `Failed to place order: ${orderResult.message}`
         };
       }
-    } catch (error: any) {
-      console.error(`❌ Error placing SELL order:`, error);
+
+    } catch (orderError: any) {
       return {
         success: false,
-        reason: `Error placing SELL order: ${error.message}`
+        reason: `Error placing order: ${orderError.message}`
       };
     }
+
+  } catch (error: any) {
+    console.error(`❌ Trade validation error:`, error);
+    return {
+      success: false,
+      reason: `Trade validation failed: ${error.message}`
+    };
+  }
+}
+
+//===========================================================================================================================
+/**
+ * Validate trade conditions before placing an order
+ * Checks: balance, quantity limits, duplicate positions
+ * 
+ * @param symbol - Trading pair symbol (e.g., BTCTMN, ETHUSDT)
+ * @param amountCurrency - Quantity calculated from price comparison
+ * @param price - Current ask price
+ * @param side - BUY or SELL
+ * @param amountTmn - (Optional) Custom trade amount in TMN
+ * @param askBidDifferencePercentInWallex - (Optional) Custom internal percent for calculations
+ * @returns SellTradeValidationResult indicating success or failure and details
+ */
+export async function validateAndSellTrade(
+  symbol: string,
+  amountCurrency: number,
+  price: number,
+  side: 'BUY' | 'SELL',
+  amountTmn?: number,
+  askBidDifferencePercentInWallex?: number,
+): Promise<BuyTradeValidationResult> {
+
+  const formatted = formatOrderData(symbol, amountCurrency, price);
+  const amountTmnForSell = +formatted.quantity * +formatted.price; //needed Amount مبلغ مورد نیاز برای فروش
+  if (amountTmnForSell < defaultWallexConfig.minTradeAmountInTMN) {
+    console.log(`📊 SELL Step 1${symbol}: Trade amount is less than minimum trade amount limit: ${amountTmnForSell.toFixed(0)} TMN < ${defaultWallexConfig.minTradeAmountInTMN} TMN`);
+    return {
+      success: false,
+      reason: `Trade amount is less than the minimum trade amount limit`
+    };
+  }
+  try {
+    const orderResult = await wallexPlaceOrder({
+      symbol: symbol.toUpperCase(),
+      type: 'LIMIT',
+      side,
+      price: formatted.price,
+      quantity: formatted.quantity
+    });
+    if (orderResult.success) {
+      console.log(`✨ SELL Order placed successfully! symbol: ${symbol}`);
+      return {
+        success: true,
+        finalQuantity: amountCurrency,
+        // executedOrderId: orderResult.result?.clientOrderId,
+        orderId: orderResult.result?.clientOrderId,
+        reason: `SELL Order placed successfully`
+      };
+    }
+  } catch (error: any) {
+    console.error(`❌ Error placing SELL order:`, error);
+    return {
+      success: false,
+      reason: `Error placing SELL order: ${error.message}`
+    };
   }
 }
 

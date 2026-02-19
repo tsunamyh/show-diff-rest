@@ -1,4 +1,4 @@
-import { WallexPurchasingService, PlaceOrderRequest, OrderResponse, OpenOrdersResponse, BalancesResponse } from "./wallexPurchasingService";
+import { WallexPurchasingService, PlaceOrderRequest, PlaceOrderResponse, OpenOrdersResponse, BalancesResponse } from "./wallexPurchasingService";
 
 // ==================== Service Instances ====================
 
@@ -9,7 +9,7 @@ const wallexService = new WallexPurchasingService();
 /**
  * Place a buy or sell order on Wallex
  */
-export async function wallexPlaceOrder(orderData: PlaceOrderRequest): Promise<OrderResponse> {
+export async function wallexPlaceOrder(orderData: PlaceOrderRequest): Promise<PlaceOrderResponse> {
   return await wallexService.placeOrder(orderData);
 }
 
@@ -18,7 +18,7 @@ export async function wallexPlaceOrder(orderData: PlaceOrderRequest): Promise<Or
 /**
  * Get order details from Wallex
  */
-export async function wallexGetOrder(clientOrderId: string): Promise<OrderResponse> {
+export async function wallexGetOrder(clientOrderId: string): Promise<PlaceOrderResponse> {
   return await wallexService.getOrder(clientOrderId);
 }
 
