@@ -39,7 +39,7 @@ enum WallexUsdtPairIndex {
   USDT_PRICE = 2           // "91762.17"
 }
 
-// * مثال: [tmnPrice, volumeCurrency]
+// * مثال: [tmnPrice, volumeCurrency, tmn_amount]
 enum WallexTmnPairIndex {
   TMN_PRICE = 0,           // "11511692152"
   VOLUME_CURRENCY = 1,     // "0.008717" quantity
@@ -239,21 +239,21 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
     const rowsInfo: RowInfo[] = [];
 
     for (const symbol of wallexBinanceCommonSymbols["binance_symbol"]) {
-      let rowInfo: RowInfo | null = null;
       const binanceData = binanceOrderbooks?.usdt?.[symbol];
+
       const wallexDataTmn = wallexOrderbooks?.tmnPairs?.[symbol.replace("USDT", "TMN").toLowerCase()];
+      if (exsistAskBid(binanceData, wallexDataTmn)) {
+        let rowInfo_usdtvstmn: RowInfo | null = null;
+        rowInfo_usdtvstmn = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol, wallexOrderbooks.exchangeName);
+        if (rowInfo_usdtvstmn) rowsInfo.push(rowInfo_usdtvstmn);
+      }
 
-      if (!binanceData || !wallexDataTmn) continue;
-
-      rowInfo = getRowTableUsdtVsTmn(binanceData, wallexDataTmn, symbol, wallexOrderbooks.exchangeName);
-
-      if (rowInfo) rowsInfo.push(rowInfo);
       const wallexDataUsdt = wallexOrderbooks?.usdtPairs?.[symbol.toLowerCase()];
-
-      if (!binanceData || !wallexDataUsdt) continue;
-      rowInfo = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol, wallexOrderbooks.exchangeName);
-      if (rowInfo) rowsInfo.push(rowInfo);
-
+      if (exsistAskBid(binanceData, wallexDataUsdt)) {
+        let rowInfo_usdtvsusdt: RowInfo | null = null;
+        rowInfo_usdtvsusdt = getRowTableUsdtVsUsdt(binanceData, wallexDataUsdt, symbol, wallexOrderbooks.exchangeName);
+        if (rowInfo_usdtvsusdt) rowsInfo.push(rowInfo_usdtvsusdt);
+      }
     }
 
     // require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
@@ -287,7 +287,6 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
 console.log("mypercent:", myPercent);
 
 function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbolusdt: string, exchangeName: string) {
-  if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
   const symbol = symbolusdt.replace("USDT", "TMN")
   const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
   const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
@@ -358,14 +357,14 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
 }
 
 function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
-  if (!exsistAskBid(binanceOrderbook, wallexOrderbook)) return null;
   const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
-  const binance_usdt_bid = parseFloat(binanceOrderbook.bid[BinanceIndex.USDT_PRICE]);
-  if (wallex_usdt_ask < binance_usdt_bid) {
+  const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
+  if (wallex_usdt_ask < binance_usdt_ask) {
+    console.log("|A|",wallex_usdt_ask,binance_usdt_ask);
     const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
     if (difference_percent >= +myPercent && amount_tmn > 500000) {
       console.log(`\n📊(UsdtVsUsdt) Arbitrage Opportunity Found!`);
-      console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_bid} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
+      console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_ask} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
 
       // BUY from Wallex, then SELL in Wallex
       // validateAndExecuteTrade(
@@ -395,12 +394,12 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
   return null;
 }
 
-function exsistAskBid(binanceOrderbook, wallexOrderbook): boolean {
+function exsistAskBid(binanceOrderbook: any, wallexOrderbook: any): boolean {
   return (
-    binanceOrderbook?.bid?.length >= 2 &&
-    binanceOrderbook?.ask?.length >= 2 &&
-    wallexOrderbook?.bid?.length >= 2 &&
-    wallexOrderbook?.ask?.length >= 2
+    binanceOrderbook?.bid?.length > 0 &&
+    binanceOrderbook?.ask?.length > 0 &&
+    wallexOrderbook?.bid?.length > 0 &&
+    wallexOrderbook?.ask?.length > 0
   );
 }
 
