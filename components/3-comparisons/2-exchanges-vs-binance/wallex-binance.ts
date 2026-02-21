@@ -31,7 +31,7 @@ async function getAvailableBalance(symbol: string): Promise<number> {
 }
 
 const wallexBinanceCommonSymbols = wallex_binance_common_symbols.symbols;
-
+const myPercent = process.env.MYPERCENT || 2.2;
 //  * مثال: [tmnPrice, volumeCurrency, usdtPrice]
 enum WallexUsdtPairIndex {
   TMN_PRICE = 0,           // "11504590301.58"
@@ -68,8 +68,25 @@ interface RowInfo {
   rowData: RowData;
 }
 
-const myPercent = process.env.MYPERCENT || 2.2;
-
+interface OpenOrders {
+  exchange_name: string;     // exchange name
+  symbol: string;            // symbol
+              // usdtvstmn/usdtvsusdt
+              // wallex ask tmn
+              // wallex ask ttr
+              // wallex bid ttr
+              // wallex bid tmn
+              // wallex qauntity
+              // binance ask ttr
+              // binance ask tmn
+              // binance bid ttr
+              // binance bid tmn
+              // difference %
+              // myPercent
+              // spread %
+              // time           
+}
+let openOrdersForMonitoring = new Map<string, OpenOrders[]>()
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
 // Period-based trackers for database storage
@@ -79,11 +96,6 @@ let currancyDiffTrackerByPeriod = {
   lastWeek: new Map<string, CurrencyDiffTracker>(),
   allTime: new Map<string, CurrencyDiffTracker>()
 };
-
-interface OpenOrders {
-
-}
-let openOrdersForMonitoring = new Map<string, OpenOrders[]>()
 
 async function initializeTrackerWithHistory() {
   try {
