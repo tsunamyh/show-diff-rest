@@ -46,7 +46,7 @@ interface OpenOrder extends CurrencyDiffTracker {
   buy_order_id?: string;
   sell_order_id?: string;
   max_loss_percent?: string;
-  status_position?: 'ACTIVE' | 'CLOSED' | 'CANCELLED';
+  status_position?: string;
   // created_at?: string;
   // updated_at?: string;
 }
@@ -145,24 +145,21 @@ async function initializeDatabase(): Promise<void> {
     await getPool().query(`
       CREATE TABLE IF NOT EXISTS price_checks (
         id BIGSERIAL PRIMARY KEY,
-        exchange_name VARCHAR(20) NOT NULL,
-        period_type VARCHAR(20) NOT NULL,
-        symbol VARCHAR(20) NOT NULL,
-        status_compare VARCHAR(15) NOT NULL,
-        difference VARCHAR(10),
-        exchange_ask_tmn VARCHAR(20),
-        exchange_ask_usdt VARCHAR(20),
-        exchange_bid_tmn VARCHAR(20),
-        exchange_bid_usdt VARCHAR(20),
-        exchange_quantity_tmn VARCHAR(20),
-        exchange_quantity_usdt VARCHAR(20),
-        exchange_quantity_currency VARCHAR(20),
-        binance_ask_tmn VARCHAR(20),
-        binance_ask_usdt VARCHAR(20),
-        binance_bid_tmn VARCHAR(20),
-        binance_bid_usdt VARCHAR(20),
-        my_percent VARCHAR(10),
-        spread VARCHAR(10),
+        exchange_name VARCHAR(50) NOT NULL,
+        symbol VARCHAR(50) NOT NULL,
+        status_compare VARCHAR(50) NOT NULL,
+        period_type VARCHAR(50) NOT NULL,
+        difference NUMERIC(20, 8) NOT NULL,
+        exchange_ask_tmn VARCHAR(100),
+        exchange_ask_usdt VARCHAR(100),
+        exchange_quantity_tmn VARCHAR(100),
+        exchange_quantity_usdt VARCHAR(100),
+        exchange_quantity_currency VARCHAR(100),
+        binance_ask_tmn VARCHAR(100),
+        binance_ask_usdt VARCHAR(100),
+        my_percent VARCHAR(100),
+        spread VARCHAR(100),
+        description TEXT,
         last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
         
         UNIQUE(exchange_name, symbol, period_type, status_compare)
@@ -216,51 +213,6 @@ async function initializeDatabase(): Promise<void> {
     throw error;
   }
 }
-
-// Insert maxdiff record into history
-// async function insertMaxDiffRecord(
-//   exchangeName: string,
-//   symbol: string,
-//   percentDifference: number,
-//   exchangePrice: number,
-//   binancePrice: number,
-//   volume: number,
-//   amountIrt: number,
-//   statusCompare: string,
-//   recordTime?: Date
-// ): Promise<any> {
-//   try {
-//     const result = await pool.query(
-//       `INSERT INTO maxdiff_history 
-//         (exchange_name, symbol, percent_difference, exchange_price, binance_price, volume, amount_irt, status_compare, record_time)
-//        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-//        RETURNING *;`,
-//       [
-//         exchangeName,
-//         symbol,
-//         percentDifference,
-//         exchangePrice,
-//         binancePrice,
-//         volume,
-//         amountIrt,
-//         statusCompare,
-//         recordTime || getTehranTimeAsDate()
-//       ]
-//     );
-
-//     return result.rows[0];
-//   } catch (error) {
-//     console.error(`❌ Error inserting maxdiff record for ${symbol}:`, error);
-//     return null;
-//   }
-// }
-
-// function getTehranTime(): string {
-//   const now = new Date();
-//   const tehranTime = now.toLocaleString("en-US", { timeZone: "Asia/Tehran" });
-
-//   return tehranTime;
-// }
 
 /**
  * وقت تهران را به صورت Date object برگردانید
@@ -326,18 +278,14 @@ async function loadAllDataByExchangeName(
           difference: Number(row.difference),
           exchange_ask_tmn: row.exchange_ask_tmn || undefined,
           exchange_ask_usdt: row.exchange_ask_usdt || undefined,
-          exchange_bid_tmn: row.exchange_bid_tmn || undefined,
-          exchange_bid_usdt: row.exchange_bid_usdt || undefined,
-          binance_ask_tmn: row.binance_ask_tmn || undefined,
-          binance_ask_usdt: row.binance_ask_usdt || undefined,
-          binance_bid_tmn: row.binance_bid_tmn || undefined,
-          binance_bid_usdt: row.binance_bid_usdt || undefined,
-          my_percent: row.my_percent || undefined,
-          spread: row.spread || undefined,
           exchange_quantity_tmn: row.exchange_quantity_tmn || undefined,
           exchange_quantity_usdt: row.exchange_quantity_usdt || undefined,
           exchange_quantity_currency: row.exchange_quantity_currency || undefined,
-          // description: row.description ?? null,
+          binance_ask_tmn: row.binance_ask_tmn || undefined,
+          binance_ask_usdt: row.binance_ask_usdt || undefined,
+          my_percent: row.my_percent || undefined,
+          spread: row.spread || undefined,
+          description: row.description || undefined,
           last_updated: row.last_updated
         });
       }
@@ -379,27 +327,24 @@ async function saveOrdersToDatabase(
     await getPool().query(
       `INSERT INTO price_checks 
           (exchange_name, symbol, status_compare, period_type, difference,
-          exchange_ask_tmn, exchange_ask_usdt, exchange_bid_tmn, exchange_bid_usdt,
-          binance_ask_tmn, binance_ask_usdt, binance_bid_tmn, binance_bid_usdt, my_percent,
+          exchange_ask_tmn, exchange_ask_usdt,
+          binance_ask_tmn, binance_ask_usdt, my_percent,
           spread, exchange_quantity_tmn, exchange_quantity_usdt, exchange_quantity_currency,
-          last_updated)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          description, last_updated)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
           ON CONFLICT (exchange_name, symbol, period_type, status_compare)
           DO UPDATE SET
           difference = EXCLUDED.difference,
           exchange_ask_tmn = EXCLUDED.exchange_ask_tmn,
           exchange_ask_usdt = EXCLUDED.exchange_ask_usdt,
-          exchange_bid_tmn = EXCLUDED.exchange_bid_tmn,
-          exchange_bid_usdt = EXCLUDED.exchange_bid_usdt,
           binance_ask_tmn = EXCLUDED.binance_ask_tmn,
           binance_ask_usdt = EXCLUDED.binance_ask_usdt,
-          binance_bid_tmn = EXCLUDED.binance_bid_tmn,
-          binance_bid_usdt = EXCLUDED.binance_bid_usdt,
           my_percent = EXCLUDED.my_percent,
           spread = EXCLUDED.spread,
           exchange_quantity_tmn = EXCLUDED.exchange_quantity_tmn,
           exchange_quantity_usdt = EXCLUDED.exchange_quantity_usdt,
           exchange_quantity_currency = EXCLUDED.exchange_quantity_currency,
+          description = EXCLUDED.description,
           last_updated = EXCLUDED.last_updated;`,
       [
         exchange,
@@ -409,17 +354,14 @@ async function saveOrdersToDatabase(
         openOrders.difference,
         openOrders.exchange_ask_tmn ?? null,
         openOrders.exchange_ask_usdt ?? null,
-        openOrders.exchange_bid_tmn ?? null,
-        openOrders.exchange_bid_usdt ?? null,
         openOrders.binance_ask_tmn ?? null,
         openOrders.binance_ask_usdt ?? null,
-        openOrders.binance_bid_tmn ?? null,
-        openOrders.binance_bid_usdt ?? null,
         openOrders.my_percent ?? null,
         openOrders.spread ?? null,
         openOrders.exchange_quantity_tmn ?? null,
         openOrders.exchange_quantity_usdt ?? null,
         openOrders.exchange_quantity_currency ?? null,
+        openOrders.description ?? null,
         openOrders.last_updated
       ]
     );
@@ -490,27 +432,24 @@ async function saveTrackerToDatabase(
         await getPool().query(
           `INSERT INTO price_checks 
           (exchange_name, symbol, status_compare, period_type, difference,
-          exchange_ask_tmn, exchange_ask_usdt, exchange_bid_tmn, exchange_bid_usdt,
-          binance_ask_tmn, binance_ask_usdt, binance_bid_tmn, binance_bid_usdt, my_percent,
+          exchange_ask_tmn, exchange_ask_usdt,
+          binance_ask_tmn, binance_ask_usdt, my_percent,
           spread, exchange_quantity_tmn, exchange_quantity_usdt, exchange_quantity_currency,
-          last_updated)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          description, last_updated)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
           ON CONFLICT (exchange_name, symbol, period_type, status_compare)
           DO UPDATE SET
           difference = EXCLUDED.difference,
           exchange_ask_tmn = EXCLUDED.exchange_ask_tmn,
           exchange_ask_usdt = EXCLUDED.exchange_ask_usdt,
-          exchange_bid_tmn = EXCLUDED.exchange_bid_tmn,
-          exchange_bid_usdt = EXCLUDED.exchange_bid_usdt,
           binance_ask_tmn = EXCLUDED.binance_ask_tmn,
           binance_ask_usdt = EXCLUDED.binance_ask_usdt,
-          binance_bid_tmn = EXCLUDED.binance_bid_tmn,
-          binance_bid_usdt = EXCLUDED.binance_bid_usdt,
           my_percent = EXCLUDED.my_percent,
           spread = EXCLUDED.spread,
           exchange_quantity_tmn = EXCLUDED.exchange_quantity_tmn,
           exchange_quantity_usdt = EXCLUDED.exchange_quantity_usdt,
           exchange_quantity_currency = EXCLUDED.exchange_quantity_currency,
+          description = EXCLUDED.description,
           last_updated = EXCLUDED.last_updated;`,
           [
             exchange,
@@ -520,17 +459,14 @@ async function saveTrackerToDatabase(
             record.difference,
             record.exchange_ask_tmn ?? null,
             record.exchange_ask_usdt ?? null,
-            record.exchange_bid_tmn ?? null,
-            record.exchange_bid_usdt ?? null,
             record.binance_ask_tmn ?? null,
             record.binance_ask_usdt ?? null,
-            record.binance_bid_tmn ?? null,
-            record.binance_bid_usdt ?? null,
             record.my_percent ?? null,
             record.spread ?? null,
             record.exchange_quantity_tmn ?? null,
             record.exchange_quantity_usdt ?? null,
             record.exchange_quantity_currency ?? null,
+            record.description ?? null,
             record.last_updated
           ]
         );
@@ -567,6 +503,7 @@ function getDbStatus() {
 export {
   PeriodType,
   CurrencyDiffTracker,
+  OpenOrder,
   getPool,
   ensureDatabase,
   initializeDatabase,
