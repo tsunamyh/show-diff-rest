@@ -367,37 +367,15 @@ async function saveOrdersToDatabase(
     await getPool().query(
       `INSERT INTO open_orders 
           (exchange_name, symbol, status_compare, period_type, difference,
-          exchange_ask_tmn, exchange_ask_usdt,
-          binance_ask_tmn, binance_ask_usdt, exchange_quantity_tmn,
-          exchange_quantity_usdt, binance_ask_tmn, binance_ask_usdt, my_percent,
-          spread, last_updated, description, exchange_quantity_currency,
-          binance_bid_tmn, binance_bid_usdt, exchange_bid_tmn, exchange_bid_usdt
+          exchange_ask_tmn, exchange_ask_usdt, exchange_quantity_tmn,
+          exchange_quantity_usdt, binance_ask_tmn, binance_ask_usdt, 
+          my_percent, spread, last_updated, description, 
+          exchange_quantity_currency, binance_bid_tmn,
+          binance_bid_usdt, exchange_bid_tmn, exchange_bid_usdt
           order_id, max_loss_percent, status_position)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
                   $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
-          ON CONFLICT (exchange_name, order_id)
-          DO UPDATE SET
-          difference = EXCLUDED.difference,
-          exchange_ask_tmn = EXCLUDED.exchange_ask_tmn,
-          exchange_ask_usdt = EXCLUDED.exchange_ask_usdt,
-          binance_ask_tmn = EXCLUDED.binance_ask_tmn,
-          binance_ask_usdt = EXCLUDED.binance_ask_usdt,
-          my_percent = EXCLUDED.my_percent,
-          spread = EXCLUDED.spread,
-          exchange_quantity_tmn = EXCLUDED.exchange_quantity_tmn,
-          exchange_quantity_usdt = EXCLUDED.exchange_quantity_usdt,
-          exchange_quantity_currency = EXCLUDED.exchange_quantity_currency,
-          description = EXCLUDED.description,
-          last_updated = EXCLUDED.last_updated,
-          buy_price = EXCLUDED.buy_price,
-          quantity = EXCLUDED.quantity,
-          max_loss_percent = EXCLUDED.max_loss_percent,
-          current_loss_percent = EXCLUDED.current_loss_percent,
-          status = EXCLUDED.status,
-          binance_bid_tmn = EXCLUDED.binance_bid_tmn,
-          binance_bid_usdt = EXCLUDED.binance_bid_usdt,
-          exchange_bid_tmn = EXCLUDED.exchange_bid_tmn,
-          exchange_bid_usdt = EXCLUDED.exchange_bid_usdt;`,
+          ON CONFLICT DO NOTHING;`,
       [
         exchange,
         order.symbol,
@@ -420,7 +398,7 @@ async function saveOrdersToDatabase(
         order.quantity ?? null,
         order.max_loss_percent ?? null,
         order.current_loss_percent ?? null,
-        order.status_position ?? 'ACTIVE',
+        order.status_position ?? null,
         order.binance_bid_tmn ?? null,
         order.binance_bid_usdt ?? null,
         order.exchange_bid_tmn ?? null,
