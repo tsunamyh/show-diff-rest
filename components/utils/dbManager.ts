@@ -374,7 +374,7 @@ async function saveOrdersToDatabase(
           binance_bid_usdt, exchange_bid_tmn, exchange_bid_usdt
           order_id, max_loss_percent, status_position)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-                  $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
+                  $17, $18, $19, $20, $21, $22, $23)
           ON CONFLICT DO NOTHING;`,
       [
         exchange,
@@ -384,25 +384,22 @@ async function saveOrdersToDatabase(
         order.difference,
         order.exchange_ask_tmn ?? null,
         order.exchange_ask_usdt ?? null,
+        order.exchange_quantity_tmn ?? null,
+        order.exchange_quantity_usdt ?? null,
         order.binance_ask_tmn ?? null,
         order.binance_ask_usdt ?? null,
         order.my_percent ?? null,
         order.spread ?? null,
-        order.exchange_quantity_tmn ?? null,
-        order.exchange_quantity_usdt ?? null,
-        order.exchange_quantity_currency ?? null,
-        order.description ?? null,
         order.last_updated ?? new Date().toISOString(),
-        order.order_id ?? null,
-        order.buy_price ?? null,
-        order.quantity ?? null,
-        order.max_loss_percent ?? null,
-        order.current_loss_percent ?? null,
-        order.status_position ?? null,
+        order.description ?? null,
+        order.exchange_quantity_currency ?? null,
         order.binance_bid_tmn ?? null,
         order.binance_bid_usdt ?? null,
         order.exchange_bid_tmn ?? null,
-        order.exchange_bid_usdt ?? null
+        order.exchange_bid_usdt ?? null,
+        order.order_id ?? null,
+        order.max_loss_percent ?? null,
+        order.status_position ?? null
       ]
     );
 
