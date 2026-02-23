@@ -23,12 +23,32 @@ interface CurrencyDiffTracker {
   exchange_name: string;
   symbol: string;
   status_compare: string;
-  period_type: PeriodType;
+  period_type?: PeriodType;
   difference: number;
-  exchange_buy_price?: number;
-  binance_sell_price?: number;
-  buy_volume_tmn?: number;
+  exchange_ask_tmn: string; // exchange_buy_price?: number;
+  exchange_ask_usdt?: string;
+  exchange_quantity_tmn: string;  //buy_volume_tmn?: number;
+  exchange_quantity_usdt?: string;  //buy_volume_tmn?: number;
+  binance_ask_tmn: string;
+  binance_ask_usdt?: string;
+  my_percent: string;
+  spread: string;  //askBidDifferencePercentInevery exchange
   last_updated?: string;
+  description?: string;
+  exchange_quantity_currency?: string;
+}
+
+interface OpenOrder extends CurrencyDiffTracker {
+  binance_bid_tmn: string;  
+  binance_bid_usdt: string;
+  exchange_bid_tmn: string;
+  exchange_bid_usdt?: string;
+  buy_order_id?: string;
+  sell_order_id?: string;
+  max_loss_percent?: string;
+  status_position?: 'ACTIVE' | 'CLOSED' | 'CANCELLED';
+  // created_at?: string;
+  // updated_at?: string;
 }
 
 // یک Pool برای postgres بیس (برای ساخت دیتابیس) - صرف اگر available باشد
@@ -130,12 +150,42 @@ async function initializeDatabase(): Promise<void> {
         symbol VARCHAR(20) NOT NULL,
         status_compare VARCHAR(15) NOT NULL,
         difference VARCHAR(10),
-        exchange_buy_price VARCHAR(20),
-        binance_sell_price VARCHAR(20),
-        buy_volume_tmn VARCHAR(20),
+        exchange_ask_tmn VARCHAR(20),
+        exchange_ask_usdt VARCHAR(20),
+        exchange_bid_tmn VARCHAR(20),
+        exchange_bid_usdt VARCHAR(20),
+        exchange_quantity_tmn VARCHAR(20),
+        exchange_quantity_usdt VARCHAR(20),
+        exchange_quantity_currency VARCHAR(20),
+        binance_ask_tmn VARCHAR(20),
+        binance_ask_usdt VARCHAR(20),
+        binance_bid_tmn VARCHAR(20),
+        binance_bid_usdt VARCHAR(20),
+        my_percent VARCHAR(10),
+        spread VARCHAR(10),
         last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
         
         UNIQUE(exchange_name, symbol, period_type, status_compare)
+      );
+    `);
+
+    // Create open_orders table for tracking active buy/sell orders
+    await getPool().query(`
+      CREATE TABLE IF NOT EXISTS open_orders (
+        id BIGSERIAL PRIMARY KEY,
+        exchange_name VARCHAR(20) NOT NULL,
+        symbol VARCHAR(20) NOT NULL,
+        buy_order_id VARCHAR(100) NOT NULL,
+        sell_order_id VARCHAR(100),
+        buy_price NUMERIC(20, 8) NOT NULL,
+        quantity NUMERIC(20, 8) NOT NULL,
+        max_loss_percent NUMERIC(5, 2) DEFAULT 2.00,
+        current_loss_percent NUMERIC(6, 2),
+        status VARCHAR(20) DEFAULT 'ACTIVE',
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        
+        UNIQUE(exchange_name, buy_order_id, sell_order_id)
       );
     `);
 
@@ -148,6 +198,16 @@ async function initializeDatabase(): Promise<void> {
     await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_price_checks_lookup
       ON price_checks(exchange_name, period_type, symbol);
+    `);
+
+    await getPool().query(`
+      CREATE INDEX IF NOT EXISTS idx_open_orders_exchange
+      ON open_orders(exchange_name, status);
+    `);
+
+    await getPool().query(`
+      CREATE INDEX IF NOT EXISTS idx_open_orders_symbol
+      ON open_orders(symbol, status);
     `);
 
     console.log('✅ Database initialized successfully');
@@ -253,24 +313,6 @@ async function loadAllDataByExchangeName(
     // تقسیم داده‌ها براساس period_type و محدوده زمانی
     for (const row of rows.rows) {
       const periodType = row.period_type as PeriodType;
-      // const updatedTime = new Date(row.last_updated).getTime();
-      // const diffMs = now - updatedTime;
-      // console.log(periodType,row.last_updated,diffMs / (1000 * 60));
-      
-      // // فیلتر کردن براساس period
-      // let isValid = false;
-      // if (periodType === PeriodType.last1h && diffMs <= 60 * 60 * 1000) {
-      //   isValid = true;
-      // } else if (periodType === PeriodType.last24h && diffMs <= 24 * 60 * 60 * 1000) {
-      //   isValid = true;
-      // } else if (periodType === PeriodType.lastWeek && diffMs <= 7 * 24 * 60 * 60 * 1000) {
-      //   isValid = true;
-      // } else if (periodType === PeriodType.allTime) {
-      //   isValid = true;
-      // }
-
-      // if (!isValid) continue;
-
       const map = result[periodType];
 
       // اگر symbol قبلاً ثبت نشده است، آن را اضافه کنید
@@ -282,9 +324,20 @@ async function loadAllDataByExchangeName(
           status_compare: row.status_compare,
           period_type: periodType,
           difference: Number(row.difference),
-          exchange_buy_price: row.exchange_buy_price ? Number(row.exchange_buy_price) : undefined,
-          binance_sell_price: row.binance_sell_price ? Number(row.binance_sell_price) : undefined,
-          buy_volume_tmn: row.buy_volume_tmn ? Number(row.buy_volume_tmn) : undefined,
+          exchange_ask_tmn: row.exchange_ask_tmn || undefined,
+          exchange_ask_usdt: row.exchange_ask_usdt || undefined,
+          exchange_bid_tmn: row.exchange_bid_tmn || undefined,
+          exchange_bid_usdt: row.exchange_bid_usdt || undefined,
+          binance_ask_tmn: row.binance_ask_tmn || undefined,
+          binance_ask_usdt: row.binance_ask_usdt || undefined,
+          binance_bid_tmn: row.binance_bid_tmn || undefined,
+          binance_bid_usdt: row.binance_bid_usdt || undefined,
+          my_percent: row.my_percent || undefined,
+          spread: row.spread || undefined,
+          exchange_quantity_tmn: row.exchange_quantity_tmn || undefined,
+          exchange_quantity_usdt: row.exchange_quantity_usdt || undefined,
+          exchange_quantity_currency: row.exchange_quantity_currency || undefined,
+          // description: row.description ?? null,
           last_updated: row.last_updated
         });
       }
@@ -298,7 +351,86 @@ async function loadAllDataByExchangeName(
   }
 }
 
+/**
+ * Tracker داده‌ها را به جدول price_checks ذخیره کنید
+ * @param {string} exchange - نام صرافی (wallex, okex, nobitex)
+ * @param {object} openOrders - شامل symbol, status_compare, difference, exchange_ask_tmn, exchange_ask_usdt, exchange_bid_tmn, exchange_bid_usdt, binance_ask_tmn, binance_ask_usdt, binance_bid_tmn, binance_bid_usdt, my_percent, spread, exchange_quantity_tmn, exchange_quantity_usdt, exchange_quantity_currency
+ * @returns {Promise<boolean>} true اگر موفق باشد
+ */
+async function saveOrdersToDatabase(
+  exchange: 'wallex' | 'okex' | 'nobitex',
+  openOrders: CurrencyDiffTracker
+): Promise<boolean> {
+  try {
+    // Check if database is available
+    if (!isDbAvailable) {
+      console.warn(`⚠️  Database not available - skipping save for ${exchange}`);
+      return false;
+    }
 
+    // Check if pool is initialized
+    if (!pool) {
+      console.warn(`⚠️  Database pool not initialized. Skipping save for ${exchange}`);
+      return false;
+    }
+    // console.log("5:>>",[...trackerByPeriod.last1h.values()][0])
+    const periods = Object.values(PeriodType);
+
+    await getPool().query(
+      `INSERT INTO price_checks 
+          (exchange_name, symbol, status_compare, period_type, difference,
+          exchange_ask_tmn, exchange_ask_usdt, exchange_bid_tmn, exchange_bid_usdt,
+          binance_ask_tmn, binance_ask_usdt, binance_bid_tmn, binance_bid_usdt, my_percent,
+          spread, exchange_quantity_tmn, exchange_quantity_usdt, exchange_quantity_currency,
+          last_updated)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+          ON CONFLICT (exchange_name, symbol, period_type, status_compare)
+          DO UPDATE SET
+          difference = EXCLUDED.difference,
+          exchange_ask_tmn = EXCLUDED.exchange_ask_tmn,
+          exchange_ask_usdt = EXCLUDED.exchange_ask_usdt,
+          exchange_bid_tmn = EXCLUDED.exchange_bid_tmn,
+          exchange_bid_usdt = EXCLUDED.exchange_bid_usdt,
+          binance_ask_tmn = EXCLUDED.binance_ask_tmn,
+          binance_ask_usdt = EXCLUDED.binance_ask_usdt,
+          binance_bid_tmn = EXCLUDED.binance_bid_tmn,
+          binance_bid_usdt = EXCLUDED.binance_bid_usdt,
+          my_percent = EXCLUDED.my_percent,
+          spread = EXCLUDED.spread,
+          exchange_quantity_tmn = EXCLUDED.exchange_quantity_tmn,
+          exchange_quantity_usdt = EXCLUDED.exchange_quantity_usdt,
+          exchange_quantity_currency = EXCLUDED.exchange_quantity_currency,
+          last_updated = EXCLUDED.last_updated;`,
+      [
+        exchange,
+        openOrders.symbol,
+        openOrders.status_compare,
+        openOrders.period_type,
+        openOrders.difference,
+        openOrders.exchange_ask_tmn ?? null,
+        openOrders.exchange_ask_usdt ?? null,
+        openOrders.exchange_bid_tmn ?? null,
+        openOrders.exchange_bid_usdt ?? null,
+        openOrders.binance_ask_tmn ?? null,
+        openOrders.binance_ask_usdt ?? null,
+        openOrders.binance_bid_tmn ?? null,
+        openOrders.binance_bid_usdt ?? null,
+        openOrders.my_percent ?? null,
+        openOrders.spread ?? null,
+        openOrders.exchange_quantity_tmn ?? null,
+        openOrders.exchange_quantity_usdt ?? null,
+        openOrders.exchange_quantity_currency ?? null,
+        openOrders.last_updated
+      ]
+    );
+
+    console.log(`✅ Saved ${exchange} to Open_ordes (old data removed, new data upserted)`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Error saving tracker for ${exchange}:`, error);
+    return false;
+  }
+}
 /**
  * Tracker داده‌ها را به جدول price_checks ذخیره کنید
  * @param {string} exchange - نام صرافی (wallex, okex, nobitex)
@@ -346,26 +478,39 @@ async function saveTrackerToDatabase(
         [exchange, period]
       );
       // console.log("deleteee :",rows.rows);
-      
+
     }
-    
+
     // Then UPSERT new/updated records
     for (const period of periods) {
       const trackerMap = trackerByPeriod[period as keyof typeof trackerByPeriod];
       if (!trackerMap || trackerMap.size === 0) continue;
-      
+
       for (const [symbol, record] of trackerMap.entries()) {
         await getPool().query(
           `INSERT INTO price_checks 
           (exchange_name, symbol, status_compare, period_type, difference,
-          exchange_buy_price, binance_sell_price, buy_volume_tmn, last_updated)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          exchange_ask_tmn, exchange_ask_usdt, exchange_bid_tmn, exchange_bid_usdt,
+          binance_ask_tmn, binance_ask_usdt, binance_bid_tmn, binance_bid_usdt, my_percent,
+          spread, exchange_quantity_tmn, exchange_quantity_usdt, exchange_quantity_currency,
+          last_updated)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
           ON CONFLICT (exchange_name, symbol, period_type, status_compare)
           DO UPDATE SET
           difference = EXCLUDED.difference,
-          exchange_buy_price = EXCLUDED.exchange_buy_price,
-          binance_sell_price = EXCLUDED.binance_sell_price,
-          buy_volume_tmn = EXCLUDED.buy_volume_tmn,
+          exchange_ask_tmn = EXCLUDED.exchange_ask_tmn,
+          exchange_ask_usdt = EXCLUDED.exchange_ask_usdt,
+          exchange_bid_tmn = EXCLUDED.exchange_bid_tmn,
+          exchange_bid_usdt = EXCLUDED.exchange_bid_usdt,
+          binance_ask_tmn = EXCLUDED.binance_ask_tmn,
+          binance_ask_usdt = EXCLUDED.binance_ask_usdt,
+          binance_bid_tmn = EXCLUDED.binance_bid_tmn,
+          binance_bid_usdt = EXCLUDED.binance_bid_usdt,
+          my_percent = EXCLUDED.my_percent,
+          spread = EXCLUDED.spread,
+          exchange_quantity_tmn = EXCLUDED.exchange_quantity_tmn,
+          exchange_quantity_usdt = EXCLUDED.exchange_quantity_usdt,
+          exchange_quantity_currency = EXCLUDED.exchange_quantity_currency,
           last_updated = EXCLUDED.last_updated;`,
           [
             exchange,
@@ -373,9 +518,19 @@ async function saveTrackerToDatabase(
             record.status_compare,
             record.period_type,
             record.difference,
-            record.exchange_buy_price ?? null,
-            record.binance_sell_price ?? null,
-            record.buy_volume_tmn ?? null,
+            record.exchange_ask_tmn ?? null,
+            record.exchange_ask_usdt ?? null,
+            record.exchange_bid_tmn ?? null,
+            record.exchange_bid_usdt ?? null,
+            record.binance_ask_tmn ?? null,
+            record.binance_ask_usdt ?? null,
+            record.binance_bid_tmn ?? null,
+            record.binance_bid_usdt ?? null,
+            record.my_percent ?? null,
+            record.spread ?? null,
+            record.exchange_quantity_tmn ?? null,
+            record.exchange_quantity_usdt ?? null,
+            record.exchange_quantity_currency ?? null,
             record.last_updated
           ]
         );

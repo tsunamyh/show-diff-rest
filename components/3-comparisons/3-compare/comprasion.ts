@@ -44,8 +44,8 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
         nobitexOrderbooks = exchangesOrderbooksPromise.value.nobitexOrderbooks;
         const nobitexTopRowsInfo = await nobitex_priceComp(binanceOrderbooks, nobitexOrderbooks);
 
-        const combinedTopRowsInfo = [...wallexTopRowsInfo, ...okexTopRowsInfo, ...nobitexTopRowsInfo];
-        combinedTopRowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent)
+        const combinedTopRowsInfo = [...wallexTopRowsInfo/* , ...okexTopRowsInfo, ...nobitexTopRowsInfo */];
+        combinedTopRowsInfo.sort((a, b) => b.rowData.difference - a.rowData.difference)
         const combinedTopRowsInfo10 = combinedTopRowsInfo.slice(0, 22);
 
         eventEmmiter.emit("diff", JSON.stringify(combinedTopRowsInfo10));

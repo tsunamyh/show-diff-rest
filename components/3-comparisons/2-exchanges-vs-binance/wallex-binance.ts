@@ -31,12 +31,13 @@ async function getAvailableBalance(symbol: string): Promise<number> {
 }
 
 const wallexBinanceCommonSymbols = wallex_binance_common_symbols.symbols;
-const myPercent = process.env.MYPERCENT || 2.2;
+const myPercent = process.env.MYPERCENT || "2.2";
 //  * مثال: [tmnPrice, volumeCurrency, usdtPrice]
 enum WallexUsdtPairIndex {
   TMN_PRICE = 0,           // "11504590301.58"
   VOLUME_CURRENCY = 1,     // "0.008676"
-  USDT_PRICE = 2           // "91762.17"
+  USDT_PRICE = 2,           // "91762.17"
+  TMN_AMOUNT = 3            // TMN_Price * VOLUME_CURRENCY
 }
 
 // * مثال: [tmnPrice, volumeCurrency, tmn_amount]
@@ -65,26 +66,26 @@ interface RowData {
 interface RowInfo {
   exchangeName: string;
   statusbuy: string;
-  rowData: RowData;
+  rowData: CurrencyDiffTracker;
 }
 
 interface OpenOrders {
   exchange_name: string;     // exchange name
   symbol: string;            // symbol
-              // usdtvstmn/usdtvsusdt
-              // wallex ask tmn
-              // wallex ask ttr
-              // wallex bid ttr
-              // wallex bid tmn
-              // wallex qauntity
-              // binance ask ttr
-              // binance ask tmn
-              // binance bid ttr
-              // binance bid tmn
-              // difference %
-              // myPercent
-              // spread %
-              // time           
+  // usdtvstmn/usdtvsusdt
+  // wallex ask tmn
+  // wallex ask ttr
+  // wallex bid ttr
+  // wallex bid tmn
+  // wallex qauntity
+  // binance ask ttr
+  // binance ask tmn
+  // binance bid ttr
+  // binance bid tmn
+  // difference %
+  // myPercent
+  // spread %
+  // time           
 }
 let openOrdersForMonitoring = new Map<string, OpenOrders[]>()
 // Global variable to store the latest rows info
@@ -160,23 +161,24 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     const periodMap = currancyDiffTrackerByPeriod[period/*  as keyof typeof currancyDiffTrackerByPeriod */];
 
     rowsInfo.forEach(row => {
-      const { symbol, percent, wallex, binance, value } = row.rowData;
+      const { symbol, difference} = row.rowData;
+      row.rowData.period_type = period;
 
-      const tracker: CurrencyDiffTracker = {
-        exchange_name: 'wallex',
-        symbol,
-        status_compare: row.rowData.statusCompare,
-        period_type: period as PeriodType,
-        difference: percent,
-        exchange_buy_price: parseFloat(wallex[0]),
-        binance_sell_price: parseFloat(binance),
-        buy_volume_tmn: value,
-        last_updated: currentTime
-      };
+      // const tracker: CurrencyDiffTracker = {
+      //   exchange_name: 'wallex',
+      //   symbol: row.rowData.symbol,
+      //   status_compare: row.rowData.status_compare,
+      //   period_type: period as PeriodType,
+      //   difference: row.rowData.difference,
+      //   exchange_ask_tmn: ,
+      //   binance_sell_price: parseFloat(binance),
+      //   buy_volume_tmn: value,
+      //   last_updated: currentTime
+      // };
 
       // اگر symbol نیست یا percent بیشتر است، به روز کن
-      if (!periodMap.has(symbol) || percent > periodMap.get(symbol)!.difference) {
-        periodMap.set(symbol, tracker);
+      if (!periodMap.has(symbol) || difference > periodMap.get(symbol)!.difference) {
+        periodMap.set(symbol, row.rowData);
       }
 
     });
@@ -269,9 +271,8 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
     }
 
     // require('fs').writeFileSync("./fswritefiles/rowsinfo.json", JSON.stringify(rowsInfo, null, 2), 'utf-8');
-    rowsInfo.sort((a, b) => b.rowData.percent - a.rowData.percent);
-    const topRowsInfo = rowsInfo.slice(0, 10);
-    latestRowsInfo = topRowsInfo;
+    rowsInfo.sort((a, b) => b.rowData.difference - a.rowData.difference);
+    latestRowsInfo = rowsInfo.slice(0, 10);
 
     // Update currency tracker with top 10 rows
     updateCurrencyDiffTracker(rowsInfo)
@@ -299,38 +300,67 @@ async function wallex_priceComp(binanceOrderbooks: BinanceOrderbooks, wallexOrde
 console.log("mypercent:", myPercent);
 
 function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbolusdt: string, exchangeName: string) {
-  const symbol = symbolusdt.replace("USDT", "TMN")
-  const wallex_tmn_ask = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
-  const binance_tmn_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
 
-  if (wallex_tmn_ask < binance_tmn_ask) {
-    const [difference_percent, currencyAmount, amountTmn] = calcPercentAndAmounts(binanceOrderbook.ask, wallexOrderbook.ask);
+  const symbol = symbolusdt.replace("USDT", "TMN")
+  const wallex_ask_tmn = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
+  const wallex_bid_tmn = parseFloat(wallexOrderbook.bid[WallexTmnPairIndex.TMN_PRICE]);
+  const binance_ask_tmn = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
+  const binance_bid_tmn = parseFloat(binanceOrderbook.bid[BinanceIndex.TMN_PRICE]);
+
+  if (wallex_ask_tmn < binance_ask_tmn) {
+    const difference_percent = calculatePercentageDifference(
+      +binanceOrderbook.ask[BinanceIndex.TMN_PRICE],
+      +wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]
+    );
     // اختلاف درصد بین ask و bid والکس
     const askBidDifferencePercentInWallex = calculatePercentageDifference(
       parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]),
       parseFloat(wallexOrderbook.bid[WallexTmnPairIndex.TMN_PRICE])
     );
 
+    const rowData: CurrencyDiffTracker = {
+      exchange_name: exchangeName,
+      symbol: symbol.replace("USDT", "TMN"),
+      difference: difference_percent,
+      status_compare: "UsdtVsTmn",
+      // period_type: "PeriodType.last1h",
+      exchange_ask_tmn: wallex_ask_tmn.toFixed(),
+      // exchange_bid_tmn: wallex_bid_tmn.toFixed(),
+      // exchange_ask_usdt: "",
+      // exchange_bid_usdt: "",
+      binance_ask_tmn: binance_ask_tmn.toFixed(),
+      // binance_bid_tmn: binance_bid_tmn.toFixed(),
+      binance_ask_usdt: binanceOrderbook.ask[BinanceIndex.USDT_PRICE],
+      // binance_bid_usdt: binanceOrderbook.bid[BinanceIndex.USDT_PRICE],
+      exchange_quantity_tmn: wallexOrderbook.ask[WallexTmnPairIndex.TMN_Amount],
+      // exchange_quantity_usdt: "",
+      exchange_quantity_currency: wallexOrderbook.ask[WallexTmnPairIndex.VOLUME_CURRENCY],
+      spread: askBidDifferencePercentInWallex.toFixed(),
+      my_percent: myPercent.toString(),
+      description: `${exchangeName} at ${wallex_ask_tmn} Binance ${binance_ask_tmn} compare UsdtVsUsdt`,
+      last_updated: new Date().toISOString() 
+    };
+    
     if (difference_percent >= +myPercent) {
       // BUY from Wallex, then SELL in Wallex
       validateAndBuyTrade(
         symbol,
-        currencyAmount,
-        wallex_tmn_ask,
+        +rowData.exchange_quantity_currency,
+        wallex_ask_tmn,
         'BUY',
-        amountTmn,
+        +rowData.exchange_quantity_currency,
         askBidDifferencePercentInWallex
       ).then((buyResult) => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
         if (buyResult.success) {
           getAvailableBalance(symbol)
             .then(availableBalance => {
-              if (availableBalance * wallex_tmn_ask > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
+              if (availableBalance * wallex_ask_tmn > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
                 // SELL in Wallex با مقدار موجود
                 validateAndSellTrade(
                   symbol,
                   availableBalance, // استفاده از موجودی واقعی
-                  binance_tmn_ask, // ??کمی کمتر برای تضمین فروش
+                  binance_ask_tmn, // ??کمی کمتر برای تضمین فروش
                   'SELL'
                 ).then((sellResult) => {
                   // Start loss protection monitoring
@@ -360,49 +390,118 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
             });
         }
       }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
-
     }
-    return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, currencyAmount, amountTmn, symbol, "UsdtVsTmn", exchangeName);
+
+    return {
+      exchangeName,
+      statusbuy: "UsdtVsTmn",
+      rowData,
+    };
+    // return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, currencyAmount, amountTmn, symbol, "UsdtVsTmn", exchangeName);
   }
 
   return null;
 }
 
 function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symbol: string, exchangeName: string) {
-  const wallex_usdt_ask = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
-  const binance_usdt_ask = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
-  if (wallex_usdt_ask < binance_usdt_ask) {
-    console.log("|A|",wallex_usdt_ask,binance_usdt_ask);
-    const [difference_percent, amount_currency, amount_tmn] = calcPercentAndAmounts(binanceOrderbook.bid, wallexOrderbook.ask);
-    if (difference_percent >= +myPercent && amount_tmn > 500000) {
-      console.log(`\n📊(UsdtVsUsdt) Arbitrage Opportunity Found!`);
-      console.log(`Symbol: ${symbol} | Wallex Ask USDT: ${wallex_usdt_ask} | Binance Bid USDT: ${binance_usdt_ask} | Difference: ${difference_percent}% | Amount: ${amount_currency}`);
+  const wallex_ask_usdt = parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]);
+  const wallex_bid_usdt = parseFloat(wallexOrderbook.bid[WallexUsdtPairIndex.USDT_PRICE]);
+  const binance_ask_usdt = parseFloat(binanceOrderbook.ask[BinanceIndex.USDT_PRICE]);
+  const binance_bid_usdt = parseFloat(binanceOrderbook.bid[BinanceIndex.USDT_PRICE]);
 
+  if (wallex_ask_usdt < binance_ask_usdt) {
+    const difference_percent = calculatePercentageDifference(
+      +binanceOrderbook.ask[BinanceIndex.USDT_PRICE],
+      +wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]
+    );
+    // اختلاف درصد بین ask و bid والکس
+    const askBidDifferencePercentInWallex = calculatePercentageDifference(
+      parseFloat(wallexOrderbook.ask[WallexUsdtPairIndex.USDT_PRICE]),
+      parseFloat(wallexOrderbook.bid[WallexUsdtPairIndex.USDT_PRICE])
+    );
+
+    const rowData: CurrencyDiffTracker = {
+      exchange_name: exchangeName,
+      symbol: symbol,
+      difference: difference_percent,
+      status_compare: "UsdtVsUsdt",
+      period_type: PeriodType.last1h,
+      exchange_ask_usdt: wallex_ask_usdt.toFixed(),
+      // exchange_bid_usdt: wallex_bid_usdt.toFixed(),
+      exchange_ask_tmn: wallexOrderbook.ask[WallexUsdtPairIndex.TMN_PRICE],
+      // exchange_bid_tmn: wallexOrderbook.bid[WallexUsdtPairIndex.TMN_PRICE],
+      binance_ask_tmn: binance_ask_usdt.toFixed(),
+      // binance_bid_tmn: binance_bid_usdt.toFixed(),
+      binance_ask_usdt: binanceOrderbook.ask[BinanceIndex.USDT_PRICE],
+      // binance_bid_usdt: binanceOrderbook.bid[BinanceIndex.USDT_PRICE],
+      exchange_quantity_tmn: wallexOrderbook.ask[WallexUsdtPairIndex.TMN_AMOUNT],
+      // exchange_quantity_usdt: "",
+      exchange_quantity_currency: wallexOrderbook.ask[WallexUsdtPairIndex.VOLUME_CURRENCY],
+      spread: askBidDifferencePercentInWallex.toFixed(),
+      my_percent: myPercent.toString(),
+      // description: `${exchangeName} at ${wallex_ask_usdt} Binance ${binance_ask_usdt} compare UsdtVsUsdt`,
+      last_updated: new Date().toISOString() 
+    };
+    
+    if (difference_percent >= +myPercent) {
       // BUY from Wallex, then SELL in Wallex
-      // validateAndExecuteTrade(
-      //   symbol,
-      //   amount_currency,
-      //   wallex_usdt_ask,
-      //   'BUY'
-      // ).then(() => {
-      //   // دریافت موجودی واقعی قبل از فروش (از API والکس)
-      //   getAvailableBalance(symbol).then(availableBalance => {
-      //     if (availableBalance > 0) {
-      //       // SELL in Wallex با مقدار موجود
-      //       validateAndExecuteTrade(
-      //         symbol,
-      //         availableBalance, // استفاده از موجودی واقعی
-      //         binance_usdt_bid,
-      //         'SELL'
-      //       ).catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
-      //     } else {
-      //       console.warn(`⚠️ No balance available for SELL: ${symbol}`);
-      //     }
-      //   });
-      // }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
+      validateAndBuyTrade(
+        symbol,
+        +rowData.exchange_quantity_currency,
+        wallex_ask_usdt,
+        'BUY',
+        +rowData.exchange_quantity_currency,
+        askBidDifferencePercentInWallex
+      ).then((buyResult) => {
+        // دریافت موجودی واقعی قبل از فروش (از API والکس)
+        if (buyResult.success) {
+          getAvailableBalance(symbol)
+            .then(availableBalance => {
+              if (availableBalance * wallex_ask_usdt > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
+                // SELL in Wallex با مقدار موجود
+                validateAndSellTrade(
+                  symbol,
+                  availableBalance, // استفاده از موجودی واقعی
+                  binance_ask_usdt, // ??کمی کمتر برای تضمین فروش
+                  'SELL'
+                ).then((sellResult) => {
+                  // Start loss protection monitoring
+                  if (sellResult.success && buyResult.orderId && sellResult.orderId) {
+                    const maxLossPercent = 2; // 2% max loss threshold
+                    const buyPrice = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
+                    lossProtectionMonitor.startMonitoring({
+                      symbol,
+                      buyOrderId: buyResult.orderId,
+                      sellOrderId: sellResult.orderId,
+                      buyPrice,
+                      quantity: availableBalance,
+                      buyedAt: new Date(),
+                      maxLossPercent
+                    });
+                  }
+                }).
+                  catch(err => console.error(`SELL trade validation failed for ${symbol}:`, err));
+
+              } else {
+                wallexCancelOrderById(buyResult.orderId || "").then((res) => {
+                  console.log(`Cancelled BUY order for ${symbol} due to insufficient balance for SELL.${res.message}`);
+                });
+                console.warn(`⚠️ No balance available for SELL: ${symbol}`);
+
+              }
+            });
+        }
+      }).catch(err => console.error(`BUY trade validation failed for ${symbol}:`, err));
     }
-    return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, amount_currency, amount_tmn, symbol, "UsdtVsUsdt", exchangeName);
+
+    return {
+      exchangeName,
+      statusbuy: "UsdtVsUsdt",
+      rowData,
+    };
+    // return createRowTable(wallexOrderbook.ask, binanceOrderbook.bid, difference_percent, currencyAmount, amountTmn, symbol, "UsdtVsTmn", exchangeName);
   }
+
   return null;
 }
 
