@@ -5,7 +5,7 @@ import wallex_binance_common_symbols from "../../../commonSymbols/wallex_binance
 import { getAllexchangesOrderBooks, fetchExchangesOnce } from "../../2-controller/controller";
 import { BinanceOrderbooks } from "../../types/types";
 import { OkexOrderbooks, WallexOrderbooks } from "../../types/types";
-import { saveTrackerToDatabase, loadAllDataByExchangeName, CurrencyDiffTracker, PeriodType } from "../../utils/dbManager";
+import { saveTrackerToDatabase, loadAllDataByExchangeName, CurrencyDiffTracker, PeriodType, OpenOrder, saveOrdersToDatabase } from "../../utils/dbManager";
 // import { loadHistoryFromFile, saveHistoryToFile } from "../../utils/historyManager";
 import { validateAndBuyTrade, validateAndSellTrade } from "../1-purchasing/tradeValidator";
 import { wallexCancelOrderById, wallexGetBalances } from "../1-purchasing/parchasing-controller";
@@ -69,25 +69,25 @@ interface RowInfo {
   rowData: CurrencyDiffTracker;
 }
 
-interface OpenOrders {
-  exchange_name: string;     // exchange name
-  symbol: string;            // symbol
-  // usdtvstmn/usdtvsusdt
-  // wallex ask tmn
-  // wallex ask ttr
-  // wallex bid ttr
-  // wallex bid tmn
-  // wallex qauntity
-  // binance ask ttr
-  // binance ask tmn
-  // binance bid ttr
-  // binance bid tmn
-  // difference %
-  // myPercent
-  // spread %
-  // time           
-}
-let openOrdersForMonitoring = new Map<string, OpenOrders[]>()
+// interface OpenOrders {
+//   exchange_name: string;     // exchange name
+//   symbol: string;            // symbol
+//   // usdtvstmn/usdtvsusdt
+//   // wallex ask tmn
+//   // wallex ask ttr
+//   // wallex bid ttr
+//   // wallex bid tmn
+//   // wallex qauntity
+//   // binance ask ttr
+//   // binance ask tmn
+//   // binance bid ttr
+//   // binance bid tmn
+//   // difference %
+//   // myPercent
+//   // spread %
+//   // time           
+// }
+let openOrdersForMonitoring = new Map<string, OpenOrder[]>()
 // Global variable to store the latest rows info
 let latestRowsInfo: RowInfo[] = [];
 // Period-based trackers for database storage
@@ -161,7 +161,7 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
     const periodMap = currancyDiffTrackerByPeriod[period/*  as keyof typeof currancyDiffTrackerByPeriod */];
 
     rowsInfo.forEach(row => {
-      const { symbol, difference} = row.rowData;
+      const { symbol, difference } = row.rowData;
       row.rowData.period_type = period;
 
       // const tracker: CurrencyDiffTracker = {
@@ -304,8 +304,8 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
   const symbol = symbolusdt.replace("USDT", "TMN")
   const wallex_ask_tmn = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
   const wallex_bid_tmn = parseFloat(wallexOrderbook.bid[WallexTmnPairIndex.TMN_PRICE]);
-  const binance_ask_tmn = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
-  const binance_bid_tmn = parseFloat(binanceOrderbook.bid[BinanceIndex.TMN_PRICE]);
+  const binance_ask_tmn = binanceOrderbook.ask[BinanceIndex.TMN_PRICE];
+  const binance_bid_tmn = binanceOrderbook.bid[BinanceIndex.TMN_PRICE];
 
   if (wallex_ask_tmn < binance_ask_tmn) {
     const difference_percent = calculatePercentageDifference(
@@ -338,17 +338,17 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
       spread: askBidDifferencePercentInWallex.toFixed(),
       my_percent: myPercent.toString(),
       description: `${exchangeName} at ${wallex_ask_tmn} Binance ${binance_ask_tmn} compare UsdtVsUsdt`,
-      last_updated: new Date().toISOString() 
+      last_updated: new Date().toISOString()
     };
-    
+
     if (difference_percent >= +myPercent) {
       // BUY from Wallex, then SELL in Wallex
       validateAndBuyTrade(
         symbol,
-        +rowData.exchange_quantity_currency,
+        Number(rowData.exchange_quantity_currency),
         wallex_ask_tmn,
         'BUY',
-        +rowData.exchange_quantity_currency,
+        Number(rowData.exchange_quantity_tmn),
         askBidDifferencePercentInWallex
       ).then((buyResult) => {
         // دریافت موجودی واقعی قبل از فروش (از API والکس)
@@ -356,6 +356,23 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
           getAvailableBalance(symbol)
             .then(availableBalance => {
               if (availableBalance * wallex_ask_tmn > +process.env.WALLEX_MIN_TRADE_AMOUNT || 70000) {
+                let order: OpenOrder = {
+                  price: buyResult.price,
+                  origQty: buyResult.origQty,
+                  origSum: buyResult.origSum,
+                  executedPrice: buyResult.executedPrice,
+                  executedQty: buyResult.executedQty,
+                  executedSum: buyResult.executedSum,
+                  executedPercent: buyResult.executedPercent.toString(),
+                  binance_bid_tmn: binance_bid_tmn.toString(),
+                  binance_bid_usdt: binanceOrderbook.bid[BinanceIndex.USDT_PRICE],
+                  exchange_bid_tmn: wallex_bid_tmn.toString(),
+                  exchange_bid_usdt: wallexOrderbook.bid[WallexUsdtPairIndex.USDT_PRICE],
+                  order_id: buyResult.orderId,
+                  max_loss_percent: "2",
+                  status_position: "buy"
+                };
+                sendOrderTosaveDatabase(rowData, order);
                 // SELL in Wallex با مقدار موجود
                 validateAndSellTrade(
                   symbol,
@@ -440,9 +457,9 @@ function getRowTableUsdtVsUsdt(binanceOrderbook: any, wallexOrderbook: any, symb
       spread: askBidDifferencePercentInWallex.toFixed(),
       my_percent: myPercent.toString(),
       // description: `${exchangeName} at ${wallex_ask_usdt} Binance ${binance_ask_usdt} compare UsdtVsUsdt`,
-      last_updated: new Date().toISOString() 
+      last_updated: new Date().toISOString()
     };
-    
+
     if (difference_percent >= +myPercent) {
       // BUY from Wallex, then SELL in Wallex
       validateAndBuyTrade(
@@ -585,6 +602,10 @@ function createRowTable(
   }
 }
 
+async function sendOrderTosaveDatabase(rowData: CurrencyDiffTracker, order: OpenOrder) {
+  let position: OpenOrder & CurrencyDiffTracker = Object.assign(rowData, order)
+  await saveOrdersToDatabase("wallex", position);
+}
 // اجرای اولیه
 
 export { wallex_priceComp, getLatestRowsInfo, initializeTrackerWithHistory };

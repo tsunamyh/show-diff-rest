@@ -84,10 +84,20 @@ console.log({
 export interface BuyTradeValidationResult {
   success: boolean;
   reason?: string;
-  finalQuantity?: number;
+  finalQuantity?: string;
   // executedOrderId?: string;
   orderId?: string;
   stopLoss?: string | number;
+  symbol?: string;
+  type?: string;
+  side?: string;
+  price?: string;
+  origQty?: string;
+  origSum?: string;
+  executedPrice?: string;
+  executedQty?: string;
+  executedSum?: string;
+  executedPercent?: number;
 }
 
 // ==================== Trade Validator ====================
@@ -215,8 +225,18 @@ export async function validateAndBuyTrade(
       if (orderResult.success) {
         console.log(`✨ Order placed successfully!symbol: ${symbol}`);
         return {
+          symbol: orderResult.result?.symbol,
+          type: orderResult.result?.type,
+          side: orderResult.result?.side,
+          price: orderResult.result?.price,
+          origQty: orderResult.result?.origQty,
+          origSum: orderResult.result?.origSum,
+          executedPrice: orderResult.result?.executedPrice,
+          executedQty: orderResult.result?.executedQty,
+          executedSum: orderResult.result?.executedSum,
+          executedPercent: orderResult.result?.executedPercent,
           success: true,
-          finalQuantity: validAmountCurrency,
+          finalQuantity: validAmountCurrency.toString(),
           // executedOrderId: orderResult.result?.clientOrderId,
           orderId: orderResult.result?.clientOrderId,
           reason: `Order placed successfully`
@@ -263,7 +283,7 @@ export async function validateAndSellTrade(
   price: number,
   side: 'BUY' | 'SELL',
   amountTmn?: number,
-  askBidDifferencePercentInWallex?: number,
+  askBidDifferencePercentInWallex?: number
 ): Promise<BuyTradeValidationResult> {
 
   const formatted = formatOrderData(symbol, amountCurrency, price);
@@ -287,7 +307,7 @@ export async function validateAndSellTrade(
       console.log(`✨ SELL Order placed successfully! symbol: ${symbol}`);
       return {
         success: true,
-        finalQuantity: amountCurrency,
+        finalQuantity: amountCurrency.toString(),
         // executedOrderId: orderResult.result?.clientOrderId,
         orderId: orderResult.result?.clientOrderId,
         reason: `SELL Order placed successfully`

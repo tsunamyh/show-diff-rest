@@ -38,7 +38,14 @@ interface CurrencyDiffTracker {
   exchange_quantity_currency?: string;
 }
 
-interface OpenOrder extends CurrencyDiffTracker {
+interface OpenOrder {
+  price?: string;
+  origQty?: string;
+  origSum?: string;
+  executedPrice?: string;
+  executedQty?: string;
+  executedSum?: string;
+  executedPercent?: string;
   binance_bid_tmn: string;
   binance_bid_usdt: string;
   exchange_bid_tmn: string;
@@ -47,6 +54,8 @@ interface OpenOrder extends CurrencyDiffTracker {
   max_loss_percent?: string;
   status_position?: string;
 }
+
+
 
 // یک Pool برای postgres بیس (برای ساخت دیتابیس) - صرف اگر available باشد
 const adminPool = isDbAvailable ? new Pool({
@@ -190,6 +199,13 @@ async function initializeDatabase(): Promise<void> {
         order_id VARCHAR(100) NOT NULL,
         max_loss_percent VARCHAR(10),
         status_position VARCHAR(10),
+        price VARCHAR(20),
+        orig_qty VARCHAR(20),
+        orig_sum VARCHAR(20),
+        executed_price VARCHAR(20),
+        executed_qty VARCHAR(20),
+        executed_sum VARCHAR(20),
+        executed_percent VARCHAR(10),
 
         UNIQUE(exchange_name, order_id)
       );
@@ -344,12 +360,12 @@ async function loadAllDataByExchangeName(
 /**
  * Save OpenOrder data to open_orders table
  * @param {string} exchange - exchange name (wallex, okex, nobitex)
- * @param {OpenOrder} order - order data with all fields
+ * @param {OpenOrder & CurrencyDiffTracker} order - order data with all fields
  * @returns {Promise<boolean>} true if successful
  */
 async function saveOrdersToDatabase(
   exchange: 'wallex' | 'okex' | 'nobitex',
-  order: OpenOrder
+  order: OpenOrder & CurrencyDiffTracker
 ): Promise<boolean> {
   try {
     // Check if database is available
@@ -371,10 +387,11 @@ async function saveOrdersToDatabase(
           exchange_quantity_usdt, binance_ask_tmn, binance_ask_usdt, 
           my_percent, spread, last_updated, description, 
           exchange_quantity_currency, binance_bid_tmn,
-          binance_bid_usdt, exchange_bid_tmn, exchange_bid_usdt
-          order_id, max_loss_percent, status_position)
+          binance_bid_usdt, exchange_bid_tmn, exchange_bid_usdt,
+          order_id, max_loss_percent, status_position,
+          price, orig_qty, orig_sum, executed_price, executed_qty, executed_sum, executed_percent)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-                  $17, $18, $19, $20, $21, $22, $23)
+                  $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)
           ON CONFLICT DO NOTHING;`,
       [
         exchange,
@@ -399,10 +416,17 @@ async function saveOrdersToDatabase(
         order.exchange_bid_usdt ?? null,
         order.order_id ?? null,
         order.max_loss_percent ?? null,
-        order.status_position ?? null
+        order.status_position ?? null,
+        order.price ?? null,
+        order.origQty ?? null,
+        order.origSum ?? null,
+        order.executedPrice ?? null,
+        order.executedQty ?? null,
+        order.executedSum ?? null,
+        order.executedPercent ?? null
       ]
     );
-
+    
     console.log(`✅ Saved ${exchange} order to open_orders (upserted)`);
     return true;
   } catch (error) {
@@ -548,5 +572,6 @@ export {
   loadAllDataByExchangeName,
   loadAllOrdersByExchangeName,
   getDataByExchangename,
+  saveOrdersToDatabase,
   getDbStatus
 };

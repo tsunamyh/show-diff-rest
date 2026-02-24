@@ -4,6 +4,7 @@ import path from "path";
 import { getUsdtToTmnRate } from "./components/1-tracker/wallexPriceTracker";
 import './components/3-comparisons/2-exchanges-vs-binance/wallex-binance'; // Start price comparison
 import { getStartBallance } from "./components/3-comparisons/1-purchasing/parchasing-controller";
+import { loadAllOrdersByExchangeName } from "./components/utils/dbManager";
 
 const app = express()
 
@@ -56,6 +57,36 @@ app.get('/diff', function (req, res) {
     startBallance: startBallance === "0" ? "در حال دریافت..." : startBallance,
     startDate: new Date().toLocaleString()
   })
+})
+
+// API endpoint برای دریافت تمام سفارشات باز برای یک صرافی
+app.get('/api/orders/:exchange', async (req, res) => {
+  try {
+    const exchange = req.params.exchange?.toLowerCase();
+    
+    // اعتبارسنجی نام صرافی
+    if (!['wallex', 'okex', 'nobitex'].includes(exchange)) {
+      return res.status(400).json({
+        error: 'صرافی نامعتبر است',
+        validExchanges: ['wallex', 'okex', 'nobitex']
+      });
+    }
+
+    const orders = await loadAllOrdersByExchangeName(exchange as 'wallex' | 'okex' | 'nobitex');
+    
+    res.json({
+      exchange: exchange,
+      count: orders.length,
+      orders: orders,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({
+      error: 'خطا در دریافت سفارشات',
+      message: error instanceof Error ? error.message : 'خطای نامشخص'
+    });
+  }
 })
 
 // 404 - باید آخر باشد و از app.use استفاده کنید
