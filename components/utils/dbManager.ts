@@ -224,12 +224,12 @@ async function initializeDatabase(): Promise<void> {
 
     await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_open_orders_exchange
-      ON open_orders(exchange_name, status);
+      ON open_orders(exchange_name, status_compare);
     `);
 
     await getPool().query(`
       CREATE INDEX IF NOT EXISTS idx_open_orders_symbol
-      ON open_orders(symbol, status);
+      ON open_orders(symbol, status_compare);
     `);
 
     console.log('✅ Database initialized successfully');

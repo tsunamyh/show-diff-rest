@@ -81,7 +81,7 @@ const  binance_wallex_common_symbols: Coin = {
       "GRTUSDT",
       "1INCHUSDT",
       "CAKEUSDT",
-      "OMUSDT",
+      // "OMUSDT",
       "ALICEUSDT",
       "SUPERUSDT",
       "SLPUSDT",
@@ -409,10 +409,6 @@ const  binance_wallex_common_symbols: Coin = {
         },
         "CAKETMN": {
           "amount_precision": 2,
-          "price_precision": 0
-        },
-        "OMTMN": {
-          "amount_precision": 3,
           "price_precision": 0
         },
         "ALICETMN": {

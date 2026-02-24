@@ -81,7 +81,7 @@ const  binance_wallex_common_symbols: Coin = {
       "GRTUSDT",
       "1INCHUSDT",
       "CAKEUSDT",
-      "OMUSDT",
+      // "OMUSDT",
       "ALICEUSDT",
       "SUPERUSDT",
       "SLPUSDT",

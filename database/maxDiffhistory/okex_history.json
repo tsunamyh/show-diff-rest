@@ -1,23 +1,8 @@
 {
-  "timestamp": "2026-02-16T12:43:43.603Z",
+  "timestamp": "2026-02-24T11:40:21.702Z",
   "exchangeName": "okex",
   "last24h": [],
-  "lastWeek": [
-    {
-      "symbol": "RESOLVUSDT",
-      "statusCompare": "UsdtVsUsdt",
-      "maxDifference": 0.94,
-      "percentages": [
-        {
-          "time": "2/9/2026, 9:09:58 PM",
-          "value": 0.94,
-          "exchangeBuyPrice": 10756.9328,
-          "binanceSellPrice": 10857.6616,
-          "buyVolume": 41793911
-        }
-      ]
-    }
-  ],
+  "lastWeek": [],
   "allTime": [
     {
       "symbol": "RESOLVUSDT",

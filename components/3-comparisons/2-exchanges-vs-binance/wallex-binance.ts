@@ -304,8 +304,8 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
   const symbol = symbolusdt.replace("USDT", "TMN")
   const wallex_ask_tmn = parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.TMN_PRICE]);
   const wallex_bid_tmn = parseFloat(wallexOrderbook.bid[WallexTmnPairIndex.TMN_PRICE]);
-  const binance_ask_tmn = binanceOrderbook.ask[BinanceIndex.TMN_PRICE];
-  const binance_bid_tmn = binanceOrderbook.bid[BinanceIndex.TMN_PRICE];
+  const binance_ask_tmn = parseFloat(binanceOrderbook.ask[BinanceIndex.TMN_PRICE]);
+  const binance_bid_tmn = parseFloat(binanceOrderbook.bid[BinanceIndex.TMN_PRICE]);
 
   if (wallex_ask_tmn < binance_ask_tmn) {
     const difference_percent = calculatePercentageDifference(
