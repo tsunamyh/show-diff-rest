@@ -4,8 +4,8 @@ import { BinanceOrderbooks, OkexOrderbooks, WallexOrderbooks, NobitexOrderbooks 
 import { wallex_priceComp, initializeTrackerWithHistory as initWallexHistory } from "../2-exchanges-vs-binance/wallex-binance";
 import { okex_priceComp, initializeTrackerWithHistory as initOkexHistory } from "../2-exchanges-vs-binance/okex-binance";
 import { nobitex_priceComp, initializeTrackerWithHistory as initNobitexHistory } from "../2-exchanges-vs-binance/nobitex-binance";
-import { getDataByPeriod } from "../../utils/historyManager";
-import { getDataByExchangename } from "../../utils/dbManager";
+// import { getDataByPeriod } from "../../utils/historyManager";
+import { loadAllDataByExchangeName } from "../../utils/dbManager";
 
 const eventEmmiter = new EventEmitter();
 eventEmmiter.setMaxListeners(9);
@@ -69,6 +69,18 @@ async function intervalFunc(): Promise<NodeJS.Timeout> {
       console.error('Error in priceComp:', error);
     }
   }, 10000);
+}
+
+async function getDataByExchangename(exchange: 'wallex' | 'nobitex' | 'okex') {
+  let result = await loadAllDataByExchangeName(exchange)
+
+  return {
+    exchangeName: exchange,
+    last1h: [...result.last1h.values()],
+    last24h: [...result.last24h.values()],
+    lastWeek: [...result.lastWeek.values()],
+    allTime: [...result.allTime.values()]
+  }
 }
 
 export { intervalFunc, eventEmmiter };

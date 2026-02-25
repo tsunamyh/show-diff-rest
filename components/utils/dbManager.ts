@@ -542,18 +542,6 @@ async function saveTrackerToDatabase(
   }
 }
 
-async function getDataByExchangename(exchange: 'wallex' | 'nobitex' | 'okex') {
-  let result = await loadAllDataByExchangeName(exchange)
-
-  return {
-    exchangeName: exchange,
-    last1h: [...result.last1h.values()],
-    last24h: [...result.last24h.values()],
-    lastWeek: [...result.lastWeek.values()],
-    allTime: [...result.allTime.values()]
-  }
-}
-
 function getDbStatus() {
   return {
     available: isDbAvailable,
@@ -571,7 +559,6 @@ export {
   saveTrackerToDatabase,
   loadAllDataByExchangeName,
   loadAllOrdersByExchangeName,
-  getDataByExchangename,
   saveOrdersToDatabase,
   getDbStatus
 };
