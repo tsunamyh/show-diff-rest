@@ -46,6 +46,14 @@ interface CurrencyDiffTracker {
   exchange_quantity_currency?: string;
 }
 
+interface maxDiffPeriod {
+    exchangeName: "wallex" | "nobitex" | "okex";
+    last1h: CurrencyDiffTracker[];
+    last24h: CurrencyDiffTracker[];
+    lastWeek: CurrencyDiffTracker[];
+    allTime: CurrencyDiffTracker[];
+}
+
 interface HistoryFile {
   exchangeName: string;
   last1h: CurrencyDiffTracker[];
@@ -322,8 +330,10 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
   thead.innerHTML = `
     <tr style="background: #f8f9fa; border-bottom: 1px solid #ddd;">
       <th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">نماد</th>
-      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">قیمت خرید</th>
-      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">قیمت فروش</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">صرافی</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">نوع</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">قیمت خرید (TMN)</th>
+      <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">قیمت فروش (TMN)</th>
       <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">حجم</th>
       <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">درصد</th>
       <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">زمان</th>
@@ -336,7 +346,7 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
 
   if (!currencies || currencies.length === 0) {
     const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="6" style="padding: 15px; text-align: center; color: #999;">داده‌ای موجود نیست</td>`;
+    emptyRow.innerHTML = `<td colspan="8" style="padding: 15px; text-align: center; color: #999;">داده‌ای موجود نیست</td>`;
     tbody.appendChild(emptyRow);
   } else {
     currencies.forEach((item: CurrencyDiffTracker, index: number) => {
@@ -352,24 +362,28 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
       tr.addEventListener('mouseout', () => {
         tr.style.background = 'white';
       });
-      const latestPercent = item.difference ?? "-";
-      const latestTime = (new Date(item.last_updated)).toLocaleString("en-US", { timeZone: "Asia/Tehran" }) ?? "-";
-      const exchangeBuyPrice = item.exchange_ask_tmn ?? "-";
-      const binanceSellPrice = item.binance_ask_tmn ?? "-";
-      const buyVolume = item.exchange_quantity_tmn ?? "-";
 
-      const formattedBuyPrice = exchangeBuyPrice;
-      const formattedSellPrice = binanceSellPrice;
-      const formattedVolume = buyVolume;
+      const symbol = item.symbol ?? "-";
+      const exchangeName = item.exchange_name ?? "-";
+      const statusCompare = item.status_compare ?? "-";
+      const exchangePrice = item.exchange_ask_tmn ? formatPrice(item.exchange_ask_tmn) : "-";
+      const binancePrice = item.binance_ask_tmn ? formatPrice(item.binance_ask_tmn) : "-";
+      const volume = item.exchange_quantity_tmn ? parseInt(item.exchange_quantity_tmn).toLocaleString('fa-IR') : "-";
+      const percent = item.difference ?? "-";
+      const latestTime = item.last_updated 
+        ? (new Date(item.last_updated)).toLocaleString("fa-IR", { timeZone: "Asia/Tehran" }) 
+        : "-";
 
       tr.innerHTML = `
-        <td style="padding: 12px; text-align: right; font-weight: 600; color: #333;">${item.symbol}</td>
-        <td style="padding: 12px; text-align: center; color: #27ae60; font-weight: 500;">${formattedBuyPrice}</td>
-        <td style="padding: 12px; text-align: center; color: #e74c3c; font-weight: 500;">${formattedSellPrice}</td>
-        <td style="padding: 12px; text-align: center; color: #666;">${formattedVolume}</td>
+        <td style="padding: 12px; text-align: right; font-weight: 600; color: #333;">${symbol}</td>
+        <td style="padding: 12px; text-align: center; font-weight: 500; color: #667eea;">${exchangeName}</td>
+        <td style="padding: 12px; text-align: center; font-size: 12px; color: #666;">${statusCompare}</td>
+        <td style="padding: 12px; text-align: center; color: #27ae60; font-weight: 500;">${exchangePrice}</td>
+        <td style="padding: 12px; text-align: center; color: #e74c3c; font-weight: 500;">${binancePrice}</td>
+        <td style="padding: 12px; text-align: center; color: #666;">${volume}</td>
         <td style="padding: 12px; text-align: center;">
           <span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600;">
-            ${typeof latestPercent === 'number' ? latestPercent.toFixed(2) + '%' : latestPercent}
+            ${typeof percent === 'number' ? percent.toFixed(2) + '%' : percent}
           </span>
         </td>
         <td style="padding: 12px; text-align: center; color: #999; font-size: 12px;">${latestTime}</td>

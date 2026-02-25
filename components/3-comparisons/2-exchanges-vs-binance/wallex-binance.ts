@@ -103,7 +103,7 @@ async function initializeTrackerWithHistory() {
   try {
     // Load data from database - already filtered by period time in loadAllDataByExchangeName
     let loadedData = await loadAllDataByExchangeName('wallex');
-    console.log(loadedData.allTime);
+    console.log("loadedData.last1h",loadedData.last1h);
     
     // فیلتر مجدد براساس period قبل از استفاده
     for (const periodType of Object.keys(loadedData) as Array<keyof typeof loadedData>) {
@@ -161,11 +161,13 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
   const currentTime = new Date().toISOString();
 
   for (const period of Object.values(PeriodType)) {
-    const periodMap = currancyDiffTrackerByPeriod[period/*  as keyof typeof currancyDiffTrackerByPeriod */];
-
+    const periodMap = currancyDiffTrackerByPeriod[period as keyof typeof currancyDiffTrackerByPeriod];
+    
     rowsInfo.forEach(row => {
-      const { symbol, difference } = row.rowData;
-      row.rowData.period_type = period;
+      // const { symbol, difference } = row.rowData;
+      const rowData = Object.assign({},row.rowData)
+      // console.log("period:",period);
+      // row.rowData.period_type = period;
 
       // const tracker: CurrencyDiffTracker = {
       //   exchange_name: 'wallex',
@@ -180,13 +182,17 @@ async function updateCurrencyDiffTracker(rowsInfo: RowInfo[]) {
       // };
 
       // اگر symbol نیست یا percent بیشتر است، به روز کن
-      if (!periodMap.has(symbol) || difference > periodMap.get(symbol)!.difference) {
-        periodMap.set(symbol, row.rowData);
+      if (!periodMap.has(rowData.symbol) || rowData.difference > periodMap.get(rowData.symbol)!.difference) {
+        periodMap.set(rowData.symbol, rowData);
+        // console.log("rowData:",rowData.period_type);
+        
+        // periodMap.get(symbol).period_type = period
       }
 
     });
   }
-
+  // console.log("currancyDiffTrackerByPeriod.last1h: ",currancyDiffTrackerByPeriod.last1h);
+  
   // فیلتر کردن symbols بر اساس زمان قبل از ذخیره
   filterTrackerByPeriodTime(currancyDiffTrackerByPeriod);
   // ذخیره به دیتابیس
@@ -332,7 +338,7 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
       symbol: symbol.replace("USDT", "TMN"),
       difference: difference_percent,
       status_compare: "UsdtVsTmn",
-      // period_type: "PeriodType.last1h",
+      period_type: PeriodType.last1h,
       exchange_ask_tmn: formatted_exchange_ask_tmn,
       // exchange_bid_tmn: wallex_bid_tmn.toFixed(),
       // exchange_ask_usdt: "",
