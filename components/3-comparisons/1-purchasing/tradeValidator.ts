@@ -37,9 +37,15 @@ function getPrecision(symbol: string): { amount: number; price: number } {
 }
 
 /**
- * Format quantity and price based on symbol precision
+ * Format quantity and price based on symbol precision in Wallex
+ * @param symbol - Trading pair symbol (e.g., BTCTMN, ETHUSDT)
+ * @param quantity - The quantity to format
+ * @param price - The price to format
+ * @return Object with formatted quantity and price as strings
+ * 
+ * This function ensures that the quantity and price are formatted according to the precision requirements of the trading pair in Wallex. It removes trailing zeros and formats the numbers to the correct decimal places.}
  */
-function formatOrderData(
+export function formatOrderData(
   symbol: string,
   quantity: number,
   price: number

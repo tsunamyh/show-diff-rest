@@ -18,16 +18,7 @@ interface RowsInfo {
 interface RowInfo {
   exchangeName: string;
   statusbuy: string;
-  rowData: {
-    symbol: string;
-    percent: number;
-    wallex?: [string, string];
-    okex?: [string, string];
-    binance: string;
-    value: number;
-    description: string;
-    statusCompare: string;
-  };
+  rowData: CurrencyDiffTracker;
 }
 enum PeriodType {
   last1h = 'last1h',
@@ -40,12 +31,19 @@ interface CurrencyDiffTracker {
   exchange_name: string;
   symbol: string;
   status_compare: string;
-  period_type: PeriodType;
+  period_type?: PeriodType;
   difference: number;
-  exchange_buy_price?: number;
-  binance_sell_price?: number;
-  buy_volume_tmn?: number;
+  exchange_ask_tmn: string; // exchange_buy_price?: number;
+  exchange_ask_usdt?: string;
+  exchange_quantity_tmn: string;  //buy_volume_tmn?: number;
+  exchange_quantity_usdt?: string;  //buy_volume_tmn?: number;
+  binance_ask_tmn: string;
+  binance_ask_usdt?: string;
+  my_percent: string;
+  spread: string;  //askBidDifferencePercentInevery exchange
   last_updated?: string;
+  description?: string;
+  exchange_quantity_currency?: string;
 }
 
 interface HistoryFile {
@@ -356,13 +354,13 @@ function createPeriodTable(container: HTMLElement, title: string, currencies: Cu
       });
       const latestPercent = item.difference ?? "-";
       const latestTime = (new Date(item.last_updated)).toLocaleString("en-US", { timeZone: "Asia/Tehran" }) ?? "-";
-      const exchangeBuyPrice = item.exchange_buy_price ?? "-";
-      const binanceSellPrice = item.binance_sell_price ?? "-";
-      const buyVolume = item.buy_volume_tmn ?? "-";
+      const exchangeBuyPrice = item.exchange_ask_tmn ?? "-";
+      const binanceSellPrice = item.binance_ask_tmn ?? "-";
+      const buyVolume = item.exchange_quantity_tmn ?? "-";
 
-      const formattedBuyPrice = typeof exchangeBuyPrice === 'number' ? exchangeBuyPrice.toLocaleString('fa-IR', { maximumFractionDigits: 2 }) : exchangeBuyPrice;
-      const formattedSellPrice = typeof binanceSellPrice === 'number' ? binanceSellPrice.toLocaleString('fa-IR', { maximumFractionDigits: 2 }) : binanceSellPrice;
-      const formattedVolume = typeof buyVolume === 'number' ? buyVolume.toLocaleString('fa-IR') : buyVolume;
+      const formattedBuyPrice = exchangeBuyPrice;
+      const formattedSellPrice = binanceSellPrice;
+      const formattedVolume = buyVolume;
 
       tr.innerHTML = `
         <td style="padding: 12px; text-align: right; font-weight: 600; color: #333;">${item.symbol}</td>
@@ -393,7 +391,7 @@ function printClientSize(size) {
   }
 }
 
-function printData(rowsInfo) {
+function printData(rowsInfo : RowInfo[]) {
   clearTable();
 
   if (!rowsInfo || rowsInfo.length === 0) {
@@ -434,7 +432,7 @@ function printData(rowsInfo) {
     tr.appendChild(tdExchangeName);
 
     // Get exchange price (wallex or okex)
-    const exchangePrice = rowData.wallex?.[0] || rowData.okex?.[0] || "0";
+    const exchangePrice = rowData.exchange_ask_tmn || "0";
     
     // Buy Price (خرید)
     const tdBuyPrice = document.createElement('td');
@@ -445,20 +443,20 @@ function printData(rowsInfo) {
 
     // Sell Price (فروش)
     const tdSellPrice = document.createElement('td');
-    tdSellPrice.textContent = formatPrice(rowData.binance);
+    tdSellPrice.textContent = formatPrice(rowData.binance_ask_tmn || "0");
     tdSellPrice.style.color = '#e74c3c';
     tdSellPrice.style.fontWeight = '500';
     tr.appendChild(tdSellPrice);
 
     // Percent
     const tdPercent = document.createElement('td');
-    tdPercent.textContent = rowData.percent.toFixed(2) + '%';
-    tdPercent.className = rowData.percent > 0 ? 'percent-positive' : 'percent-negative';
+    tdPercent.textContent = rowData.difference + '%';
+    tdPercent.className = rowData.difference > 0 ? 'percent-positive' : 'percent-negative';
     tr.appendChild(tdPercent);
 
     // Value
     const tdValue = document.createElement('td');
-    tdValue.textContent = parseInt(rowData.value).toLocaleString('fa-IR');
+    tdValue.textContent = parseInt(rowData.exchange_quantity_tmn).toLocaleString('fa-IR');
     tr.appendChild(tdValue);
 
     tbody.appendChild(tr);
