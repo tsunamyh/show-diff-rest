@@ -312,7 +312,8 @@ function getRowTableUsdtVsTmn(binanceOrderbook: any, wallexOrderbook: any, symbo
     );
     const {
       quantity: formatted_exchange_quantity_currency,
-      price: formatted_exchange_ask_tmn } = formatOrderData(
+      price: formatted_exchange_ask_tmn 
+    } = formatOrderData(
         symbol,
         parseFloat(wallexOrderbook.ask[WallexTmnPairIndex.VOLUME_CURRENCY]),
         wallex_ask_tmn
@@ -530,79 +531,14 @@ function exsistAskBid(binanceOrderbook: any, wallexOrderbook: any): boolean {
   );
 }
 
-function calcPercentAndAmounts(binanceBidOrder: any, wallexAskOrder: any): [number, number, number] {
-  // binanceBidOrder[BinanceIndex.TMN_PRICE] = TMN Price
-  // wallexAskOrder[WallexTmnPairIndex.TMN_PRICE] = TMN Price
-  const percent = calculatePercentageDifference(
-    +binanceBidOrder[BinanceIndex.TMN_PRICE],
-    +wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]
-  );
-  const currencyAmount = +wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY];
-  const amountTmn = +wallexAskOrder[WallexTmnPairIndex.TMN_Amount];
-  return [percent, currencyAmount, amountTmn];
-}
-
 function calculatePercentageDifference(binancePrice: number, buyPrice: number): number {
   const priceDifference = binancePrice - buyPrice;
   const percentageDifference = (priceDifference / buyPrice) * 100;
   return Number(Math.floor(percentageDifference * 100) / 100);
 }
 
-// function createRowTable(
-//   wallexAskOrder: any,
-//   binanceAskOrder: any,
-//   difference_percent: number,
-//   amount_currency: number,
-//   amount_tmn: number,
-//   symbol: string,
-//   statusCompare: string,
-//   exchangeName: string
-// ) {
-//   if (statusCompare === "UsdtVsTmn") {
-//     const rowData: RowData = {
-//       symbol: symbol.replace("USDT", "TMN"),
-//       percent: difference_percent,
-//       wallex: [
-//         wallexAskOrder[WallexTmnPairIndex.TMN_PRICE],
-//         wallexAskOrder[WallexTmnPairIndex.VOLUME_CURRENCY]
-//       ],
-//       binance: binanceAskOrder[BinanceIndex.TMN_PRICE],
-//       value: amount_tmn,
-//       description: `${exchangeName} at ${wallexAskOrder[WallexTmnPairIndex.TMN_PRICE]} Binance ${binanceAskOrder[BinanceIndex.TMN_PRICE]} compare ${statusCompare}`,
-//       statusCompare: statusCompare
-//     };
-
-//     const statusbuy = statusCompare;
-//     return {
-//       exchangeName,
-//       statusbuy,
-//       rowData,
-//     };
-//   }
-//   if (statusCompare === "UsdtVsUsdt") {
-//     const rowData: RowData = {
-//       symbol: symbol,
-//       percent: difference_percent,
-//       wallex: [
-//         wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE],
-//         wallexAskOrder[WallexUsdtPairIndex.VOLUME_CURRENCY]
-//       ],
-//       binance: binanceAskOrder[BinanceIndex.USDT_PRICE],
-//       value: amount_tmn,
-//       description: `${exchangeName} at ${wallexAskOrder[WallexUsdtPairIndex.USDT_PRICE]} Binance ${binanceAskOrder[BinanceIndex.USDT_PRICE]} compare ${statusCompare}`,
-//       statusCompare: statusCompare
-//     };
-//     const statusbuy = statusCompare;
-//     return {
-//       exchangeName,
-//       statusbuy,
-//       rowData,
-//     };
-//   }
-// }
-
 async function sendOrderTosaveDatabase(rowData: CurrencyDiffTracker, order: OpenOrder) {
-  let position: OpenOrder & CurrencyDiffTracker = Object.assign(rowData, order)
+  let position: OpenOrder & CurrencyDiffTracker = Object.assign({}, rowData, order);
   await saveOrdersToDatabase("wallex", position);
 }
 // اجرای اولیه
