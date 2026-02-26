@@ -103,7 +103,7 @@ async function initializeTrackerWithHistory() {
   try {
     // Load data from database - already filtered by period time in loadAllDataByExchangeName
     let loadedData = await loadAllDataByExchangeName('wallex');
-    console.log("loadedData.last1h",loadedData.last1h);
+    // console.log("loadedData.last1h",loadedData.last1h);
     
     // فیلتر مجدد براساس period قبل از استفاده
     for (const periodType of Object.keys(loadedData) as Array<keyof typeof loadedData>) {
