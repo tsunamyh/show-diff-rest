@@ -23,7 +23,7 @@ interface CurrencyDiffTracker {
   exchange_name: string;
   symbol: string;
   status_compare: string;
-  period_type?: PeriodType;
+  period_type?: PeriodType | null;
   difference: number;
   exchange_ask_tmn: string; // exchange_buy_price?: number;
   exchange_ask_usdt?: string;

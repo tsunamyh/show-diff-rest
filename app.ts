@@ -63,7 +63,6 @@ app.get('/diff', function (req, res) {
 app.get('/api/orders/:exchange', async (req, res) => {
   try {
     const exchange = req.params.exchange?.toLowerCase();
-    
     // اعتبارسنجی نام صرافی
     if (!['wallex', 'okex', 'nobitex'].includes(exchange)) {
       return res.status(400).json({
