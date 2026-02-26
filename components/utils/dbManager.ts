@@ -55,8 +55,6 @@ interface OpenOrder {
   status_position?: string;
 }
 
-
-
 // یک Pool برای postgres بیس (برای ساخت دیتابیس) - صرف اگر available باشد
 const adminPool = isDbAvailable ? new Pool({
   user: process.env.DB_USER || 'postgres',
